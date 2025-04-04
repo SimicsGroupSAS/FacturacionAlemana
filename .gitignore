@@ -1,0 +1,35 @@
+# Archivos y carpetas de entorno
+.vscode/
+.env
+
+# Archivos de compilación
+bin/
+obj/
+
+# Archivos temporales
+*.tmp
+*.log
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de usuario
+*.user
+*.suo
+
+# Archivos de paquetes
+*.nupkg
+packages/
+
+# Archivos de publicación
+publish/
+*.publishsettings
+
+# Otros
+*.bak
+*.swp
+*.lock
+*.cache
+*.pid
+*.seed

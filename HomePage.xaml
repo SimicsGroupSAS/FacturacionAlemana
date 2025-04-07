@@ -1,0 +1,55 @@
+<Page x:Class="FacturacionAlemana.HomePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="HomePage">
+    <Grid Background="Transparent">
+        <StackPanel Width="400" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center" 
+                    Background="Transparent"
+                    Margin="20">
+            
+            <ui:Card Margin="0,0,0,20" Background="{DynamicResource ControlFillColorDefaultBrush}">
+                <StackPanel>
+                    <ui:SymbolIcon Symbol="Document48" 
+                                FontSize="64"
+                                Margin="0,20,0,10"
+                                HorizontalAlignment="Center"/>
+                    
+                    <TextBlock Text="Generador de Facturas"
+                            FontSize="24"
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,20"
+                            HorizontalAlignment="Center"/>
+                    
+                    <ui:Button
+                        Icon="DocumentPdf24"
+                        Appearance="Primary"
+                        Content="Cargar XML" 
+                        Width="150" 
+                        Height="40" 
+                        Margin="0,10"
+                        HorizontalAlignment="Center"
+                        Click="OnLoadXmlClick"/>
+                        
+                    <ui:Button
+                        Icon="ArrowExport24"
+                        Appearance="Success"
+                        Content="Generar PDF" 
+                        Width="150" 
+                        Height="40" 
+                        Margin="0,10,0,20"
+                        HorizontalAlignment="Center"
+                        Click="OnGeneratePdfClick"/>
+
+                    <TextBlock x:Name="StatusText" 
+                             Margin="20,0,20,20" 
+                             TextAlignment="Center"
+                             TextWrapping="Wrap"
+                             Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+            </ui:Card>
+        </StackPanel>
+    </Grid>
+</Page>

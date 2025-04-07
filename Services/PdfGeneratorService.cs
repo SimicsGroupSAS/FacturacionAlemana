@@ -2,6 +2,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using FacturacionAlemana.Models;
+using System.IO;
 
 namespace FacturacionAlemana.Services
 {
@@ -18,9 +19,16 @@ namespace FacturacionAlemana.Services
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4);
+                    page.Size(PageSizes.A4); // Cambiar tamaño de la página a carta
                     page.Margin(2, Unit.Centimetre);
-                    page.Content().Column(column =>
+
+                    var plantillaPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "plantilla.png");
+                    if (File.Exists(plantillaPath))
+                    {
+                        page.Background().Image(plantillaPath, ImageScaling.FitArea);
+                    }
+
+                    page.Content().PaddingVertical(50).Column(column =>
                     {
                         // Título centrado
                         column.Item().AlignCenter().Text("Factura").FontSize(30).FontFamily("Century Gothic").Bold();
@@ -129,6 +137,41 @@ namespace FacturacionAlemana.Services
                                 table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text($"{precioUnitario:F2} {factura.CurrencyID}").FontSize(10);
                                 table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text($"{precioTotal:F2} {factura.CurrencyID}").FontSize(10);
                             }
+                        });
+
+                        // Agregar dos columnas debajo de la tabla
+                        column.Item().Row(row =>
+                        {
+                            // Columna izquierda: Condiciones de Pago
+                            row.RelativeItem(1).PaddingRight(10).Column(leftColumn =>
+                            {
+                                leftColumn.Item().Text("Condiciones de Pago").FontSize(10).Bold();
+                                leftColumn.Item().Text(factura.PaymentDescription).FontSize(10);
+                            });
+
+                            // Columna derecha: subdividida en dos columnas
+                            row.RelativeItem(1).Column(rightColumn =>
+                            {
+                                rightColumn.Item().Row(subRow =>
+                                {
+                                    subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Valor Neto").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.BasisAmount} {factura.CurrencyID}").FontSize(10);
+                                });
+                                rightColumn.Item().Row(subRow =>
+                                {
+                                    subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Impuesto Total").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.CalculatedAmount} {factura.CurrencyID}").FontSize(10);
+                                });
+                                rightColumn.Item().Row(subRow =>
+                                {
+                                    subRow.RelativeItem(1).BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Height(1);
+                                });
+                                rightColumn.Item().Row(subRow =>
+                                {
+                                    subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Total General").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.GrandTotalAmount} {factura.CurrencyID}").FontSize(10);
+                                });
+                            });
                         });
                     });
                 });

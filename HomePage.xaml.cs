@@ -24,7 +24,9 @@ namespace FacturacionAlemana
                 if (filePath == null) return;
 
                 factura = XmlReaderService.LeerFacturaDesdeXml(filePath);
-                StatusText.Text = $"Factura cargada: Cliente - {factura.Cliente}, Total - {factura.Total:C}";
+                // Mostrar el nombre del archivo en lugar de "Factura cargada"
+                string fileName = System.IO.Path.GetFileName(filePath);
+                StatusText.Text = $"Archivo cargado: {fileName}";
             }
             catch (Exception ex)
             {

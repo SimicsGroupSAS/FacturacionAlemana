@@ -31,7 +31,7 @@ namespace FacturacionAlemana.Services
                     page.Content().PaddingVertical(50).Column(column =>
                     {
                         // Título centrado
-                        column.Item().AlignCenter().Text("Factura").FontSize(30).FontFamily("Century Gothic").Bold();
+                        column.Item().AlignCenter().Text("Rechnung").FontSize(30).FontFamily("Century Gothic").Bold();
 
                         // Línea horizontal con margen hacia abajo
                         column.Item().Row(row =>
@@ -53,9 +53,9 @@ namespace FacturacionAlemana.Services
                             {
                                 leftColumn.Item().Text($"{factura.SellerName}").FontSize(12).Bold();
                                 leftColumn.Item().Text($"{factura.SellerLineOne}, {factura.SellerPostcodeCode} {factura.SellerCityName}, {factura.SellerCountryID}").FontSize(10);
-                                leftColumn.Item().Text($"Nombre de Comprador: {factura.BuyerName}").FontSize(10);
-                                leftColumn.Item().Text($"Persona de Contacto: {factura.BuyerPersonName}").FontSize(10);
-                                leftColumn.Item().Text($"Dirección: {factura.BuyerCityName}, {factura.BuyerPostcodeCode}, {factura.BuyerCountryID}").FontSize(10);
+                                leftColumn.Item().Text($"Käufername: {factura.BuyerName}").FontSize(10);
+                                leftColumn.Item().Text($"Kontaktperson: {factura.BuyerPersonName}").FontSize(10);
+                                leftColumn.Item().Text($"Adresse: {factura.BuyerCityName}, {factura.BuyerPostcodeCode}, {factura.BuyerCountryID}").FontSize(10);
                             });
 
                             // Columna derecha dividida en filas
@@ -63,38 +63,38 @@ namespace FacturacionAlemana.Services
                             {
                                 rightColumn.Item().Row(subRow =>
                                 {
-                                    subRow.RelativeItem(1).AlignLeft().Text("Factura").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).AlignLeft().Text("Rechnung").FontSize(10).Bold();
                                     subRow.RelativeItem(1).AlignRight().Text(factura.IdElement).FontSize(10);
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {
-                                    subRow.RelativeItem(1).AlignLeft().Text("Fecha").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).AlignLeft().Text("Datum").FontSize(10).Bold();
                                     subRow.RelativeItem(1).AlignRight().Text(factura.DueDate).FontSize(10);
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {
-                                    subRow.RelativeItem(1).AlignLeft().Text("ID Vendedor").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).AlignLeft().Text("Verkäufer-ID").FontSize(10).Bold();
                                     subRow.RelativeItem(1).AlignRight().Text(factura.SellerVATID).FontSize(10);
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {
-                                    subRow.RelativeItem(1).AlignLeft().Text("Persona de Contacto").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).AlignLeft().Text("Kontaktperson").FontSize(10).Bold();
                                     subRow.RelativeItem(1).AlignRight().Text(factura.SellerPersonName).FontSize(10);
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {
-                                    subRow.RelativeItem(1).AlignLeft().Text("Teléfono").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).AlignLeft().Text("Telefon").FontSize(10).Bold();
                                     subRow.RelativeItem(1).AlignRight().Text(factura.SellerCompleteNumber).FontSize(10);
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {
-                                    subRow.RelativeItem(1).AlignLeft().Text("Email").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).AlignLeft().Text("E-Mail").FontSize(10).Bold();
                                     subRow.RelativeItem(1).AlignRight().Text(factura.SellerEmail).FontSize(10);
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {
-                                    subRow.RelativeItem(1).AlignLeft().Text("Páginas").FontSize(10).Bold();
-                                    subRow.RelativeItem(1).AlignRight().Text($"{pageNumber} de {totalPages}").FontSize(10);
+                                    subRow.RelativeItem(1).AlignLeft().Text("Seiten").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).AlignRight().Text($"{pageNumber} von {totalPages}").FontSize(10);
                                 });
                             });
                         });
@@ -105,20 +105,20 @@ namespace FacturacionAlemana.Services
                             table.ColumnsDefinition(columns =>
                             {
                                 columns.RelativeColumn(1); // ID
-                                columns.RelativeColumn(3); // Descripción
-                                columns.RelativeColumn(1); // Cantidad
-                                columns.RelativeColumn(1); // Precio Unitario
-                                columns.RelativeColumn(1); // Precio Total
+                                columns.RelativeColumn(3); // Beschreibung
+                                columns.RelativeColumn(1); // Menge
+                                columns.RelativeColumn(1); // Einzelpreis
+                                columns.RelativeColumn(1); // Gesamtpreis
                             });
 
                             // Encabezados de la tabla
                             table.Header(header =>
                             {
                                 header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("ID").FontSize(10).Bold();
-                                header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("Descripción").FontSize(10).Bold();
-                                header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("Cantidad").FontSize(10).Bold();
-                                header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("Precio Unitario").FontSize(10).Bold();
-                                header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("Precio Total").FontSize(10).Bold();
+                                header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("Beschreibung").FontSize(10).Bold();
+                                header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("Menge").FontSize(10).Bold();
+                                header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("Einzelpreis").FontSize(10).Bold();
+                                header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("Gesamtpreis").FontSize(10).Bold();
                             });
 
                             // Filas de la tabla
@@ -145,7 +145,7 @@ namespace FacturacionAlemana.Services
                             // Columna izquierda: Condiciones de Pago
                             row.RelativeItem(1).PaddingRight(10).Column(leftColumn =>
                             {
-                                leftColumn.Item().Text("Condiciones de Pago").FontSize(10).Bold();
+                                leftColumn.Item().Text("Zahlungsbedingungen").FontSize(10).Bold();
                                 leftColumn.Item().Text(factura.PaymentDescription).FontSize(10);
                             });
 
@@ -154,12 +154,12 @@ namespace FacturacionAlemana.Services
                             {
                                 rightColumn.Item().Row(subRow =>
                                 {
-                                    subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Valor Neto").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Netto-Wert").FontSize(10).Bold();
                                     subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.BasisAmount} {factura.CurrencyID}").FontSize(10);
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {
-                                    subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Impuesto Total").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Gesamtsteuer").FontSize(10).Bold();
                                     subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.CalculatedAmount} {factura.CurrencyID}").FontSize(10);
                                 });
                                 rightColumn.Item().Row(subRow =>
@@ -168,7 +168,7 @@ namespace FacturacionAlemana.Services
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {
-                                    subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Total General").FontSize(10).Bold();
+                                    subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Gesamtbetrag").FontSize(10).Bold();
                                     subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.GrandTotalAmount} {factura.CurrencyID}").FontSize(10);
                                 });
                             });

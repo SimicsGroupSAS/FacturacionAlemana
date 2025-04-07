@@ -3,6 +3,7 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using FacturacionAlemana.Models;
 using System.IO;
+using System.Reflection;
 
 namespace FacturacionAlemana.Services
 {
@@ -22,10 +23,19 @@ namespace FacturacionAlemana.Services
                     page.Size(PageSizes.A4); // Cambiar tamaño de la página a carta
                     page.Margin(2, Unit.Centimetre);
 
-                    var plantillaPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "plantilla.png");
-                    if (File.Exists(plantillaPath))
+                    var assembly = Assembly.GetExecutingAssembly();
+                    var resourceName = "FacturacionAlemana.Assets.plantilla.png"; // Ruta del recurso embebido
+
+                    using (var stream = assembly.GetManifestResourceStream(resourceName))
                     {
-                        page.Background().Image(plantillaPath, ImageScaling.FitArea);
+                        if (stream != null)
+                        {
+                            page.Background().Image(stream, ImageScaling.FitArea);
+                        }
+                        else
+                        {
+                            throw new FileNotFoundException("No se pudo cargar la plantilla embebida.");
+                        }
                     }
 
                     page.Content().PaddingVertical(50).Column(column =>

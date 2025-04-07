@@ -7,12 +7,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <BasePath>.</BasePath>
+    <ApplicationIcon>Assets\icono.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="QuestPDF" Version="2023.4.0" />
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="WPF-UI" Version="4.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\icono.ico" />
+    <EmbeddedResource Include="Assets\plantilla.png" />
   </ItemGroup>
 
 </Project>

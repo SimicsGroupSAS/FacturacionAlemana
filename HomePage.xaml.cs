@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 using FacturacionAlemana.Models;
 using FacturacionAlemana.Services;
 using FacturacionAlemana.Utils;
@@ -14,6 +15,7 @@ namespace FacturacionAlemana
         public HomePage()
         {
             InitializeComponent();
+            LoadIcon();
         }
 
         private void OnLoadXmlClick(object sender, RoutedEventArgs e)
@@ -52,6 +54,20 @@ namespace FacturacionAlemana
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al generar el PDF: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void LoadIcon()
+        {
+            try
+            {
+                Uri iconUri = new Uri("pack://application:,,,/Assets/icono.ico", UriKind.Absolute);
+                BitmapImage iconImage = new BitmapImage(iconUri);
+                IconImg.Source = iconImage;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar el ícono: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

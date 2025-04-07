@@ -30,6 +30,10 @@ namespace FacturacionAlemana.Services
                         {
                             row.RelativeItem().BorderBottom(1).BorderColor(Colors.Black).Height(1);
                         });
+                        column.Item().Row(row =>
+                        {
+                            row.RelativeItem().BorderBottom(1).BorderColor(Colors.Black).Height(1);
+                        });
 
                         column.Item().PaddingTop(15); // Agregar espacio debajo de la línea horizontal
 
@@ -110,17 +114,20 @@ namespace FacturacionAlemana.Services
                             });
 
                             // Filas de la tabla
-                            foreach (var producto in factura.Productos)
+                            for (int i = 0; i < factura.Productos.Count; i++)
                             {
+                                var producto = factura.Productos[i];
                                 var cantidad = producto.Cantidad / 10000000; // Ajustar cantidad
                                 var precioUnitario = producto.PrecioUnitario / 10000000; // Ajustar precio unitario
                                 var precioTotal = cantidad * precioUnitario; // Calcular precio total
 
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).AlignCenter().Text(producto.Id).FontSize(10);
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).AlignCenter().Text(producto.Descripcion).FontSize(10);
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).AlignCenter().Text(cantidad.ToString("F0")).FontSize(10);
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).AlignCenter().Text($"{precioUnitario:F2} {factura.CurrencyID}").FontSize(10);
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).AlignCenter().Text($"{precioTotal:F2} {factura.CurrencyID}").FontSize(10);
+                                var borderColor = (i == factura.Productos.Count - 1) ? Colors.Black : Colors.Grey.Lighten2; // Última línea negra
+
+                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text(producto.Id).FontSize(10);
+                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text(producto.Descripcion).FontSize(10);
+                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text(cantidad.ToString("F0")).FontSize(10);
+                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text($"{precioUnitario:F2} {factura.CurrencyID}").FontSize(10);
+                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text($"{precioTotal:F2} {factura.CurrencyID}").FontSize(10);
                             }
                         });
                     });

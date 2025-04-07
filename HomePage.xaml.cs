@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using System.Diagnostics;
 using FacturacionAlemana.Models;
 using FacturacionAlemana.Services;
 using FacturacionAlemana.Utils;
@@ -47,7 +48,9 @@ namespace FacturacionAlemana
                     return;
                 }
 
-                var outputPath = Path.Combine(AppContext.BaseDirectory, "Factura.pdf");
+                string rutaReal = Process.GetCurrentProcess().MainModule?.FileName ?? throw new InvalidOperationException("No se pudo determinar la ruta del ejecutable.");
+                var directorioReal = Path.GetDirectoryName(rutaReal) ?? throw new InvalidOperationException("No se pudo determinar el directorio del ejecutable.");
+                var outputPath = Path.Combine(directorioReal, "Factura.pdf");
                 PdfGeneratorService.GenerarFacturaPdf(factura, outputPath);
                 StatusText.Text = $"PDF generado: {outputPath}";
                 MessageBox.Show("Factura generada exitosamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);

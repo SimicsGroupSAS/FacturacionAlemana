@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -46,7 +47,7 @@ namespace FacturacionAlemana
                     return;
                 }
 
-                var outputPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Factura.pdf");
+                var outputPath = Path.Combine(AppContext.BaseDirectory, "Factura.pdf");
                 PdfGeneratorService.GenerarFacturaPdf(factura, outputPath);
                 StatusText.Text = $"PDF generado: {outputPath}";
                 MessageBox.Show("Factura generada exitosamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);

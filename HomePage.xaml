@@ -33,7 +33,16 @@
                         Margin="0,10"
                         HorizontalAlignment="Center"
                         Click="OnLoadXmlClick"/>
-                        
+                          <ui:Button
+                        Icon="Eye24"
+                        Appearance="Secondary"
+                        Content="Previsualizar" 
+                        Width="150" 
+                        Height="40" 
+                        Margin="0,10"
+                        HorizontalAlignment="Center"
+                        Click="OnPreviewClick"/>
+                    
                     <ui:Button
                         Icon="ArrowExport24"
                         Appearance="Success"

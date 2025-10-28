@@ -1,0 +1,58 @@
+<rsm:CrossIndustryInvoice xmlns:a="urn:un:unece:uncefact:data:standard:QualifiedDataType:100" xmlns:qdt="urn:un:unece:uncefact:data:standard:QualifiedDataType:10" xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100" xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:2">
+  <rsm:ExchangedDocumentContext>
+    <ram:BusinessProcessSpecifiedDocumentContextParameter>
+      <ram:ID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</ram:ID>
+    </ram:BusinessProcessSpecifiedDocumentContextParameter>
+    <ram:GuidelineSpecifiedDocumentContextParameter>
+      <ram:ID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</ram:ID>
+    </ram:GuidelineSpecifiedDocumentContextParameter>
+  </rsm:ExchangedDocumentContext>
+  <rsm:ExchangedDocument>
+    <ram:ID>G25R-077</ram:ID>
+    <ram:TypeCode>380</ram:TypeCode>
+    <ram:IssueDateTime>
+      <udt:DateTimeString format="102">20251020</udt:DateTimeString>
+    </ram:IssueDateTime>
+    <ram:IncludedNote>
+      <ram:Content>Ihre Bestellung Nr.:4576178913</ram:Content>
+    </ram:IncludedNote>
+    <ram:IncludedNote>
+      <ram:Content>Ihre Auftrag Nr.:G25A-048</ram:Content>
+    </ram:IncludedNote>
+    <ram:IncludedNote>
+      <ram:Content>USt-ID: </ram:Content>
+    </ram:IncludedNote>
+  </rsm:ExchangedDocument>
+  <rsm:SupplyChainTradeTransaction>
+<ram:IncludedSupplyChainTradeLineItem>
+<ram:AssociatedDocumentLineDocument>
+<ram:LineID>1</ram:LineID>
+</ram:AssociatedDocumentLineDocument>
+<ram:SpecifiedTradeProduct>
+<ram:SellerAssignedID>70495</ram:SellerAssignedID>
+<ram:Name>100% vom Auftragswert  Ihre Bestellungspos. 10</ram:Name>
+</ram:SpecifiedTradeProduct>
+<ram:SpecifiedLineTradeAgreement>
+<ram:NetPriceProductTradePrice>
+<ram:ChargeAmount>1035.5
+1035</ram:ChargeAmount>
+</ram:NetPriceProductTradePrice>
+</ram:SpecifiedLineTradeAgreement>
+<ram:SpecifiedLineTradeDelivery>
+<ram:BilledQuantity unitCode="C62">1</ram:BilledQuantity>
+</ram:SpecifiedLineTradeDelivery>
+<ram:SpecifiedLineTradeSettlement>
+<ram:ApplicableTradeTax>
+<ram:TypeCode>VAT</ram:TypeCode>
+<ram:CategoryCode>S</ram:CategoryCode>
+<ram:RateApplicablePercent>19.0</ram:RateApplicablePercent>
+</ram:ApplicableTradeTax>
+<ram:SpecifiedTradeSettlementLineMonetarySummation>
+<ram:LineTotalAmount>1035,5
+1035</ram:LineTotalAmount>
+</ram:SpecifiedTradeSettlementLineMonetarySummation>
+</ram:SpecifiedLineTradeSettlement>
+</ram:IncludedSupplyChainTradeLineItem>
+
+<ram:ApplicableHeaderTradeAgreement><ram:BuyerReference></ram:BuyerReference><ram:SellerTradeParty><ram:Name>Giatec GmbH</ram:Name><ram:DefinedTradeContact><ram:PersonName>Frank Papenheim</ram:PersonName><ram:DepartmentName>SO</ram:DepartmentName><ram:TelephoneUniversalCommunication><ram:CompleteNumber>(02324) 201890</ram:CompleteNumber></ram:TelephoneUniversalCommunication><ram:EmailURIUniversalCommunication><ram:URIID>info@giatec.de</ram:URIID></ram:EmailURIUniversalCommunication></ram:DefinedTradeContact><ram:PostalTradeAddress><ram:PostcodeCode>45525</ram:PostcodeCode><ram:LineOne>Ruhrallee 5</ram:LineOne><ram:CityName>Hattingen</ram:CityName><ram:CountryID>DE</ram:CountryID></ram:PostalTradeAddress><ram:URIUniversalCommunication><ram:URIID schemeID="EM">info@giatec.de</ram:URIID></ram:URIUniversalCommunication><ram:SpecifiedTaxRegistration><ram:ID schemeID="VA">DE162986901</ram:ID></ram:SpecifiedTaxRegistration></ram:SellerTradeParty><ram:BuyerTradeParty><ram:Name>Nestlé Deutschland AG</ram:Name><ram:DefinedTradeContact><ram:PersonName> Rechnungsanschrift</ram:PersonName><ram:TelephoneUniversalCommunication><ram:CompleteNumber></ram:CompleteNumber></ram:TelephoneUniversalCommunication><ram:EmailURIUniversalCommunication><ram:URIID></ram:URIID></ram:EmailURIUniversalCommunication></ram:DefinedTradeContact><ram:PostalTradeAddress><ram:PostcodeCode>60329</ram:PostcodeCode><ram:LineOne>Baseler Straße 46</ram:LineOne><ram:CityName>Frankfurt am Main</ram:CityName><ram:CountryID>Germany</ram:CountryID></ram:PostalTradeAddress><ram:URIUniversalCommunication><ram:URIID schemeID="EM"></ram:URIID></ram:URIUniversalCommunication></ram:BuyerTradeParty></ram:ApplicableHeaderTradeAgreement><ram:ApplicableHeaderTradeDelivery><ram:ActualDeliverySupplyChainEvent><ram:OccurrenceDateTime><udt:DateTimeString format="102">10.2025</udt:DateTimeString></ram:OccurrenceDateTime></ram:ActualDeliverySupplyChainEvent></ram:ApplicableHeaderTradeDelivery><ram:ApplicableHeaderTradeSettlement><ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode><ram:SpecifiedTradeSettlementPaymentMeans><ram:TypeCode>ZZZ</ram:TypeCode><ram:Information>innerhalb von 60 Tagen netto oder</ram:Information><ram:PayeePartyCreditorFinancialAccount><ram:IBANID>DE19 440 501 990 0910 032 44</ram:IBANID><ram:AccountName>Giatec GmbH</ram:AccountName></ram:PayeePartyCreditorFinancialAccount><ram:PayeeSpecifiedCreditorFinancialInstitution><ram:BICID></ram:BICID></ram:PayeeSpecifiedCreditorFinancialInstitution></ram:SpecifiedTradeSettlementPaymentMeans><ram:ApplicableTradeTax><ram:CalculatedAmount>196,75</ram:CalculatedAmount><ram:TypeCode>VAT</ram:TypeCode><ram:BasisAmount>1.035,50</ram:BasisAmount><ram:CategoryCode>S</ram:CategoryCode><ram:RateApplicablePercent>19.0</ram:RateApplicablePercent></ram:ApplicableTradeTax><ram:SpecifiedTradePaymentTerms><ram:Description>innerhalb von 60 Tagen netto oderinnerhalb von 30 Tagen bei 3,00% Skonto</ram:Description></ram:SpecifiedTradePaymentTerms><ram:SpecifiedTradeSettlementHeaderMonetarySummation><ram:LineTotalAmount>1.035,50</ram:LineTotalAmount><ram:ChargeTotalAmount>0.00</ram:ChargeTotalAmount><ram:AllowanceTotalAmount>0.00</ram:AllowanceTotalAmount><ram:TaxBasisTotalAmount>1.035,50</ram:TaxBasisTotalAmount><ram:TaxTotalAmount currencyID="EUR">196,75</ram:TaxTotalAmount><ram:GrandTotalAmount>1.232,25</ram:GrandTotalAmount><ram:TotalPrepaidAmount>0.00</ram:TotalPrepaidAmount><ram:DuePayableAmount>1.232,25</ram:DuePayableAmount></ram:SpecifiedTradeSettlementHeaderMonetarySummation></ram:ApplicableHeaderTradeSettlement></rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryInvoice>

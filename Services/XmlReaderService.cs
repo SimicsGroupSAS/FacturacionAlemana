@@ -1,11 +1,90 @@
 using System.Xml.Linq;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using FacturacionAlemana.Models;
 
 namespace FacturacionAlemana.Services
 {
     public static class XmlReaderService
     {
+        private static readonly Dictionary<string, string> PaisesMapping = new()
+        {
+            { "Netherlands", "NL" },
+            { "Germany", "DE" },
+            { "Spain", "ES" },
+            { "France", "FR" },
+            { "Italy", "IT" },
+            { "Austria", "AT" },
+            { "Belgium", "BE" },
+            { "Switzerland", "CH" },
+            { "United Kingdom", "UK" },
+            { "Poland", "PL" }
+        };
+
+        private static decimal NormalizarDecimal(string? valor)
+        {
+            if (string.IsNullOrWhiteSpace(valor))
+                return 0;
+
+            valor = valor.Replace(".", "").Replace(",", ".");
+            
+            if (decimal.TryParse(valor, CultureInfo.InvariantCulture, out var resultado))
+                return resultado;
+
+            return 0;
+        }        private static string NormalizarCodigoPais(string? pais)
+        {
+            if (string.IsNullOrWhiteSpace(pais))
+                return "XX";
+
+            pais = pais.Trim();
+
+            if (pais.Length == 2 && Regex.IsMatch(pais, @"^[A-Z]{2}$"))
+                return pais;
+
+            if (PaisesMapping.TryGetValue(pais, out var codigo))
+                return codigo;
+
+            return pais.Length >= 2 ? pais.Substring(0, 2).ToUpper() : pais.ToUpper();
+        }
+
+        /// <summary>
+        /// Convierte códigos de moneda ISO a símbolos
+        /// </summary>
+        private static string ConvertirMonedaASimolo(string? codigoMoneda)
+        {
+            if (string.IsNullOrWhiteSpace(codigoMoneda))
+                return "?";
+
+            return codigoMoneda.ToUpper() switch
+            {
+                "EUR" => "€",
+                "USD" => "$",
+                "GBP" => "£",
+                "JPY" => "¥",
+                "CHF" => "CHF",
+                "CAD" => "$",
+                "AUD" => "$",
+                "NZD" => "$",
+                "CNY" => "¥",
+                "INR" => "₹",
+                "MXN" => "$",
+                "BRL" => "R$",
+                "ZAR" => "R",
+                _ => codigoMoneda.ToUpper()
+            };
+        }
+
+        private static List<string> ExtraerNotas(XDocument xmlDoc, XNamespace rsm, XNamespace ram)
+        {
+            return xmlDoc.Descendants(rsm + "ExchangedDocument")
+                .Elements(ram + "IncludedNote")
+                .Elements(ram + "Content")
+                .Select(x => x.Value?.Trim() ?? "")
+                .Where(x => !string.IsNullOrEmpty(x))
+                .ToList();
+        }
+
         public static Factura LeerFacturaDesdeXml(string filePath)
         {
             XNamespace rsm = "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100";
@@ -14,20 +93,15 @@ namespace FacturacionAlemana.Services
 
             var xmlDoc = XDocument.Load(filePath);
 
-            // Extract Invoice Details
+            // Detalles de la Factura
             var idElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(ram + "ID").FirstOrDefault()?.Value ?? "No encontrado";
             var typeCodeElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(ram + "TypeCode").FirstOrDefault()?.Value ?? "No encontrado";
             var issueDateElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(ram + "IssueDateTime").Elements(udt + "DateTimeString").FirstOrDefault()?.Value ?? "No encontrado";
-            var paymentNoteElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(ram + "IncludedNote").Elements(ram + "Content").FirstOrDefault()?.Value ?? "No encontrado";
+            
+            var notas = ExtraerNotas(xmlDoc, rsm, ram);
+            var paymentNoteElement = notas.Count > 0 ? notas[0] : "No encontrado";
 
-            // Log extracted data
-            Console.WriteLine("Detalles de la Factura:");
-            Console.WriteLine($"ID: {idElement}");
-            Console.WriteLine($"TypeCode: {typeCodeElement}");
-            Console.WriteLine($"IssueDate: {issueDateElement}");
-            Console.WriteLine($"PaymentNote: {paymentNoteElement}");
-
-            // Extract Seller Details
+            // Detalles del Vendedor
             var sellerName = xmlDoc.Descendants(ram + "SellerTradeParty").Elements(ram + "Name").FirstOrDefault()?.Value ?? "No encontrado";
             var sellerPersonName = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "PersonName").FirstOrDefault()?.Value ?? "No encontrado";
             var sellerDepartmentName = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "DepartmentName").FirstOrDefault()?.Value ?? "No encontrado";
@@ -36,23 +110,11 @@ namespace FacturacionAlemana.Services
             var sellerPostcodeCode = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "PostcodeCode").FirstOrDefault()?.Value ?? "No encontrado";
             var sellerLineOne = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "LineOne").FirstOrDefault()?.Value ?? "No encontrado";
             var sellerCityName = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "CityName").FirstOrDefault()?.Value ?? "No encontrado";
-            var sellerCountryID = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "CountryID").FirstOrDefault()?.Value ?? "No encontrado";
+            var sellerCountryIDRaw = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "CountryID").FirstOrDefault()?.Value ?? "XX";
+            var sellerCountryID = NormalizarCodigoPais(sellerCountryIDRaw);
             var sellerVATID = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "ID").FirstOrDefault()?.Value ?? "No encontrado";
 
-            // Log seller details
-            Console.WriteLine("Detalles del Vendedor:");
-            Console.WriteLine($"Nombre: {sellerName}");
-            Console.WriteLine($"Persona de Contacto: {sellerPersonName}");
-            Console.WriteLine($"Departamento: {sellerDepartmentName}");
-            Console.WriteLine($"Número Completo: {sellerCompleteNumber}");
-            Console.WriteLine($"Email: {sellerEmail}");
-            Console.WriteLine($"Código Postal: {sellerPostcodeCode}");
-            Console.WriteLine($"Dirección Línea Uno: {sellerLineOne}");
-            Console.WriteLine($"Ciudad: {sellerCityName}");
-            Console.WriteLine($"País ID: {sellerCountryID}");
-            Console.WriteLine($"VAT ID: {sellerVATID}");
-
-            // Extract Buyer Details
+            // Detalles del Comprador
             var buyerID = xmlDoc.Descendants(ram + "BuyerTradeParty").Elements(ram + "ID").FirstOrDefault()?.Value ?? "No encontrado";
             var buyerName = xmlDoc.Descendants(ram + "BuyerTradeParty").Elements(ram + "Name").FirstOrDefault()?.Value ?? "No encontrado";
             var buyerPersonName = xmlDoc.Descendants(ram + "BuyerTradeParty").Descendants(ram + "PersonName").FirstOrDefault()?.Value ?? "No encontrado";
@@ -61,21 +123,10 @@ namespace FacturacionAlemana.Services
             var buyerPostcodeCode = xmlDoc.Descendants(ram + "BuyerTradeParty").Descendants(ram + "PostcodeCode").FirstOrDefault()?.Value ?? "No encontrado";
             var buyerLineOne = xmlDoc.Descendants(ram + "BuyerTradeParty").Descendants(ram + "LineOne").FirstOrDefault()?.Value ?? "No encontrado";
             var buyerCityName = xmlDoc.Descendants(ram + "BuyerTradeParty").Descendants(ram + "CityName").FirstOrDefault()?.Value ?? "No encontrado";
-            var buyerCountryID = xmlDoc.Descendants(ram + "BuyerTradeParty").Descendants(ram + "CountryID").FirstOrDefault()?.Value ?? "No encontrado";
+            var buyerCountryIDRaw = xmlDoc.Descendants(ram + "BuyerTradeParty").Descendants(ram + "CountryID").FirstOrDefault()?.Value ?? "XX";
+            var buyerCountryID = NormalizarCodigoPais(buyerCountryIDRaw);
 
-            // Log buyer details
-            Console.WriteLine("Detalles del Comprador:");
-            Console.WriteLine($"ID: {buyerID}");
-            Console.WriteLine($"Nombre: {buyerName}");
-            Console.WriteLine($"Persona de Contacto: {buyerPersonName}");
-            Console.WriteLine($"Número Completo: {buyerCompleteNumber}");
-            Console.WriteLine($"Email: {buyerEmail}");
-            Console.WriteLine($"Código Postal: {buyerPostcodeCode}");
-            Console.WriteLine($"Dirección Línea Uno: {buyerLineOne}");
-            Console.WriteLine($"Ciudad: {buyerCityName}");
-            Console.WriteLine($"País ID: {buyerCountryID}");
-
-            // Extract Line Item Details
+            // Detalles de los Ítems de Línea
             var lineID = xmlDoc.Descendants(ram + "IncludedSupplyChainTradeLineItem").Descendants(ram + "LineID").FirstOrDefault()?.Value ?? "No encontrado";
             var sellerAssignedID = xmlDoc.Descendants(ram + "IncludedSupplyChainTradeLineItem").Descendants(ram + "SellerAssignedID").FirstOrDefault()?.Value ?? "No encontrado";
             var productName = xmlDoc.Descendants(ram + "IncludedSupplyChainTradeLineItem").Descendants(ram + "Name").FirstOrDefault()?.Value ?? "No encontrado";
@@ -86,80 +137,59 @@ namespace FacturacionAlemana.Services
             var taxRatePercent = xmlDoc.Descendants(ram + "IncludedSupplyChainTradeLineItem").Descendants(ram + "RateApplicablePercent").FirstOrDefault()?.Value ?? "No encontrado";
             var lineTotalAmount = xmlDoc.Descendants(ram + "IncludedSupplyChainTradeLineItem").Descendants(ram + "LineTotalAmount").FirstOrDefault()?.Value ?? "No encontrado";
 
-            // Log line item details
-            Console.WriteLine("Detalles de los Ítems de Línea:");
-            Console.WriteLine($"Line ID: {lineID}");
-            Console.WriteLine($"Seller Assigned ID: {sellerAssignedID}");
-            Console.WriteLine($"Nombre del Producto: {productName}");
-            Console.WriteLine($"Monto de Cargo: {chargeAmount}");
-            Console.WriteLine($"Cantidad Facturada: {billedQuantity}");
-            Console.WriteLine($"Código de Tipo de Impuesto: {taxTypeCode}");
-            Console.WriteLine($"Código de Categoría de Impuesto: {taxCategoryCode}");
-            Console.WriteLine($"Porcentaje de Tasa de Impuesto: {taxRatePercent}");
-            Console.WriteLine($"Monto Total de Línea: {lineTotalAmount}");
-
-            // Extract Payment Summary
+            // Resumen de Pago
             var invoiceCurrencyCode = xmlDoc.Descendants(ram + "InvoiceCurrencyCode").FirstOrDefault()?.Value ?? "No encontrado";
             var paymentTypeCode = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementPaymentMeans").Descendants(ram + "TypeCode").FirstOrDefault()?.Value ?? "No encontrado";
             var paymentInformation = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementPaymentMeans").Descendants(ram + "Information").FirstOrDefault()?.Value ?? "No encontrado";
             var ibanID = xmlDoc.Descendants(ram + "PayeePartyCreditorFinancialAccount").Descendants(ram + "IBANID").FirstOrDefault()?.Value ?? "No encontrado";
             var accountName = xmlDoc.Descendants(ram + "PayeePartyCreditorFinancialAccount").Descendants(ram + "AccountName").FirstOrDefault()?.Value ?? "No encontrado";
             var bicID = xmlDoc.Descendants(ram + "PayeeSpecifiedCreditorFinancialInstitution").Descendants(ram + "BICID").FirstOrDefault()?.Value ?? "No encontrado";
-            var calculatedAmount = xmlDoc.Descendants(ram + "ApplicableTradeTax").Descendants(ram + "CalculatedAmount").FirstOrDefault()?.Value ?? "No encontrado";
-            var basisAmount = xmlDoc.Descendants(ram + "ApplicableTradeTax").Descendants(ram + "BasisAmount").FirstOrDefault()?.Value ?? "No encontrado";
-            var paymentDescription = xmlDoc.Descendants(ram + "SpecifiedTradePaymentTerms").Descendants(ram + "Description").FirstOrDefault()?.Value ?? "No encontrado";
+            
+            var calculatedAmountRaw = xmlDoc.Descendants(ram + "ApplicableTradeTax").Descendants(ram + "CalculatedAmount").FirstOrDefault()?.Value ?? "0";
+            var calculatedAmount = NormalizarDecimal(calculatedAmountRaw).ToString("F2");
+            
+            var basisAmountRaw = xmlDoc.Descendants(ram + "ApplicableTradeTax").Descendants(ram + "BasisAmount").FirstOrDefault()?.Value ?? "0";
+            var basisAmount = NormalizarDecimal(basisAmountRaw).ToString("F2");
+              var paymentDescription = xmlDoc.Descendants(ram + "SpecifiedTradePaymentTerms").Descendants(ram + "Description").FirstOrDefault()?.Value ?? "No encontrado";
 
-            // Formatear la fecha al estilo dd-mm-aaaa
-            var dueDateRaw = xmlDoc.Descendants(ram + "SpecifiedTradePaymentTerms").Descendants(udt + "DateTimeString").FirstOrDefault()?.Value ?? "No encontrado";
+            // Extraer fecha de vencimiento - primero intenta desde SpecifiedTradePaymentTerms, si no usa IssueDateTime
+            var dueDateRaw = xmlDoc.Descendants(ram + "SpecifiedTradePaymentTerms").Descendants(udt + "DateTimeString").FirstOrDefault()?.Value;
+            
+            // Si no encuentra fecha de vencimiento, usa la fecha de emisión
+            if (string.IsNullOrWhiteSpace(dueDateRaw))
+            {
+                dueDateRaw = issueDateElement;
+            }
+
             var dueDate = DateTime.TryParseExact(dueDateRaw, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate)
                 ? parsedDate.ToString("dd-MM-yyyy")
-                : "No encontrado";
+                : dueDateRaw;
 
-            var grandTotalAmount = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementHeaderMonetarySummation").Descendants(ram + "GrandTotalAmount").FirstOrDefault()?.Value ?? "No encontrado";
-            var duePayableAmount = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementHeaderMonetarySummation").Descendants(ram + "DuePayableAmount").FirstOrDefault()?.Value ?? "No encontrado";
+            var grandTotalAmountRaw = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementHeaderMonetarySummation").Descendants(ram + "GrandTotalAmount").FirstOrDefault()?.Value ?? "0";
+            var grandTotalAmount = NormalizarDecimal(grandTotalAmountRaw).ToString("F2");
+            
+            var duePayableAmountRaw = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementHeaderMonetarySummation").Descendants(ram + "DuePayableAmount").FirstOrDefault()?.Value ?? "0";
+            var duePayableAmount = NormalizarDecimal(duePayableAmountRaw).ToString("F2");
 
-            // Log payment summary
-            Console.WriteLine("Resumen de Pago:");
-            Console.WriteLine($"Código de Moneda de Factura: {invoiceCurrencyCode}");
-            Console.WriteLine($"Código de Tipo de Pago: {paymentTypeCode}");
-            Console.WriteLine($"Información de Pago: {paymentInformation}");
-            Console.WriteLine($"IBAN ID: {ibanID}");
-            Console.WriteLine($"Nombre de la Cuenta: {accountName}");
-            Console.WriteLine($"BIC ID: {bicID}");
-            Console.WriteLine($"Monto Calculado: {calculatedAmount}");
-            Console.WriteLine($"Monto Base: {basisAmount}");
-            Console.WriteLine($"Descripción de Pago: {paymentDescription}");
-            Console.WriteLine($"Fecha de Vencimiento: {dueDate}");
-            Console.WriteLine($"Monto Total: {grandTotalAmount}");
-            Console.WriteLine($"Monto Pagadero: {duePayableAmount}");
-
-            // Extract attributes
             var dateTimeFormat = xmlDoc.Descendants(udt + "DateTimeString").Attributes("format").FirstOrDefault()?.Value ?? "No encontrado";
             var unitCode = xmlDoc.Descendants(ram + "BilledQuantity").Attributes("unitCode").FirstOrDefault()?.Value ?? "No encontrado";
             var schemeID = xmlDoc.Descendants(ram + "SpecifiedTaxRegistration").Descendants(ram + "ID").Attributes("schemeID").FirstOrDefault()?.Value ?? "No encontrado";
             var currencyID = xmlDoc.Descendants(ram + "TaxTotalAmount").Attributes("currencyID").FirstOrDefault()?.Value ?? "No encontrado";
 
-            // Log attributes
-            Console.WriteLine("Atributos:");
-            Console.WriteLine($"Formato de Fecha y Hora: {dateTimeFormat}");
-            Console.WriteLine($"Código de Unidad: {unitCode}");
-            Console.WriteLine($"ID de Esquema: {schemeID}");
-            Console.WriteLine($"ID de Moneda: {currencyID}");
-
             var productos = xmlDoc.Descendants(ram + "IncludedSupplyChainTradeLineItem").Select(item => new Producto
             {
                 Id = item.Descendants(ram + "LineID").FirstOrDefault()?.Value ?? "No encontrado",
                 Descripcion = item.Descendants(ram + "Name").FirstOrDefault()?.Value ?? "No encontrado",
-                Cantidad = decimal.TryParse(item.Descendants(ram + "BilledQuantity").FirstOrDefault()?.Value, out var cantidad) ? cantidad : 0,
-                PrecioUnitario = decimal.TryParse(item.Descendants(ram + "ChargeAmount").FirstOrDefault()?.Value, out var precioUnitario) ? precioUnitario : 0,
-                PrecioTotal = decimal.TryParse(item.Descendants(ram + "LineTotalAmount").FirstOrDefault()?.Value, out var precioTotal) ? precioTotal : 0
+                Cantidad = NormalizarDecimal(item.Descendants(ram + "BilledQuantity").FirstOrDefault()?.Value),
+                PrecioUnitario = NormalizarDecimal(item.Descendants(ram + "ChargeAmount").FirstOrDefault()?.Value),
+                PrecioTotal = NormalizarDecimal(item.Descendants(ram + "LineTotalAmount").FirstOrDefault()?.Value)
             }).ToList();
 
             return new Factura
             {
-                IdElement = idElement, // Asignar el ID correctamente usando IdElement
+                IdElement = idElement,
                 Cliente = buyerName,
-                Total = decimal.TryParse(grandTotalAmount, out var total) ? total : 0,
+                Total = NormalizarDecimal(grandTotalAmount),
                 DueDate = dueDate,
                 GrandTotalAmount = grandTotalAmount,
                 DuePayableAmount = duePayableAmount,

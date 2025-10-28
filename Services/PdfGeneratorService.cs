@@ -9,22 +9,58 @@ namespace FacturacionAlemana.Services
 {
     public static class PdfGeneratorService
     {
+        private static string ConvertirMonedaASimolo(string? codigoMoneda)
+        {
+            if (string.IsNullOrWhiteSpace(codigoMoneda))
+                return "?";
+
+            return codigoMoneda.ToUpper() switch
+            {
+                "EUR" => "€",
+                "USD" => "$",
+                "GBP" => "£",
+                "JPY" => "¥",
+                "CHF" => "CHF",
+                "CAD" => "$",
+                "AUD" => "$",
+                "NZD" => "$",
+                "CNY" => "¥",
+                "INR" => "₹",
+                "MXN" => "$",
+                "BRL" => "R$",
+                "ZAR" => "R",
+                _ => codigoMoneda.ToUpper()
+            };
+        }
+        public static byte[] GenerarFacturaPdfEnMemoria(Factura factura)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+            int pageNumber = 1;
+            int totalPages = 1;
+            var document = CrearDocumento(factura, pageNumber, totalPages);
+            return document.GeneratePdf();
+        }
+
         public static void GenerarFacturaPdf(Factura factura, string outputPath)
         {
-            QuestPDF.Settings.License = LicenseType.Community; // Configurar licencia comunitaria
+            QuestPDF.Settings.License = LicenseType.Community;
+            int pageNumber = 1;
+            int totalPages = 1;
+            var document = CrearDocumento(factura, pageNumber, totalPages);
+            document.GeneratePdf(outputPath);
+        }
 
-            int pageNumber = 1; // Número de página actual
-            int totalPages = 1; // Total de páginas del documento
-
-            var document = Document.Create(container =>
+        private static IDocument CrearDocumento(Factura factura, int pageNumber, int totalPages)
+        {
+            return Document.Create(container =>
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4); // Cambiar tamaño de la página a carta
+                    page.Size(PageSizes.A4);
                     page.Margin(2, Unit.Centimetre);
 
                     var assembly = Assembly.GetExecutingAssembly();
-                    var resourceName = "FacturacionAlemana.Assets.plantilla.png"; // Ruta del recurso embebido
+                    var resourceName = "FacturacionAlemana.Assets.plantilla.png";
 
                     using (var stream = assembly.GetManifestResourceStream(resourceName))
                     {
@@ -43,7 +79,7 @@ namespace FacturacionAlemana.Services
                         // Título centrado
                         column.Item().AlignCenter().Text("Rechnung").FontSize(30).FontFamily("Century Gothic").Bold();
 
-                        // Línea horizontal con margen hacia abajo
+                        // Línea horizontal
                         column.Item().Row(row =>
                         {
                             row.RelativeItem().BorderBottom(1).BorderColor(Colors.Black).Height(1);
@@ -53,12 +89,12 @@ namespace FacturacionAlemana.Services
                             row.RelativeItem().BorderBottom(1).BorderColor(Colors.Black).Height(1);
                         });
 
-                        column.Item().PaddingTop(15); // Agregar espacio debajo de la línea horizontal
+                        column.Item().PaddingTop(15);
 
-                        // Contenido en la columna izquierda y derecha
+                        // Columnas: Información del vendedor y datos de factura
                         column.Item().Row(row =>
                         {
-                            // Columna izquierda: Nombre de la empresa arriba y dirección abajo
+                            // Columna izquierda
                             row.RelativeItem(1).Column(leftColumn =>
                             {
                                 leftColumn.Item().Text($"{factura.SellerName}").FontSize(12).Bold();
@@ -68,7 +104,7 @@ namespace FacturacionAlemana.Services
                                 leftColumn.Item().Text($"Adresse: {factura.BuyerCityName}, {factura.BuyerPostcodeCode}, {factura.BuyerCountryID}").FontSize(10);
                             });
 
-                            // Columna derecha dividida en filas
+                            // Columna derecha
                             row.RelativeItem(1).Column(rightColumn =>
                             {
                                 rightColumn.Item().Row(subRow =>
@@ -109,19 +145,19 @@ namespace FacturacionAlemana.Services
                             });
                         });
 
-                        // Tabla de productos debajo de las columnas
+                        // Tabla de productos
                         column.Item().PaddingVertical(20).Table(table =>
                         {
                             table.ColumnsDefinition(columns =>
                             {
-                                columns.RelativeColumn(1); // ID
-                                columns.RelativeColumn(3); // Beschreibung
-                                columns.RelativeColumn(1); // Menge
-                                columns.RelativeColumn(1); // Einzelpreis
-                                columns.RelativeColumn(1); // Gesamtpreis
+                                columns.RelativeColumn(1);
+                                columns.RelativeColumn(3);
+                                columns.RelativeColumn(1);
+                                columns.RelativeColumn(1);
+                                columns.RelativeColumn(1);
                             });
 
-                            // Encabezados de la tabla
+                            // Encabezados
                             table.Header(header =>
                             {
                                 header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("ID").FontSize(10).Bold();
@@ -129,27 +165,20 @@ namespace FacturacionAlemana.Services
                                 header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("Menge").FontSize(10).Bold();
                                 header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("Einzelpreis").FontSize(10).Bold();
                                 header.Cell().BorderBottom(1).BorderColor(Colors.Black).AlignCenter().Text("Gesamtpreis").FontSize(10).Bold();
-                            });
-
-                            // Filas de la tabla
+                            });                            // Filas de la tabla
                             for (int i = 0; i < factura.Productos.Count; i++)
                             {
                                 var producto = factura.Productos[i];
-                                var cantidad = producto.Cantidad / 10000000; // Ajustar cantidad
-                                var precioUnitario = producto.PrecioUnitario / 10000000; // Ajustar precio unitario
-                                var precioTotal = cantidad * precioUnitario; // Calcular precio total
 
-                                var borderColor = (i == factura.Productos.Count - 1) ? Colors.Black : Colors.Grey.Lighten2; // Última línea negra
-
-                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text(producto.Id).FontSize(10);
+                                var borderColor = (i == factura.Productos.Count - 1) ? Colors.Black : Colors.Grey.Lighten2;                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text(producto.Id).FontSize(10);
                                 table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text(producto.Descripcion).FontSize(10);
-                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text(cantidad.ToString("F0")).FontSize(10);
-                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text($"{precioUnitario:F2} {factura.CurrencyID}").FontSize(10);
-                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text($"{precioTotal:F2} {factura.CurrencyID}").FontSize(10);
+                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text(producto.Cantidad.ToString("F2")).FontSize(10);
+                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text($"{producto.PrecioUnitario:F2} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(10);
+                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text($"{producto.PrecioTotal:F2} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(10);
                             }
                         });
 
-                        // Agregar dos columnas debajo de la tabla
+                        // Totales
                         column.Item().Row(row =>
                         {
                             // Columna izquierda: Condiciones de Pago
@@ -159,18 +188,17 @@ namespace FacturacionAlemana.Services
                                 leftColumn.Item().Text(factura.PaymentDescription).FontSize(10);
                             });
 
-                            // Columna derecha: subdividida en dos columnas
+                            // Columna derecha
                             row.RelativeItem(1).Column(rightColumn =>
-                            {
-                                rightColumn.Item().Row(subRow =>
+                            {                                rightColumn.Item().Row(subRow =>
                                 {
                                     subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Netto-Wert").FontSize(10).Bold();
-                                    subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.BasisAmount} {factura.CurrencyID}").FontSize(10);
+                                    subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.BasisAmount} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(10);
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {
                                     subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Gesamtsteuer").FontSize(10).Bold();
-                                    subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.CalculatedAmount} {factura.CurrencyID}").FontSize(10);
+                                    subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.CalculatedAmount} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(10);
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {
@@ -179,15 +207,13 @@ namespace FacturacionAlemana.Services
                                 rightColumn.Item().Row(subRow =>
                                 {
                                     subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Gesamtbetrag").FontSize(10).Bold();
-                                    subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.GrandTotalAmount} {factura.CurrencyID}").FontSize(10);
+                                    subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.GrandTotalAmount} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(10);
                                 });
                             });
                         });
                     });
                 });
             });
-
-            document.GeneratePdf(outputPath);
         }
     }
 }

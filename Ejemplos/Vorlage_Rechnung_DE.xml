@@ -1,0 +1,119 @@
+<rsm:CrossIndustryInvoice xmlns:a="urn:un:unece:uncefact:data:standard:QualifiedDataType:100" xmlns:qdt="urn:un:unece:uncefact:data:standard:QualifiedDataType:10" xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100" xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100" xmlns:ccts="urn:un:unece:uncefact:documentation:standard:CoreComponentsTechnicalSpecification:2">
+<rsm:ExchangedDocumentContext>
+<ram:BusinessProcessSpecifiedDocumentContextParameter>
+<ram:ID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</ram:ID>
+</ram:BusinessProcessSpecifiedDocumentContextParameter>
+<ram:GuidelineSpecifiedDocumentContextParameter>
+<ram:ID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</ram:ID>
+</ram:GuidelineSpecifiedDocumentContextParameter>
+</rsm:ExchangedDocumentContext>
+<rsm:ExchangedDocument>
+<ram:ID>$$RECHNUNGID$$</ram:ID>
+<ram:TypeCode>380</ram:TypeCode>
+<ram:IssueDateTime>
+<udt:DateTimeString format="102">$$DATUM$$</udt:DateTimeString>
+</ram:IssueDateTime>
+<ram:IncludedNote>
+<ram:Content>$$BESTELLUNGNR$$</ram:Content>
+</ram:IncludedNote>
+<ram:IncludedNote>
+<ram:Content>$$AUFTRAGNR$$</ram:Content>
+</ram:IncludedNote>
+<ram:IncludedNote>
+<ram:Content>$$USTID_KUNDE$$</ram:Content>
+</ram:IncludedNote>
+</rsm:ExchangedDocument>
+<rsm:SupplyChainTradeTransaction>
+$$POS$$
+<ram:ApplicableHeaderTradeAgreement>
+<ram:BuyerReference> </ram:BuyerReference>
+<ram:SellerTradeParty>
+<ram:Name>Giatec GmbH</ram:Name>
+<ram:DefinedTradeContact>
+<ram:PersonName>Frank Papenheim</ram:PersonName>
+<ram:DepartmentName>SO</ram:DepartmentName>
+<ram:TelephoneUniversalCommunication>
+<ram:CompleteNumber>(02324) 201890</ram:CompleteNumber>
+</ram:TelephoneUniversalCommunication>
+<ram:EmailURIUniversalCommunication>
+<ram:URIID>info@giatec.de</ram:URIID>
+</ram:EmailURIUniversalCommunication>
+</ram:DefinedTradeContact>
+<ram:PostalTradeAddress>
+<ram:PostcodeCode>45525</ram:PostcodeCode>
+<ram:LineOne>Ruhrallee 5</ram:LineOne>
+<ram:CityName>Hattingen</ram:CityName>
+<ram:CountryID>DE</ram:CountryID>
+</ram:PostalTradeAddress>
+<ram:URIUniversalCommunication>
+<ram:URIID schemeID="EM">info@giatec.de</ram:URIID>
+</ram:URIUniversalCommunication>
+<ram:SpecifiedTaxRegistration>
+<ram:ID schemeID="VA">DE162986901</ram:ID>
+</ram:SpecifiedTaxRegistration>
+</ram:SellerTradeParty>
+<ram:BuyerTradeParty>
+<ram:Name>$$KUNDENNAME$$</ram:Name>
+<ram:DefinedTradeContact>
+<ram:PersonName>$$PERSONALNAME$$</ram:PersonName>
+<ram:TelephoneUniversalCommunication>
+<ram:CompleteNumber></ram:CompleteNumber>
+</ram:TelephoneUniversalCommunication>
+<ram:EmailURIUniversalCommunication>
+<ram:URIID></ram:URIID>
+</ram:EmailURIUniversalCommunication>
+</ram:DefinedTradeContact>
+<ram:PostalTradeAddress>
+<ram:PostcodeCode>$$PLZ$$</ram:PostcodeCode>
+<ram:LineOne>$$STRASSE$$</ram:LineOne>
+<ram:CityName>$$STADT$$</ram:CityName>
+<ram:CountryID>$$LAND$$</ram:CountryID>
+</ram:PostalTradeAddress>
+<ram:URIUniversalCommunication>
+<ram:URIID schemeID="EM"></ram:URIID>
+</ram:URIUniversalCommunication>
+</ram:BuyerTradeParty>
+</ram:ApplicableHeaderTradeAgreement>
+<ram:ApplicableHeaderTradeDelivery>
+<ram:ActualDeliverySupplyChainEvent>
+<ram:OccurrenceDateTime>
+<udt:DateTimeString format="102">$$LIEFERDATUM$$</udt:DateTimeString>
+</ram:OccurrenceDateTime>
+</ram:ActualDeliverySupplyChainEvent>
+</ram:ApplicableHeaderTradeDelivery>
+<ram:ApplicableHeaderTradeSettlement>
+<ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>
+<ram:SpecifiedTradeSettlementPaymentMeans>
+<ram:TypeCode>ZZZ</ram:TypeCode>
+<ram:Information>$$TZZ1$$</ram:Information>
+<ram:PayeePartyCreditorFinancialAccount>
+<ram:IBANID>DE19 440 501 990 0910 032 44</ram:IBANID>
+<ram:AccountName>Giatec GmbH</ram:AccountName>
+</ram:PayeePartyCreditorFinancialAccount>
+<ram:PayeeSpecifiedCreditorFinancialInstitution>
+<ram:BICID></ram:BICID>
+</ram:PayeeSpecifiedCreditorFinancialInstitution>
+</ram:SpecifiedTradeSettlementPaymentMeans>
+<ram:ApplicableTradeTax>
+<ram:CalculatedAmount>$$MWSTBETRAG$$</ram:CalculatedAmount>
+<ram:TypeCode>VAT</ram:TypeCode>
+<ram:BasisAmount>$$NETTOBETRAG$$</ram:BasisAmount>
+<ram:CategoryCode>S</ram:CategoryCode>
+<ram:RateApplicablePercent>$$MWST$$</ram:RateApplicablePercent>
+</ram:ApplicableTradeTax>
+<ram:SpecifiedTradePaymentTerms>
+<ram:Description>$$FÄLLIGKEIT$$</ram:Description>
+</ram:SpecifiedTradePaymentTerms>
+<ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+<ram:LineTotalAmount>$$NETTOPREIS$$</ram:LineTotalAmount>
+<ram:ChargeTotalAmount>0.00</ram:ChargeTotalAmount>
+<ram:AllowanceTotalAmount>0.00</ram:AllowanceTotalAmount>
+<ram:TaxBasisTotalAmount>$$NETTOPREIS$$</ram:TaxBasisTotalAmount>
+<ram:TaxTotalAmount currencyID="EUR">$$STEUERBETRAG$$</ram:TaxTotalAmount>
+<ram:GrandTotalAmount>$$BRUTTOSUMME$$</ram:GrandTotalAmount>
+<ram:TotalPrepaidAmount>0.00</ram:TotalPrepaidAmount>
+<ram:DuePayableAmount>$$BRUTTOSUMME$$</ram:DuePayableAmount>
+</ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+</ram:ApplicableHeaderTradeSettlement>
+</rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryInvoice>

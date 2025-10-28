@@ -28,13 +28,47 @@ namespace FacturacionAlemana
                 if (filePath == null) return;
 
                 factura = XmlReaderService.LeerFacturaDesdeXml(filePath);
-                // Mostrar el nombre del archivo en lugar de "Factura cargada"
                 string fileName = System.IO.Path.GetFileName(filePath);
                 StatusText.Text = $"Archivo cargado: {fileName}";
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al leer el archivo XML: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OnPreviewClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (factura == null)
+                {
+                    MessageBox.Show("Por favor, carga un archivo XML primero.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                string rutaReal = Process.GetCurrentProcess().MainModule?.FileName ?? throw new InvalidOperationException("No se pudo determinar la ruta del ejecutable.");
+                var directorioReal = Path.GetDirectoryName(rutaReal) ?? throw new InvalidOperationException("No se pudo determinar el directorio del ejecutable.");
+                var outputPath = Path.Combine(directorioReal, "Factura.pdf");
+
+                // Abrir ventana de previsualización
+                var previewWindow = new PreviewWindow(factura, outputPath)
+                {
+                    Owner = Window.GetWindow(this)
+                };
+                
+                if (previewWindow.ShowDialog() == true)
+                {
+                    StatusText.Text = $"PDF generado: {outputPath}";
+                }
+                else
+                {
+                    StatusText.Text = "Generación de PDF cancelada";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al previsualizar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

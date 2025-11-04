@@ -172,7 +172,7 @@ namespace FacturacionAlemana.Services
 
                                 var borderColor = (i == factura.Productos.Count - 1) ? Colors.Black : Colors.Grey.Lighten2;                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text(producto.Id).FontSize(10);
                                 table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text(producto.Descripcion).FontSize(10);
-                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text(producto.Cantidad.ToString("F2")).FontSize(10);
+                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text(producto.Cantidad.ToString("G")).FontSize(10);
                                 table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text($"{producto.PrecioUnitario:F2} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(10);
                                 table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(5).AlignCenter().Text($"{producto.PrecioTotal:F2} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(10);
                             }
@@ -198,7 +198,7 @@ namespace FacturacionAlemana.Services
                                 rightColumn.Item().Row(subRow =>
                                 {
                                     subRow.RelativeItem(1).Padding(5).AlignLeft().Text("Gesamtsteuer").FontSize(10).Bold();
-                                    subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.CalculatedAmount} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(10);
+                                    subRow.RelativeItem(1).Padding(5).AlignRight().Text($"{factura.TaxAmount} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(10);
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {

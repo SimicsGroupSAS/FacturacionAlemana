@@ -42,18 +42,27 @@
                         Margin="0,10"
                         HorizontalAlignment="Center"
                         Click="OnPreviewClick"/>
-                    
-                    <ui:Button
+                      <ui:Button
                         Icon="ArrowExport24"
                         Appearance="Success"
                         Content="Generar PDF" 
                         Width="150" 
                         Height="40" 
-                        Margin="0,10,0,20"
+                        Margin="0,10"
                         HorizontalAlignment="Center"
                         Click="OnGeneratePdfClick"/>
 
-                    <TextBlock x:Name="StatusText" 
+                    <ui:Button
+                        Icon="DocumentAdd24"
+                        Appearance="Caution"
+                        Content="Crear Factura" 
+                        Width="150" 
+                        Height="40" 
+                        Margin="0,10,0,20"
+                        HorizontalAlignment="Center"
+                        Click="OnCreateInvoiceClick"/>
+
+                    <TextBlock x:Name="StatusText"
                              Margin="20,0,20,20" 
                              TextAlignment="Center"
                              TextWrapping="Wrap"

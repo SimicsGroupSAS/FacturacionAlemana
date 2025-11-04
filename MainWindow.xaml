@@ -4,16 +4,16 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:local="clr-namespace:FacturacionAlemana"
         Title="Generador de Facturas" 
-        MinHeight="500" 
-        MinWidth="450"
-        SizeToContent="WidthAndHeight"
+        MinHeight="600" 
+        MinWidth="900"
+        Height="800"
+        Width="1200"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
-        ExtendsContentIntoTitleBar="True">
-    <Grid>
+        ExtendsContentIntoTitleBar="True">    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="32"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <ui:TitleBar
@@ -26,6 +26,8 @@
         <Frame x:Name="RootFrame" 
                Grid.Row="1" 
                Source="/HomePage.xaml" 
-               NavigationUIVisibility="Hidden"/>
+               NavigationUIVisibility="Hidden"
+               HorizontalAlignment="Stretch"
+               VerticalAlignment="Stretch"/>
     </Grid>
 </ui:FluentWindow>

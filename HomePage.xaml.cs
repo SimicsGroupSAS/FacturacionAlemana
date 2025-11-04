@@ -95,6 +95,11 @@ namespace FacturacionAlemana
             }
         }
 
+        private void OnCreateInvoiceClick(object sender, RoutedEventArgs e)
+        {
+            NavigationService.Navigate(new CreateInvoicePage());
+        }
+
         private void LoadIcon()
         {
             try

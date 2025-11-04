@@ -36,8 +36,8 @@ namespace FacturacionAlemana.Models
         public required string BuyerEmail { get; set; }
         public required string BuyerPostcodeCode { get; set; }
         public required string BuyerLineOne { get; set; }
-        public required string BuyerCityName { get; set; }
-        public required string BuyerCountryID { get; set; }
+        public required string BuyerCityName { get; set; }        public required string BuyerCountryID { get; set; }
+        public string BuyerReference { get; set; } = string.Empty; // Referencia del comprador (puede estar vacía)
         public required string LineID { get; set; }
         public required string SellerAssignedID { get; set; }
         public required string ProductName { get; set; }
@@ -53,9 +53,9 @@ namespace FacturacionAlemana.Models
         public required string IBANID { get; set; }
         public required string AccountName { get; set; }
         public required string BICID { get; set; }
-        public required string CalculatedAmount { get; set; }
-        public required string BasisAmount { get; set; }
+        public required string CalculatedAmount { get; set; }        public required string BasisAmount { get; set; }
         public required string PaymentDescription { get; set; }
+        public string TaxAmount { get; set; } = "0"; // Monto total de impuestos
 
         public List<Producto> Productos { get; set; } = new List<Producto>(); // Agregar lista de productos
     }

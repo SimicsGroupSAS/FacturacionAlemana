@@ -7,9 +7,6 @@ namespace FacturacionAlemana
         public MainWindow()
         {
             InitializeComponent();
-            
-            // Permitir arrastrar la ventana haciendo clic en cualquier parte
-            this.MouseLeftButtonDown += (s, e) => this.DragMove();
         }
     }
 }

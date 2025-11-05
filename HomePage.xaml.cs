@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Diagnostics;
 using FacturacionAlemana.Models;
@@ -9,16 +11,15 @@ using FacturacionAlemana.Services;
 using FacturacionAlemana.Utils;
 
 namespace FacturacionAlemana
-{
-    public partial class HomePage : Page
-    {
-        private Factura? factura;
+{    public partial class HomePage : Page
+     {
+         private Factura? factura;
 
-        public HomePage()
-        {
-            InitializeComponent();
-            LoadIcon();
-        }
+         public HomePage()
+         {
+             InitializeComponent();
+             LoadIcon();
+         }
 
         private void OnLoadXmlClick(object sender, RoutedEventArgs e)
         {
@@ -93,9 +94,7 @@ namespace FacturacionAlemana
             {
                 MessageBox.Show($"Error al generar el PDF: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
-
-        private void OnCreateInvoiceClick(object sender, RoutedEventArgs e)
+        }        private void OnCreateInvoiceClick(object sender, RoutedEventArgs e)
         {
             NavigationService.Navigate(new CreateInvoicePage());
         }
@@ -111,6 +110,13 @@ namespace FacturacionAlemana
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al cargar el ícono: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }        private void OnCloseWindowClick(object sender, RoutedEventArgs e)
+        {
+            var window = Window.GetWindow(this);
+            if (window != null)
+            {
+                window.Close();
             }
         }
     }

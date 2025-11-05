@@ -1,14 +1,15 @@
 ﻿using System.Windows;
-using Wpf.Ui.Controls;
 
 namespace FacturacionAlemana
 {
-    public partial class MainWindow : FluentWindow
+    public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
-            RootFrame.Navigate(new HomePage());
+            
+            // Permitir arrastrar la ventana haciendo clic en cualquier parte
+            this.MouseLeftButtonDown += (s, e) => this.DragMove();
         }
     }
 }

@@ -2,73 +2,220 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      Title="HomePage">
-    <Grid Background="Transparent">
-        <StackPanel Width="400" 
-                    HorizontalAlignment="Center" 
-                    VerticalAlignment="Center" 
-                    Background="Transparent"
-                    Margin="20">
-            
-            <ui:Card Margin="0,0,0,0" Background="{DynamicResource ControlFillColorDefaultBrush}">
-                <StackPanel>
-                    <Image x:Name="IconImg"
-                           Width="64"
-                           Height="64"
-                           Margin="0,20,0,10"
-                           HorizontalAlignment="Center"/>
-                    
-                    <TextBlock Text="Generador de Facturas"
-                            FontSize="24"
-                            FontWeight="SemiBold"
-                            Margin="0,0,0,20"
-                            HorizontalAlignment="Center"/>
-                    
-                    <ui:Button
-                        Icon="DocumentPdf24"
-                        Appearance="Primary"
-                        Content="Cargar XML" 
-                        Width="150" 
-                        Height="40" 
-                        Margin="0,10"
-                        HorizontalAlignment="Center"
-                        Click="OnLoadXmlClick"/>
-                          <ui:Button
-                        Icon="Eye24"
-                        Appearance="Secondary"
-                        Content="Previsualizar" 
-                        Width="150" 
-                        Height="40" 
-                        Margin="0,10"
-                        HorizontalAlignment="Center"
-                        Click="OnPreviewClick"/>
-                      <ui:Button
-                        Icon="ArrowExport24"
-                        Appearance="Success"
-                        Content="Generar PDF" 
-                        Width="150" 
-                        Height="40" 
-                        Margin="0,10"
-                        HorizontalAlignment="Center"
-                        Click="OnGeneratePdfClick"/>
+      Title="HomePage"
+      Background="Transparent"
+      RenderOptions.BitmapScalingMode="HighQuality"
+      TextOptions.TextFormattingMode="Display"
+      TextOptions.TextRenderingMode="ClearType"
+      SnapsToDevicePixels="True"
+      UseLayoutRounding="True"
+      FontFamily="Segoe UI Variable, Segoe UI">
+    <Page.Resources>
+        <!-- Easing function para animaciones suaves -->
+        <CubicEase x:Key="CubicEase" EasingMode="EaseOut" />
 
-                    <ui:Button
-                        Icon="DocumentAdd24"
-                        Appearance="Caution"
-                        Content="Crear Factura" 
-                        Width="150" 
-                        Height="40" 
-                        Margin="0,10,0,20"
-                        HorizontalAlignment="Center"
-                        Click="OnCreateInvoiceClick"/>
+        <!-- Focus visual accesible (outline) -->
+        <Style x:Key="AccessibleFocusVisual" TargetType="Control">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Stroke="#0E8E3A" StrokeThickness="2" RadiusX="8" RadiusY="8" Margin="2" SnapsToDevicePixels="True"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
 
-                    <TextBlock x:Name="StatusText"
-                             Margin="20,0,20,20" 
-                             TextAlignment="Center"
-                             TextWrapping="Wrap"
-                             Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-                </StackPanel>
-            </ui:Card>
-        </StackPanel>
+    <Grid Background="Transparent" RenderOptions.BitmapScalingMode="HighQuality" UseLayoutRounding="True">        
+        <!-- Modern card centered with two-column layout: logo/title (izq) | acciones (der) -->
+        <Grid Width="760" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" RenderOptions.BitmapScalingMode="HighQuality">
+            <Border CornerRadius="16" Padding="0" RenderOptions.EdgeMode="Aliased" RenderOptions.BitmapScalingMode="HighQuality" BorderThickness="1.5" BorderBrush="#118938">
+                <Border.Background>
+                    <SolidColorBrush Color="#FFFFFF"/>
+                </Border.Background>
+                <Border.Effect>
+                    <!-- Sombra neutra y menos colorida para mantener nitidez del texto -->
+                    <DropShadowEffect Color="#0D000000" BlurRadius="24" ShadowDepth="6" Opacity="0.45"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Gloss effect overlay (top bright strip) -->
+                    <Border Grid.Row="0" Height="1" Margin="12,8,12,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#FFFFFF" Offset="0"/>
+                                <GradientStop Color="#FFFFFF" Offset="0.5" />
+                                <GradientStop Color="Transparent" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                    </Border>
+
+                    <!-- Top Row: Close Button -->
+                    <Button x:Name="CloseWindowButton" Content="✕" Width="44" Height="44" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,12,16,0" Background="Transparent" BorderBrush="Transparent" Foreground="#333333" FontSize="22" FontWeight="Bold" Click="OnCloseWindowClick" Cursor="Hand" Grid.Row="1" ToolTip="Cerrar" AutomationProperties.Name="Cerrar ventana">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="#333333"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8" Padding="0">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFF3F3F3"/>
+                                        <Setter Property="Foreground" Value="#CC0000"/>
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <DropShadowEffect Color="#66000000" BlurRadius="8" ShadowDepth="2" Opacity="0.4"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#FFCCCCCC"/>
+                                        <Setter Property="Foreground" Value="#990000"/>
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <DropShadowEffect Color="#66000000" BlurRadius="6" ShadowDepth="1" Opacity="0.5"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Bottom Row: Content -->
+                    <Grid Grid.Row="2" Margin="32,16,32,32">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="1.3*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: Logo + Title -->
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,20,0">
+                            <Image x:Name="IconImg" Width="88" Height="88" Margin="0,0,0,12" HorizontalAlignment="Left"/>
+                            <TextBlock Text="Generador de Facturas" FontSize="24" FontWeight="SemiBold" Foreground="#0D0D0D" LineHeight="28"/>
+                            <TextBlock Text="Facturación electrónica" Margin="0,8,0,0" FontSize="13" Foreground="#707070"/>
+                        </StackPanel>
+
+                        <!-- Right: Actions -->
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <StackPanel.Resources>
+                                <Style x:Key="ModernActionButton" TargetType="ui:Button">
+                                    <Setter Property="Width" Value="190" />
+                                    <Setter Property="Height" Value="44" />
+                                    <Setter Property="Margin" Value="0,12,0,0" />
+                                    <Setter Property="HorizontalAlignment" Value="Right" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                    <Setter Property="FontSize" Value="14" />
+                                    <Setter Property="Cursor" Value="Hand" />
+                                    <Setter Property="SnapsToDevicePixels" Value="True" />
+                                    <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality" />
+                                    <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+                                    <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+                                    <Setter Property="FocusVisualStyle" Value="{StaticResource AccessibleFocusVisual}" />
+                                    <Setter Property="Background" Value="#F5F7F6" />
+                                    <Setter Property="Foreground" Value="#0D0D0D" />
+                                    <Setter Property="Effect">
+                                        <Setter.Value>
+                                            <DropShadowEffect Color="#26000000" BlurRadius="8" ShadowDepth="2" Opacity="0.6"/>
+                                        </Setter.Value>
+                                    </Setter>
+
+                                    <!-- Nuevo template para asegurar control total de PointerOver -->
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ui:Button">
+                                                <Grid x:Name="Root">
+                                                    <VisualStateManager.VisualStateGroups>
+                                                        <VisualStateGroup x:Name="CommonStates">
+                                                            <VisualState x:Name="Normal" />
+                                                            <VisualState x:Name="PointerOver">
+                                                                <Storyboard>
+                                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Background">
+                                                                        <DiscreteObjectKeyFrame KeyTime="0:0:0">
+                                                                            <DiscreteObjectKeyFrame.Value>
+                                                                                <SolidColorBrush Color="#118938" />
+                                                                            </DiscreteObjectKeyFrame.Value>
+                                                                        </DiscreteObjectKeyFrame>
+                                                                    </ObjectAnimationUsingKeyFrames>
+                                                                </Storyboard>
+                                                            </VisualState>
+                                                            <VisualState x:Name="Pressed">
+                                                                <Storyboard>
+                                                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Bd" Storyboard.TargetProperty="Background">
+                                                                        <DiscreteObjectKeyFrame KeyTime="0:0:0">
+                                                                            <DiscreteObjectKeyFrame.Value>
+                                                                                <SolidColorBrush Color="#0E7A33" />
+                                                                            </DiscreteObjectKeyFrame.Value>
+                                                                        </DiscreteObjectKeyFrame>
+                                                                    </ObjectAnimationUsingKeyFrames>
+                                                                </Storyboard>
+                                                            </VisualState>
+                                                        </VisualStateGroup>
+                                                    </VisualStateManager.VisualStateGroups>
+
+                                                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="10" SnapsToDevicePixels="True">
+                                                        <Grid Margin="12,0">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition Width="*" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <!-- Intento de mostrar propiedad Icon si existe en el control de la librería -->
+                                                            <ContentControl Content="{TemplateBinding Icon}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,10,0"/>
+                                                            <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}" VerticalAlignment="Center" HorizontalAlignment="Center" RecognizesAccessKey="True" SnapsToDevicePixels="True" UseLayoutRounding="True" TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"/>
+                                                        </Grid>
+                                                    </Border>
+                                                </Grid>
+
+                                                <ControlTemplate.Triggers>
+                                                    <!-- Fallback: si IsMouseOver cambia, ajustamos Background/Foreground (por compatibilidad) -->
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#118938" />
+                                                        <Setter Property="Foreground" Value="White" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#0E7A33" />
+                                                        <Setter Property="Foreground" Value="White" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+
+                                    <Style.Triggers>
+                                        <!-- Sin animaciones de transform para preservar ClearType/nitidez -->
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Resources>
+
+                            <ui:Button Style="{StaticResource ModernActionButton}" Icon="DocumentPdf24" Appearance="Primary" Content="Cargar XML" Click="OnLoadXmlClick" SnapsToDevicePixels="True" UseLayoutRounding="True">
+                            </ui:Button>
+                            <ui:Button Style="{StaticResource ModernActionButton}" Icon="Eye24" Appearance="Secondary" Content="Previsualizar" Click="OnPreviewClick" SnapsToDevicePixels="True" UseLayoutRounding="True">
+                            </ui:Button>
+                            <ui:Button Style="{StaticResource ModernActionButton}" Icon="ArrowExport24" Appearance="Success" Content="Generar PDF" Click="OnGeneratePdfClick" SnapsToDevicePixels="True" UseLayoutRounding="True">
+                            </ui:Button>
+                            <ui:Button Style="{StaticResource ModernActionButton}" Icon="DocumentAdd24" Appearance="Caution" Content="Crear Factura" Click="OnCreateInvoiceClick" SnapsToDevicePixels="True" UseLayoutRounding="True">
+                            </ui:Button>
+
+                            <TextBlock x:Name="StatusText" Margin="0,16,0,0" TextAlignment="Right" TextWrapping="Wrap" Foreground="#707070" FontSize="12" LineHeight="16"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

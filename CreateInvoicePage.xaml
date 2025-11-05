@@ -44,13 +44,16 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <TextBlock Text="Calle:" VerticalAlignment="Center"/>
+                            <TextBlock Text="Calle línea 1:" VerticalAlignment="Center"/>
                             <ui:TextBox x:Name="SellerStreetTextBox" Grid.Column="1" PlaceholderText="Calle y número"/>
-                            <TextBlock Text="Ciudad:" Grid.Row="1" VerticalAlignment="Center"/>
-                            <ui:TextBox x:Name="SellerCityTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Ciudad"/>
-                            <TextBlock Text="Código Postal:" Grid.Row="2" VerticalAlignment="Center"/>
-                            <ui:TextBox x:Name="SellerPostcodeTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="12345"/>
+                            <TextBlock Text="Calle línea 2:" Grid.Row="1" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="SellerStreet2TextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Complemento dirección"/>
+                            <TextBlock Text="Ciudad:" Grid.Row="2" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="SellerCityTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Ciudad"/>
+                            <TextBlock Text="Código Postal:" Grid.Row="3" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="SellerPostcodeTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="12345"/>
                         </Grid>
                         <Grid Margin="0,15,0,0">
                             <Grid.ColumnDefinitions>
@@ -69,8 +72,14 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
                             <TextBlock Text="VAT ID:" VerticalAlignment="Center"/>
                             <ui:TextBox x:Name="SellerVATTextBox" Grid.Column="1" PlaceholderText="DE123456789"/>
+                            <TextBlock Text="St.-Nr.:" Grid.Row="1" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="SellerTaxTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="1111/1111/1111"/>
                         </Grid>
                     </StackPanel>
                 </ui:Card>
@@ -108,13 +117,16 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <TextBlock Text="Calle:" VerticalAlignment="Center"/>
                             <ui:TextBox x:Name="BuyerStreetTextBox" Grid.Column="1" PlaceholderText="Calle y número"/>
-                            <TextBlock Text="Ciudad:" Grid.Row="1" VerticalAlignment="Center"/>
-                            <ui:TextBox x:Name="BuyerCityTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Ciudad"/>
-                            <TextBlock Text="Código Postal:" Grid.Row="2" VerticalAlignment="Center"/>
-                            <ui:TextBox x:Name="BuyerPostcodeTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="12345"/>
+                            <TextBlock Text="Calle 2:" Grid.Row="1" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="BuyerStreet2TextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Calle línea 2"/>
+                            <TextBlock Text="Ciudad:" Grid.Row="2" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="BuyerCityTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Ciudad"/>
+                            <TextBlock Text="Código Postal:" Grid.Row="3" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="BuyerPostcodeTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="12345"/>
                         </Grid>                        <Grid Margin="0,15,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -122,6 +134,22 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="País:" VerticalAlignment="Center"/>
                             <ui:TextBox x:Name="BuyerCountryTextBox" Grid.Column="1" PlaceholderText="DE"/>
+                        </Grid>
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="USt-ID:" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="BuyerVATTextBox" Grid.Column="1" PlaceholderText="DE123456789"/>
+                        </Grid>
+                        <Grid Margin="0,15,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="E-Adresse Contacto:" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="BuyerEmailContactTextBox" Grid.Column="1" PlaceholderText="contacto@cliente.com"/>
                         </Grid>
                     </StackPanel>
                 </ui:Card>

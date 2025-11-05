@@ -50,7 +50,7 @@ namespace FacturacionAlemana
             var seccionVendedor = CrearSeccion("DATOS DEL VENDEDOR", new[]
             {
                 ($"Nombre: {factura.SellerName}", ""),
-                ($"Dirección: {factura.SellerLineOne}", ""),
+                ($"Dirección: {factura.SellerLineOne}", $"{factura.SellerLineTwo}"),
                 ($"Código Postal: {factura.SellerPostcodeCode}", $"Ciudad: {factura.SellerCityName}"),
                 ($"País: {factura.SellerCountryID}", $"ID VAT: {factura.SellerVATID}"),
                 ($"Contacto: {factura.SellerPersonName}", $"Teléfono: {factura.SellerCompleteNumber}"),

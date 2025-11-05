@@ -26,9 +26,11 @@ namespace FacturacionAlemana.Models
         public required string SellerEmail { get; set; }
         public required string SellerPostcodeCode { get; set; }
         public required string SellerLineOne { get; set; }
+        public string SellerLineTwo { get; set; } = string.Empty;
         public required string SellerCityName { get; set; }
         public required string SellerCountryID { get; set; }
         public required string SellerVATID { get; set; }
+        public required string SellerTaxNumber { get; set; }
         public required string BuyerID { get; set; }
         public required string BuyerName { get; set; }
         public required string BuyerPersonName { get; set; }
@@ -36,7 +38,11 @@ namespace FacturacionAlemana.Models
         public required string BuyerEmail { get; set; }
         public required string BuyerPostcodeCode { get; set; }
         public required string BuyerLineOne { get; set; }
-        public required string BuyerCityName { get; set; }        public required string BuyerCountryID { get; set; }
+        public string BuyerLineTwo { get; set; } = string.Empty;
+        public required string BuyerCityName { get; set; }
+        public required string BuyerCountryID { get; set; }
+        public required string BuyerVATID { get; set; }
+        public required string BuyerEmailContact { get; set; }
         public string BuyerReference { get; set; } = string.Empty; // Referencia del comprador (puede estar vacía)
         public required string LineID { get; set; }
         public required string SellerAssignedID { get; set; }
@@ -53,7 +59,8 @@ namespace FacturacionAlemana.Models
         public required string IBANID { get; set; }
         public required string AccountName { get; set; }
         public required string BICID { get; set; }
-        public required string CalculatedAmount { get; set; }        public required string BasisAmount { get; set; }
+        public required string CalculatedAmount { get; set; }
+        public required string BasisAmount { get; set; }
         public required string PaymentDescription { get; set; }
         public string TaxAmount { get; set; } = "0"; // Monto total de impuestos
 

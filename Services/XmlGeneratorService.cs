@@ -137,6 +137,7 @@ namespace FacturacionAlemana.Services
                                 new XElement(XName.Get("PostalTradeAddress", ram),
                                     new XElement(XName.Get("PostcodeCode", ram), factura.SellerPostcodeCode),
                                     new XElement(XName.Get("LineOne", ram), factura.SellerLineOne),
+                                    new XElement(XName.Get("LineTwo", ram), factura.SellerLineTwo),
                                     new XElement(XName.Get("CityName", ram), factura.SellerCityName),
                                     new XElement(XName.Get("CountryID", ram), factura.SellerCountryID)
                                 ),
@@ -167,6 +168,7 @@ namespace FacturacionAlemana.Services
                                 new XElement(XName.Get("PostalTradeAddress", ram),
                                     new XElement(XName.Get("PostcodeCode", ram), factura.BuyerPostcodeCode),
                                     new XElement(XName.Get("LineOne", ram), factura.BuyerLineOne),
+                                    new XElement(XName.Get("LineTwo", ram), factura.BuyerLineTwo),
                                     new XElement(XName.Get("CityName", ram), factura.BuyerCityName),
                                     new XElement(XName.Get("CountryID", ram), factura.BuyerCountryID)
                                 ),
@@ -174,6 +176,12 @@ namespace FacturacionAlemana.Services
                                     new XElement(XName.Get("URIID", ram), 
                                         new XAttribute("schemeID", "EM"), 
                                         factura.BuyerEmail
+                                    )
+                                ),
+                                new XElement(XName.Get("SpecifiedTaxRegistration", ram),
+                                    new XElement(XName.Get("ID", ram), 
+                                        new XAttribute("schemeID", "VA"), 
+                                        factura.BuyerVATID
                                     )
                                 )
                             )

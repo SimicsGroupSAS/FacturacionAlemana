@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rsm:CrossIndustryInvoice xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100" xmlns:qdt="urn:un:unece:uncefact:data:standard:QualifiedDataType:100" xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100" xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100">
+	<rsm:ExchangedDocumentContext>
+		<ram:BusinessProcessSpecifiedDocumentContextParameter>
+			<ram:ID>urn:fdc:peppol.eu:2017:poacc:billing:01:1.0</ram:ID>
+		</ram:BusinessProcessSpecifiedDocumentContextParameter>
+		<ram:GuidelineSpecifiedDocumentContextParameter>
+			<ram:ID>urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0</ram:ID>
+		</ram:GuidelineSpecifiedDocumentContextParameter>
+	</rsm:ExchangedDocumentContext>
+	<rsm:ExchangedDocument>
+		<ram:ID>STR-25-009</ram:ID>
+		<ram:TypeCode>380</ram:TypeCode>
+		<ram:IssueDateTime>
+			<udt:DateTimeString format="102">20251104</udt:DateTimeString>
+		</ram:IssueDateTime>
+		<ram:IncludedNote>
+			<ram:Content>Zahlungsart: Überweisung</ram:Content>
+		</ram:IncludedNote>
+	</rsm:ExchangedDocument>
+	<rsm:SupplyChainTradeTransaction>
+		<ram:IncludedSupplyChainTradeLineItem>
+			<ram:AssociatedDocumentLineDocument>
+				<ram:LineID>1</ram:LineID>
+			</ram:AssociatedDocumentLineDocument>
+			<ram:SpecifiedTradeProduct>
+				<ram:SellerAssignedID>MICODIGO1</ram:SellerAssignedID>
+				<ram:BuyerAssignedID>CLIENTECODIGO1</ram:BuyerAssignedID>
+				<ram:Name>ITEM1</ram:Name>
+				<ram:Description>DESCRIPCIONITEM1</ram:Description>
+			</ram:SpecifiedTradeProduct>
+			<ram:SpecifiedLineTradeAgreement>
+				<ram:BuyerOrderReferencedDocument>
+					<ram:LineID>POSICIONORDEN1</ram:LineID>
+				</ram:BuyerOrderReferencedDocument>
+				<ram:NetPriceProductTradePrice>
+					<ram:ChargeAmount>100.00</ram:ChargeAmount>
+					<ram:BasisQuantity unitCode="H87">1</ram:BasisQuantity>
+				</ram:NetPriceProductTradePrice>
+			</ram:SpecifiedLineTradeAgreement>
+			<ram:SpecifiedLineTradeDelivery>
+				<ram:BilledQuantity unitCode="H87">1</ram:BilledQuantity>
+			</ram:SpecifiedLineTradeDelivery>
+			<ram:SpecifiedLineTradeSettlement>
+				<ram:ApplicableTradeTax>
+					<ram:TypeCode>VAT</ram:TypeCode>
+					<ram:CategoryCode>S</ram:CategoryCode>
+					<ram:RateApplicablePercent>19</ram:RateApplicablePercent>
+				</ram:ApplicableTradeTax>
+				<ram:BillingSpecifiedPeriod>
+					<ram:StartDateTime>
+						<udt:DateTimeString format="102">20260101</udt:DateTimeString>
+					</ram:StartDateTime>
+					<ram:EndDateTime>
+						<udt:DateTimeString format="102">20260102</udt:DateTimeString>
+					</ram:EndDateTime>
+				</ram:BillingSpecifiedPeriod>
+				<ram:SpecifiedTradeSettlementLineMonetarySummation>
+					<ram:LineTotalAmount>100.00</ram:LineTotalAmount>
+				</ram:SpecifiedTradeSettlementLineMonetarySummation>
+			</ram:SpecifiedLineTradeSettlement>
+		</ram:IncludedSupplyChainTradeLineItem>
+		<ram:IncludedSupplyChainTradeLineItem>
+			<ram:AssociatedDocumentLineDocument>
+				<ram:LineID>2</ram:LineID>
+			</ram:AssociatedDocumentLineDocument>
+			<ram:SpecifiedTradeProduct>
+				<ram:SellerAssignedID>MICODIGO2</ram:SellerAssignedID>
+				<ram:BuyerAssignedID>CLIENTECODIGO2</ram:BuyerAssignedID>
+				<ram:Name>ITEM2</ram:Name>
+				<ram:Description>DESCRIPCIONITEM2</ram:Description>
+			</ram:SpecifiedTradeProduct>
+			<ram:SpecifiedLineTradeAgreement>
+				<ram:BuyerOrderReferencedDocument>
+					<ram:LineID>POSICIONORDEN2</ram:LineID>
+				</ram:BuyerOrderReferencedDocument>
+				<ram:NetPriceProductTradePrice>
+					<ram:ChargeAmount>50.00</ram:ChargeAmount>
+					<ram:BasisQuantity unitCode="H87">1</ram:BasisQuantity>
+				</ram:NetPriceProductTradePrice>
+			</ram:SpecifiedLineTradeAgreement>
+			<ram:SpecifiedLineTradeDelivery>
+				<ram:BilledQuantity unitCode="H87">2</ram:BilledQuantity>
+			</ram:SpecifiedLineTradeDelivery>
+			<ram:SpecifiedLineTradeSettlement>
+				<ram:ApplicableTradeTax>
+					<ram:TypeCode>VAT</ram:TypeCode>
+					<ram:CategoryCode>S</ram:CategoryCode>
+					<ram:RateApplicablePercent>19</ram:RateApplicablePercent>
+				</ram:ApplicableTradeTax>
+				<ram:BillingSpecifiedPeriod>
+					<ram:StartDateTime>
+						<udt:DateTimeString format="102">20260103</udt:DateTimeString>
+					</ram:StartDateTime>
+					<ram:EndDateTime>
+						<udt:DateTimeString format="102">20260104</udt:DateTimeString>
+					</ram:EndDateTime>
+				</ram:BillingSpecifiedPeriod>
+				<ram:SpecifiedTradeSettlementLineMonetarySummation>
+					<ram:LineTotalAmount>100.00</ram:LineTotalAmount>
+				</ram:SpecifiedTradeSettlementLineMonetarySummation>
+			</ram:SpecifiedLineTradeSettlement>
+		</ram:IncludedSupplyChainTradeLineItem>
+		<ram:ApplicableHeaderTradeAgreement>
+			<ram:BuyerReference>0</ram:BuyerReference>
+			<ram:SellerTradeParty>
+				<ram:Name>MIEMPRESA</ram:Name>
+				<ram:DefinedTradeContact>
+					<ram:PersonName>MINOMBRE</ram:PersonName>
+					<ram:TelephoneUniversalCommunication>
+						<ram:CompleteNumber>+11111111</ram:CompleteNumber>
+					</ram:TelephoneUniversalCommunication>
+					<ram:EmailURIUniversalCommunication>
+						<ram:URIID>MICORREO@CORREO.COM</ram:URIID>
+					</ram:EmailURIUniversalCommunication>
+				</ram:DefinedTradeContact>
+				<ram:PostalTradeAddress>
+					<ram:PostcodeCode>11111</ram:PostcodeCode>
+					<ram:LineOne>MIDIRECCION1</ram:LineOne>
+					<ram:LineTwo>MIDIRECCION2</ram:LineTwo>
+					<ram:CityName>MICIUDAD</ram:CityName>
+					<ram:CountryID>DE</ram:CountryID>
+				</ram:PostalTradeAddress>
+				<ram:URIUniversalCommunication>
+					<ram:URIID schemeID="EM">MMIFACTURA@CORREO.COM</ram:URIID>
+				</ram:URIUniversalCommunication>
+				<ram:SpecifiedTaxRegistration>
+					<ram:ID schemeID="VA">DE1111111</ram:ID>
+				</ram:SpecifiedTaxRegistration>
+				<ram:SpecifiedTaxRegistration>
+					<ram:ID schemeID="FC">1111/1111/1111</ram:ID>
+				</ram:SpecifiedTaxRegistration>
+			</ram:SellerTradeParty>
+			<ram:BuyerTradeParty>
+				<ram:Name>MICLIENTE</ram:Name>
+				<ram:DefinedTradeContact>
+					<ram:PersonName>NOMBRECONTACTOCLIENTE</ram:PersonName>
+					<ram:TelephoneUniversalCommunication>
+						<ram:CompleteNumber>888888888</ram:CompleteNumber>
+					</ram:TelephoneUniversalCommunication>
+					<ram:EmailURIUniversalCommunication>
+						<ram:URIID>CONTACTOPERSNA@CLIENTE.COM</ram:URIID>
+					</ram:EmailURIUniversalCommunication>
+				</ram:DefinedTradeContact>
+				<ram:PostalTradeAddress>
+					<ram:PostcodeCode>99999</ram:PostcodeCode>
+					<ram:LineOne>CLIENTEDIR1</ram:LineOne>
+					<ram:LineTwo>CLIENTEDIR2</ram:LineTwo>
+					<ram:CityName>CLIENTECIUDAD</ram:CityName>
+					<ram:CountryID>DE</ram:CountryID>
+				</ram:PostalTradeAddress>
+				<ram:URIUniversalCommunication>
+					<ram:URIID schemeID="EM">MICLIENTE@CLIENTE.COM</ram:URIID>
+				</ram:URIUniversalCommunication>
+				<ram:SpecifiedTaxRegistration>
+					<ram:ID schemeID="VA">DE99999999</ram:ID>
+				</ram:SpecifiedTaxRegistration>
+			</ram:BuyerTradeParty>
+			<ram:SellerOrderReferencedDocument>
+				<ram:IssuerAssignedID>Numero del Trabajo</ram:IssuerAssignedID>
+			</ram:SellerOrderReferencedDocument>
+			<ram:BuyerOrderReferencedDocument>
+				<ram:IssuerAssignedID>Numero de Orden</ram:IssuerAssignedID>
+			</ram:BuyerOrderReferencedDocument>
+			<ram:ContractReferencedDocument>
+				<ram:IssuerAssignedID>Numero del Contrato</ram:IssuerAssignedID>
+			</ram:ContractReferencedDocument>
+			<ram:SpecifiedProcuringProject>
+				<ram:ID>Numero del Proyecto</ram:ID>
+				<ram:Name>?</ram:Name>
+			</ram:SpecifiedProcuringProject>
+		</ram:ApplicableHeaderTradeAgreement>
+		<ram:ApplicableHeaderTradeDelivery>
+			<ram:ShipToTradeParty>
+				<ram:ID>LUGARENTREGA</ram:ID>
+				<ram:Name>LUGARENTREGANOMBREDESTINATARIORECEPTOR</ram:Name>
+				<ram:PostalTradeAddress>
+					<ram:PostcodeCode>77777</ram:PostcodeCode>
+					<ram:LineOne>LUGARENTREGADIRECCION1</ram:LineOne>
+					<ram:LineTwo>LUGARENTREGADIRECCION2</ram:LineTwo>
+					<ram:LineThree>LUGARENTREGADIRECCIONCOMPLEMENTO</ram:LineThree>
+					<ram:CityName>CIUDADENTREGA</ram:CityName>
+					<ram:CountryID>DE</ram:CountryID>
+					<ram:CountrySubDivisionName>LUGARENTREGAREGION</ram:CountrySubDivisionName>
+				</ram:PostalTradeAddress>
+			</ram:ShipToTradeParty>
+			<ram:ActualDeliverySupplyChainEvent>
+				<ram:OccurrenceDateTime>
+					<udt:DateTimeString format="102">20251004</udt:DateTimeString>
+				</ram:OccurrenceDateTime>
+			</ram:ActualDeliverySupplyChainEvent>
+		</ram:ApplicableHeaderTradeDelivery>
+		<ram:ApplicableHeaderTradeSettlement>
+			<ram:PaymentReference>CONCEPTODELPAGODELCLIENTE</ram:PaymentReference>
+			<ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>
+			<ram:SpecifiedTradeSettlementPaymentMeans>
+				<ram:TypeCode>58</ram:TypeCode>
+				<ram:Information>SEPA credit transfer</ram:Information>
+				<ram:PayeePartyCreditorFinancialAccount>
+					<ram:IBANID>IBAN123123123123</ram:IBANID>
+					<ram:AccountName>MIEMPRESANOMBRECUENTABANCO</ram:AccountName>
+				</ram:PayeePartyCreditorFinancialAccount>
+				<ram:PayeeSpecifiedCreditorFinancialInstitution>
+					<ram:BICID>BIC123123</ram:BICID>
+				</ram:PayeeSpecifiedCreditorFinancialInstitution>
+			</ram:SpecifiedTradeSettlementPaymentMeans>
+			<ram:ApplicableTradeTax>
+				<ram:CalculatedAmount>38.00</ram:CalculatedAmount>
+				<ram:TypeCode>VAT</ram:TypeCode>
+				<ram:BasisAmount>200.00</ram:BasisAmount>
+				<ram:CategoryCode>S</ram:CategoryCode>
+				<ram:RateApplicablePercent>19</ram:RateApplicablePercent>
+			</ram:ApplicableTradeTax>
+			<ram:SpecifiedTradePaymentTerms>
+				<ram:Description>Bitte überweisen Sie den Rechnungsbetrag in Höhe von 238.00 EUR bis zum Fälligkeitsdatum 04.12.2025.</ram:Description>
+				<ram:DueDateDateTime>
+					<udt:DateTimeString format="102">20251204</udt:DateTimeString>
+				</ram:DueDateDateTime>
+			</ram:SpecifiedTradePaymentTerms>
+			<ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+				<ram:LineTotalAmount>200.00</ram:LineTotalAmount>
+				<ram:TaxBasisTotalAmount>200.00</ram:TaxBasisTotalAmount>
+				<ram:TaxTotalAmount currencyID="EUR">38.00</ram:TaxTotalAmount>
+				<ram:GrandTotalAmount>238.00</ram:GrandTotalAmount>
+				<ram:DuePayableAmount>238.00</ram:DuePayableAmount>
+			</ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+		</ram:ApplicableHeaderTradeSettlement>
+	</rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryInvoice>

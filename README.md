@@ -32,44 +32,75 @@ Antes de ejecutar la aplicación, asegúrate de tener instalado lo siguiente:
 
 ## 🚀 Instalación y configuración
 
-### Opción 1: Ejecutar la aplicación compilada (Recomendado)
+### Opción 1: Usar Visual Studio Code (Recomendado)
 
-Si ya tienes el archivo ejecutable compilado (`.exe`):
+Esta es la forma más sencilla y recomendada para trabajar con el proyecto:
 
-1. Descarga o copia el archivo ejecutable a tu equipo
-2. Haz doble clic en el archivo `.exe` para ejecutar la aplicación
-3. ¡Listo! La aplicación se abrirá sin necesidad de configuración adicional
-
-### Opción 2: Compilar desde el código fuente
-
-Si deseas compilar la aplicación desde el código fuente:
-
-1. **Clona o descarga el repositorio**
-   ```powershell
-   git clone <URL_DEL_REPOSITORIO>
-   cd FacturacionAlemana
-   ```
-
-2. **Instala las dependencias de NuGet**
+1. **Extrae el archivo ZIP** a una carpeta en tu equipo
+   - Haz clic derecho en el archivo `.zip`
+   - Selecciona **"Extraer todo..."**
+   - Elige la carpeta de destino
+2. **Abre la carpeta en VS Code**
+   - Abre Visual Studio Code
+   - Selecciona **Archivo > Abrir carpeta** (File > Open Folder)
+   - Navega a la carpeta extraída de `FacturacionAlemana`
+3. **Abre la terminal integrada** de VS Code (`Ctrl + ñ`)
+4. **Instala las dependencias**:
    ```powershell
    dotnet restore
    ```
+5. **Ejecuta la aplicación**:
+   ```powershell
+   dotnet run --project FacturacionAlemana.csproj
+   ```
+   La aplicación se abrirá en una ventana nueva.
 
-3. **Compila el proyecto**
+> 💡 **Tip**: Si prefieres compilar sin ejecutar inmediatamente, usa:
+> ```powershell
+> dotnet build
+> ```
+
+### Opción 2: Ejecutar el archivo compilado (.exe)
+
+Si solo quieres ejecutar la aplicación sin editar código:
+
+1. **Extrae el archivo ZIP** a una carpeta en tu equipo
+   - Haz clic derecho en el archivo `.zip`
+   - Selecciona **"Extraer todo..."**
+   - Elige la carpeta de destino
+2. **Busca el archivo `FacturacionAlemana.exe`** en la carpeta extraída
+3. **Haz doble clic** en el archivo para iniciar la aplicación
+4. ¡Listo! La aplicación se abrirá sin necesidad de configuración adicional
+
+> ℹ️ **Nota**: Asegúrate de tener **.NET 9 Runtime** instalado antes de ejecutar el archivo `.exe`. Si la aplicación no inicia, consulta la sección de [Solución de problemas](#-solución-de-problemas).
+
+### Opción 3: Compilar desde terminal (PowerShell / CMD)
+
+Si prefieres usar PowerShell o cmd directamente:
+
+1. **Extrae el archivo ZIP** a una carpeta en tu equipo
+2. **Abre PowerShell o cmd** en la carpeta del proyecto
+3. **Instala las dependencias de NuGet**:
+   ```powershell
+   dotnet restore
+   ```
+4. **Compila el proyecto**:
    ```powershell
    dotnet build
    ```
-
-4. **Ejecuta la aplicación**
+5. **Ejecuta la aplicación**:
    ```powershell
    dotnet run --project FacturacionAlemana.csproj
    ```
 
-### Opción 3: Usar Visual Studio
+### Opción 4: Usar Visual Studio 2022
 
-1. Abre `FacturacionAlemana.sln` en Visual Studio 2022
-2. Haz clic derecho en el proyecto y selecciona **"Restaurar paquetes de NuGet"**
-3. Presiona `F5` o selecciona **Depurar > Iniciar depuración**
+Si tienes Visual Studio instalado y prefieres usarlo:
+
+1. **Extrae el archivo ZIP** a una carpeta en tu equipo
+2. **Abre `FacturacionAlemana.sln`** en Visual Studio 2022
+3. Haz clic derecho en el proyecto y selecciona **"Restaurar paquetes de NuGet"**
+4. Presiona `F5` o selecciona **Depurar > Iniciar depuración**
 
 ## 💻 Cómo usar la aplicación
 

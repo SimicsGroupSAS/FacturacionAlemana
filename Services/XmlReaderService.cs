@@ -145,7 +145,7 @@ namespace FacturacionAlemana.Services
                 var description = item.Descendants(ram + "SpecifiedTradeProduct").Elements(ram + "Description").FirstOrDefault()?.Value ?? "";
                 var itemChargeAmount = item.Descendants(ram + "SpecifiedLineTradeAgreement").Descendants(ram + "NetPriceProductTradePrice").Elements(ram + "ChargeAmount").FirstOrDefault()?.Value ?? "0";
                 var itemBilledQuantity = item.Descendants(ram + "SpecifiedLineTradeDelivery").Elements(ram + "BilledQuantity").FirstOrDefault()?.Value ?? "0";
-                var lineTotalAmount = item.Descendants(ram + "SpecifiedLineTradeSettlement").Descendants(ram + "SpecifiedTradeSettlementLineMonetarySummation").Elements(ram + "LineTotalAmount").FirstOrDefault()?.Value ?? "0";
+                var itemLineTotalAmount = item.Descendants(ram + "SpecifiedLineTradeSettlement").Descendants(ram + "SpecifiedTradeSettlementLineMonetarySummation").Elements(ram + "LineTotalAmount").FirstOrDefault()?.Value ?? "0";
 
                 // Leer tax del item
                 var itemTaxTypeCode = item.Descendants(ram + "SpecifiedLineTradeSettlement").Descendants(ram + "ApplicableTradeTax").Elements(ram + "TypeCode").FirstOrDefault()?.Value ?? "VAT";
@@ -158,7 +158,7 @@ namespace FacturacionAlemana.Services
                     Descripcion = name + " " + description,
                     Cantidad = NormalizarDecimal(itemBilledQuantity),
                     PrecioUnitario = NormalizarDecimal(itemChargeAmount),
-                    PrecioTotal = NormalizarDecimal(lineTotalAmount)
+                    PrecioTotal = NormalizarDecimal(itemLineTotalAmount)
                 });
 
                 // Usar el tax del primer item

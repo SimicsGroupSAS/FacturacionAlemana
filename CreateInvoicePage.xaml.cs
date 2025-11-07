@@ -12,13 +12,12 @@ namespace FacturacionAlemana
 {
     public partial class CreateInvoicePage : Page
     {
-        private ObservableCollection<Producto> productos = new();
-
-        public CreateInvoicePage()
+        private ObservableCollection<Producto> productos = new();        public CreateInvoicePage()
         {
             InitializeComponent();
             ProductsDataGrid.ItemsSource = productos;
             IssueDateTextBox.Text = DateTime.Now.ToString("yyyy-MM-dd");
+            DeliveryDateTextBox.Text = DateTime.Now.ToString("yyyy-MM-dd");
             DueDateTextBox.Text = DateTime.Now.AddMonths(1).ToString("yyyy-MM-dd");
             CurrencyComboBox.SelectedIndex = 0;
             TaxRateTextBox.TextChanged += (s, e) => ActualizarResumenTotales();
@@ -29,12 +28,11 @@ namespace FacturacionAlemana
         {
             try
             {
-                var id = ProductIdTextBox.Text?.Trim();
-                var descripcion = ProductDescTextBox.Text?.Trim();
+                var name = ProductDescTextBox.Text?.Trim();
                 var cantidadStr = ProductQtyTextBox.Text?.Trim();
                 var precioStr = ProductPriceTextBox.Text?.Trim();
 
-                if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(descripcion) || 
+                if (string.IsNullOrEmpty(name) || 
                     string.IsNullOrEmpty(cantidadStr) || string.IsNullOrEmpty(precioStr))
                 {
                     MessageBox.Show("Por favor, completa todos los campos del producto.", "Error", 
@@ -51,16 +49,17 @@ namespace FacturacionAlemana
 
                 var producto = new Producto
                 {
-                    Id = id,
-                    Descripcion = descripcion,
+                    Pos = productos.Count + 1,
+                    Name = name,
+                    Descripcion = "",
                     Cantidad = cantidad,
+                    Unit = "H87",
                     PrecioUnitario = precio,
                     PrecioTotal = cantidad * precio
                 };
 
                 productos.Add(producto);
 
-                ProductIdTextBox.Clear();
                 ProductDescTextBox.Clear();
                 ProductQtyTextBox.Clear();
                 ProductPriceTextBox.Clear();
@@ -321,9 +320,9 @@ namespace FacturacionAlemana
                 SellerName = SellerNameTextBox.Text,
                 SellerPersonName = SellerPersonNameTextBox.Text,
                 SellerDepartmentName = "Ventas",
-                SellerCompleteNumber = SellerPhoneTextBox.Text,
-                SellerEmail = SellerEmailTextBox.Text,
-                SellerPostcodeCode = SellerPostcodeTextBox.Text,                SellerLineOne = SellerStreetTextBox.Text,
+                SellerCompleteNumber = SellerPhoneTextBox.Text,                SellerEmail = SellerEmailTextBox.Text,
+                SellerPostcodeCode = SellerPostcodeTextBox.Text,
+                SellerLineOne = SellerStreetTextBox.Text,
                 SellerLineTwo = SellerStreet2TextBox.Text,
                 SellerCityName = SellerCityTextBox.Text,
                 SellerCountryID = SellerCountryTextBox.Text.Trim().ToUpper(),
@@ -343,8 +342,8 @@ namespace FacturacionAlemana
                 BuyerVATID = BuyerVATTextBox.Text,
                 BuyerEmailContact = BuyerEmailContactTextBox.Text,
                 
-                LineID = "1",
-                SellerAssignedID = productos[0].Id,
+                LineID = productos[0].Pos.ToString(),
+                SellerAssignedID = productos[0].Pos.ToString(),
                 ProductName = productos[0].Descripcion,
                 ChargeAmount = productos[0].PrecioTotal.ToString("F2", CultureInfo.InvariantCulture),
                 BilledQuantity = productos[0].Cantidad.ToString("F2", CultureInfo.InvariantCulture),
@@ -360,7 +359,26 @@ namespace FacturacionAlemana
                 BasisAmount = totalGeneral.ToString("F2", CultureInfo.InvariantCulture), // Base imponible (neto sin impuestos)
                 PaymentDescription = "Pago según términos acordados",
                 
-                Productos = new List<Producto>(productos)
+                InvoiceNumber = InvoiceNumberTextBox.Text,
+                IssueDate = DateTime.ParseExact(IssueDateTextBox.Text, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+                DeliveryDate = DateTime.ParseExact(DeliveryDateTextBox.Text, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+                DueDateValue = DateTime.ParseExact(DueDateTextBox.Text, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+                ProjectNumber = ProjectNumberTextBox.Text,
+                ContractNumber = ContractNumberTextBox.Text,
+                PurchaseOrderNumber = PurchaseOrderNumberTextBox.Text,
+                SalesOrderNumber = SalesOrderNumberTextBox.Text,
+                PaymentReference = PaymentReferenceTextBox.Text,
+                
+                Productos = new List<Producto>(productos),
+                ShipToID = "",
+                ShipToName = "",
+                ShipToPostcodeCode = "",
+                ShipToLineOne = "",
+                ShipToLineTwo = "",
+                ShipToLineThree = "",
+                ShipToCityName = "",
+                ShipToCountryID = "",
+                ShipToCountrySubDivisionName = ""
             };
         }        private void OnCancelClick(object sender, RoutedEventArgs e)
         {

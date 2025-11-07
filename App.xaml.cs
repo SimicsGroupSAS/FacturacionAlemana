@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using Wpf.Ui.Appearance;
+using FacturacionAlemana.Utils;
 
 namespace FacturacionAlemana
 {
@@ -14,6 +15,16 @@ namespace FacturacionAlemana
             this.DispatcherUnhandledException += App_DispatcherUnhandledException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             System.Threading.Tasks.TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+
+            // Ejecutar la prueba de generación de PDF
+            try
+            {
+                TestPdfGeneration.Test();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al ejecutar TestPdfGeneration: {ex.Message}\n\n{ex.StackTrace}", "Error en Prueba", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)

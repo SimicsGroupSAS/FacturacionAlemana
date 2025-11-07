@@ -26,7 +26,7 @@ namespace FacturacionAlemana.Services
             if (string.IsNullOrWhiteSpace(valor))
                 return 0;
 
-            valor = valor.Replace(".", "").Replace(",", ".");
+            valor = valor.Replace(",", ".");
             
             if (decimal.TryParse(valor, CultureInfo.InvariantCulture, out var resultado))
                 return resultado;
@@ -91,15 +91,24 @@ namespace FacturacionAlemana.Services
             XNamespace ram = "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100";
             XNamespace udt = "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100";
 
-            var xmlDoc = XDocument.Load(filePath);
-
-            // Detalles de la Factura
+            var xmlDoc = XDocument.Load(filePath);            // Detalles de la Factura
             var idElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(ram + "ID").FirstOrDefault()?.Value ?? "No encontrado";
             var typeCodeElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(ram + "TypeCode").FirstOrDefault()?.Value ?? "No encontrado";
             var issueDateElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(udt + "DateTimeString").FirstOrDefault()?.Value ?? "No encontrado";
             
             var notas = ExtraerNotas(xmlDoc, rsm, ram);
             var paymentNoteElement = notas.Count > 0 ? notas[0] : "No encontrado";
+
+            // Parsear fechas
+            var issueDate = DateTime.TryParseExact(issueDateElement, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedIssueDate)
+                ? parsedIssueDate
+                : DateTime.Now;
+            
+            // Leer fecha de entrega
+            var deliveryDateRaw = xmlDoc.Descendants(ram + "ActualDeliverySupplyChainEvent").Descendants(udt + "DateTimeString").FirstOrDefault()?.Value ?? issueDateElement;
+            var deliveryDate = DateTime.TryParseExact(deliveryDateRaw, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDeliveryDate)
+                ? parsedDeliveryDate
+                : issueDate;
 
             // Detalles del Vendedor
             var sellerName = xmlDoc.Descendants(ram + "SellerTradeParty").Elements(ram + "Name").FirstOrDefault()?.Value ?? "No encontrado";
@@ -131,6 +140,17 @@ namespace FacturacionAlemana.Services
             var buyerVATID = xmlDoc.Descendants(ram + "BuyerTradeParty").Descendants(ram + "SpecifiedTaxRegistration").Where(x => x.Element(ram + "ID")?.Attribute("schemeID")?.Value == "VA").Select(x => x.Element(ram + "ID")?.Value).FirstOrDefault() ?? "No encontrado";
             var buyerEmailContact = xmlDoc.Descendants(ram + "BuyerTradeParty").Descendants(ram + "DefinedTradeContact").Descendants(ram + "EmailURIUniversalCommunication").Elements(ram + "URIID").FirstOrDefault()?.Value ?? "No encontrado";
 
+            // Detalles de entrega (ShipTo)
+            var shipToID = xmlDoc.Descendants(ram + "ShipToTradeParty").Elements(ram + "ID").FirstOrDefault()?.Value ?? "";
+            var shipToName = xmlDoc.Descendants(ram + "ShipToTradeParty").Elements(ram + "Name").FirstOrDefault()?.Value ?? "";
+            var shipToPostcodeCode = xmlDoc.Descendants(ram + "ShipToTradeParty").Descendants(ram + "PostcodeCode").FirstOrDefault()?.Value ?? "";
+            var shipToLineOne = xmlDoc.Descendants(ram + "ShipToTradeParty").Descendants(ram + "LineOne").FirstOrDefault()?.Value ?? "";
+            var shipToLineTwo = xmlDoc.Descendants(ram + "ShipToTradeParty").Descendants(ram + "LineTwo").FirstOrDefault()?.Value ?? "";
+            var shipToLineThree = xmlDoc.Descendants(ram + "ShipToTradeParty").Descendants(ram + "LineThree").FirstOrDefault()?.Value ?? "";
+            var shipToCityName = xmlDoc.Descendants(ram + "ShipToTradeParty").Descendants(ram + "CityName").FirstOrDefault()?.Value ?? "";
+            var shipToCountryID = xmlDoc.Descendants(ram + "ShipToTradeParty").Descendants(ram + "CountryID").FirstOrDefault()?.Value ?? "";
+            var shipToCountrySubDivisionName = xmlDoc.Descendants(ram + "ShipToTradeParty").Descendants(ram + "CountrySubDivisionName").FirstOrDefault()?.Value ?? "";
+
             // Detalles de los Ítems de Línea
             var productos = new List<Producto>();
             string taxTypeCode = "VAT";
@@ -143,8 +163,12 @@ namespace FacturacionAlemana.Services
                 var buyerAssignedID = item.Descendants(ram + "SpecifiedTradeProduct").Elements(ram + "BuyerAssignedID").FirstOrDefault()?.Value ?? "";
                 var name = item.Descendants(ram + "SpecifiedTradeProduct").Elements(ram + "Name").FirstOrDefault()?.Value ?? "";
                 var description = item.Descendants(ram + "SpecifiedTradeProduct").Elements(ram + "Description").FirstOrDefault()?.Value ?? "";
+                var buyerOrderLineID = item.Descendants(ram + "SpecifiedLineTradeAgreement").Descendants(ram + "BuyerOrderReferencedDocument").Elements(ram + "LineID").FirstOrDefault()?.Value ?? "";
+                var billingStartDateStr = item.Descendants(ram + "SpecifiedLineTradeSettlement").Descendants(ram + "BillingSpecifiedPeriod").Elements(ram + "StartDateTime").Elements(udt + "DateTimeString").FirstOrDefault()?.Value ?? "";
+                var billingEndDateStr = item.Descendants(ram + "SpecifiedLineTradeSettlement").Descendants(ram + "BillingSpecifiedPeriod").Elements(ram + "EndDateTime").Elements(udt + "DateTimeString").FirstOrDefault()?.Value ?? "";
                 var itemChargeAmount = item.Descendants(ram + "SpecifiedLineTradeAgreement").Descendants(ram + "NetPriceProductTradePrice").Elements(ram + "ChargeAmount").FirstOrDefault()?.Value ?? "0";
                 var itemBilledQuantity = item.Descendants(ram + "SpecifiedLineTradeDelivery").Elements(ram + "BilledQuantity").FirstOrDefault()?.Value ?? "0";
+                var itemUnitCode = item.Descendants(ram + "SpecifiedLineTradeDelivery").Elements(ram + "BilledQuantity").Attributes("unitCode").FirstOrDefault()?.Value ?? "H87";
                 var itemLineTotalAmount = item.Descendants(ram + "SpecifiedLineTradeSettlement").Descendants(ram + "SpecifiedTradeSettlementLineMonetarySummation").Elements(ram + "LineTotalAmount").FirstOrDefault()?.Value ?? "0";
 
                 // Leer tax del item
@@ -152,11 +176,21 @@ namespace FacturacionAlemana.Services
                 var itemTaxCategoryCode = item.Descendants(ram + "SpecifiedLineTradeSettlement").Descendants(ram + "ApplicableTradeTax").Elements(ram + "CategoryCode").FirstOrDefault()?.Value ?? "S";
                 var itemTaxRatePercent = item.Descendants(ram + "SpecifiedLineTradeSettlement").Descendants(ram + "ApplicableTradeTax").Elements(ram + "RateApplicablePercent").FirstOrDefault()?.Value ?? "19";
 
+                DateTime.TryParseExact(billingStartDateStr, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var billingStartDate);
+                DateTime.TryParseExact(billingEndDateStr, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var billingEndDate);
+
                 productos.Add(new Producto
                 {
-                    Id = itemSellerAssignedID,
-                    Descripcion = name + " " + description,
+                    Pos = int.Parse(itemLineID),
+                    Name = name,
+                    Descripcion = description,
+                    SellerAssignedID = itemSellerAssignedID,
+                    BuyerAssignedID = buyerAssignedID,
+                    BuyerOrderLineID = buyerOrderLineID,
+                    BillingStartDate = billingStartDate == DateTime.MinValue ? null : billingStartDate,
+                    BillingEndDate = billingEndDate == DateTime.MinValue ? null : billingEndDate,
                     Cantidad = NormalizarDecimal(itemBilledQuantity),
+                    Unit = itemUnitCode,
                     PrecioUnitario = NormalizarDecimal(itemChargeAmount),
                     PrecioTotal = NormalizarDecimal(itemLineTotalAmount)
                 });
@@ -173,12 +207,12 @@ namespace FacturacionAlemana.Services
             // Si no hay productos, agregar uno por defecto
             if (!productos.Any())
             {
-                productos.Add(new Producto { Id = "1", Descripcion = "Producto por defecto", Cantidad = 1, PrecioUnitario = 0, PrecioTotal = 0 });
+                productos.Add(new Producto { Pos = 1, Name = "Producto por defecto", Descripcion = "Producto por defecto", Cantidad = 1, Unit = "H87", PrecioUnitario = 0, PrecioTotal = 0 });
             }
 
             // Usar el primer producto para los campos individuales
-            var lineID = productos[0].Id;
-            var sellerAssignedID = productos[0].Id;
+            var lineID = productos[0].Pos.ToString();
+            var sellerAssignedID = productos[0].Pos.ToString();
             var productName = productos[0].Descripcion;
             var chargeAmount = productos[0].PrecioUnitario.ToString("F2", CultureInfo.InvariantCulture);
             var billedQuantity = productos[0].Cantidad.ToString("F2", CultureInfo.InvariantCulture);
@@ -216,12 +250,30 @@ namespace FacturacionAlemana.Services
             var grandTotalAmount = NormalizarDecimal(grandTotalAmountRaw).ToString("F2");
             
             var duePayableAmountRaw = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementHeaderMonetarySummation").Descendants(ram + "DuePayableAmount").FirstOrDefault()?.Value ?? "0";
-            var duePayableAmount = NormalizarDecimal(duePayableAmountRaw).ToString("F2");
-
-            var dateTimeFormat = xmlDoc.Descendants(udt + "DateTimeString").Attributes("format").FirstOrDefault()?.Value ?? "No encontrado";
+            var duePayableAmount = NormalizarDecimal(duePayableAmountRaw).ToString("F2");            var dateTimeFormat = xmlDoc.Descendants(udt + "DateTimeString").Attributes("format").FirstOrDefault()?.Value ?? "No encontrado";
             var unitCode = xmlDoc.Descendants(ram + "BilledQuantity").Attributes("unitCode").FirstOrDefault()?.Value ?? "No encontrado";
             var schemeID = xmlDoc.Descendants(ram + "SpecifiedTaxRegistration").Descendants(ram + "ID").Attributes("schemeID").FirstOrDefault()?.Value ?? "No encontrado";
             var currencyID = xmlDoc.Descendants(ram + "TaxTotalAmount").Attributes("currencyID").FirstOrDefault()?.Value ?? "No encontrado";
+
+            var taxTotalAmountRaw = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementHeaderMonetarySummation").Descendants(ram + "TaxTotalAmount").FirstOrDefault()?.Value ?? "0";
+            var taxTotalAmount = NormalizarDecimal(taxTotalAmountRaw).ToString("F2");
+
+            // Extraer información de referencias de documentos
+            var projectNumber = xmlDoc.Descendants(ram + "SpecifiedProcuringProject").Elements(ram + "ID").FirstOrDefault()?.Value ?? "";
+            var contractNumber = xmlDoc.Descendants(ram + "ContractReferencedDocument").Elements(ram + "IssuerAssignedID").FirstOrDefault()?.Value ?? "";
+            var purchaseOrderNumber = xmlDoc.Descendants(ram + "BuyerOrderReferencedDocument").Elements(ram + "IssuerAssignedID").FirstOrDefault()?.Value ?? "";
+            var salesOrderNumber = xmlDoc.Descendants(ram + "SellerOrderReferencedDocument").Elements(ram + "IssuerAssignedID").FirstOrDefault()?.Value ?? "";
+            var paymentReference = xmlDoc.Descendants(ram + "PaymentReference").FirstOrDefault()?.Value ?? "";
+            
+            // Parsear fecha de vencimiento como DateTime
+            var dueDateRawForValue = xmlDoc.Descendants(ram + "SpecifiedTradePaymentTerms").Descendants(udt + "DateTimeString").FirstOrDefault()?.Value;
+            if (string.IsNullOrWhiteSpace(dueDateRawForValue))
+            {
+                dueDateRawForValue = issueDateElement;
+            }
+            var dueDateValue = DateTime.TryParseExact(dueDateRawForValue, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDueDate)
+                ? parsedDueDate
+                : issueDate;
 
             return new Factura
             {
@@ -268,8 +320,7 @@ namespace FacturacionAlemana.Services
                 ProductName = productName,
                 ChargeAmount = chargeAmount,
                 BilledQuantity = billedQuantity,
-                TaxTypeCode = taxTypeCode,
-                TaxCategoryCode = taxCategoryCode,
+                TaxTypeCode = taxTypeCode,                TaxCategoryCode = taxCategoryCode,
                 TaxRatePercent = taxRatePercent,
                 LineTotalAmount = lineTotalAmount,
                 InvoiceCurrencyCode = invoiceCurrencyCode,
@@ -280,7 +331,26 @@ namespace FacturacionAlemana.Services
                 BICID = bicID,
                 CalculatedAmount = calculatedAmount,
                 BasisAmount = basisAmount,
-                PaymentDescription = paymentDescription
+                TaxAmount = taxTotalAmount,
+                PaymentDescription = paymentDescription,
+                InvoiceNumber = idElement,
+                IssueDate = issueDate,
+                DeliveryDate = deliveryDate,
+                DueDateValue = dueDateValue,
+                ProjectNumber = projectNumber,
+                ContractNumber = contractNumber,
+                PurchaseOrderNumber = purchaseOrderNumber,
+                SalesOrderNumber = salesOrderNumber,
+                PaymentReference = paymentReference,
+                ShipToID = shipToID,
+                ShipToName = shipToName,
+                ShipToPostcodeCode = shipToPostcodeCode,
+                ShipToLineOne = shipToLineOne,
+                ShipToLineTwo = shipToLineTwo,
+                ShipToLineThree = shipToLineThree,
+                ShipToCityName = shipToCityName,
+                ShipToCountryID = shipToCountryID,
+                ShipToCountrySubDivisionName = shipToCountrySubDivisionName
             };
         }
     }

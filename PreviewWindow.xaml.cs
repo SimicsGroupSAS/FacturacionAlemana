@@ -94,7 +94,7 @@ namespace FacturacionAlemana
             {
                 productosInfo.Inlines.Add(new System.Windows.Documents.Run
                 {
-                    Text = $"ID: {producto.Id} | {producto.Descripcion}\n"
+                    Text = $"Pos: {producto.Pos} | {producto.Descripcion}\n"
                 });
                 productosInfo.Inlines.Add(new System.Windows.Documents.Run
                 {

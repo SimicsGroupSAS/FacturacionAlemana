@@ -94,23 +94,41 @@ namespace FacturacionAlemana.Services
                                     new XElement(XName.Get("LineID", ram), (index + 1).ToString())
                                 ),
                                 new XElement(XName.Get("SpecifiedTradeProduct", ram),
-                                    new XElement(XName.Get("SellerAssignedID", ram), prod.Id),
-                                    new XElement(XName.Get("Name", ram), prod.Descripcion)
-                                ),                                new XElement(XName.Get("SpecifiedLineTradeAgreement", ram),
+                                    new XElement(XName.Get("SellerAssignedID", ram), prod.SellerAssignedID ?? ""),
+                                    new XElement(XName.Get("BuyerAssignedID", ram), prod.BuyerAssignedID ?? ""),
+                                    new XElement(XName.Get("Name", ram), prod.Name),
+                                    new XElement(XName.Get("Description", ram), prod.Descripcion)
+                                ),
+                                new XElement(XName.Get("SpecifiedLineTradeAgreement", ram),
+                                    new XElement(XName.Get("BuyerOrderReferencedDocument", ram),
+                                        new XElement(XName.Get("LineID", ram), prod.BuyerOrderLineID ?? "")
+                                    ),
                                     new XElement(XName.Get("NetPriceProductTradePrice", ram),
-                                        new XElement(XName.Get("ChargeAmount", ram), NormalizeDecimal(prod.PrecioUnitario))
+                                        new XElement(XName.Get("ChargeAmount", ram), NormalizeDecimal(prod.PrecioUnitario)),
+                                        new XElement(XName.Get("BasisQuantity", ram), 
+                                            new XAttribute("unitCode", prod.Unit ?? "H87"), 1)
                                     )
                                 ),
                                 new XElement(XName.Get("SpecifiedLineTradeDelivery", ram),
                                     new XElement(XName.Get("BilledQuantity", ram), 
-                                        new XAttribute("unitCode", "C62"), prod.Cantidad)
+                                        new XAttribute("unitCode", prod.Unit ?? "H87"), prod.Cantidad)
                                 ),
                                 new XElement(XName.Get("SpecifiedLineTradeSettlement", ram),
                                     new XElement(XName.Get("ApplicableTradeTax", ram),
                                         new XElement(XName.Get("TypeCode", ram), factura.TaxTypeCode),
                                         new XElement(XName.Get("CategoryCode", ram), factura.TaxCategoryCode),
                                         new XElement(XName.Get("RateApplicablePercent", ram), factura.TaxRatePercent)
-                                    ),                                    new XElement(XName.Get("SpecifiedTradeSettlementLineMonetarySummation", ram),
+                                    ),
+                                    prod.BillingStartDate.HasValue && prod.BillingEndDate.HasValue ?
+                                    new XElement(XName.Get("BillingSpecifiedPeriod", ram),
+                                        new XElement(XName.Get("StartDateTime", ram),
+                                            new XElement(XName.Get("DateTimeString", udt), prod.BillingStartDate.Value.ToString("yyyyMMdd"), new XAttribute("format", "102"))
+                                        ),
+                                        new XElement(XName.Get("EndDateTime", ram),
+                                            new XElement(XName.Get("DateTimeString", udt), prod.BillingEndDate.Value.ToString("yyyyMMdd"), new XAttribute("format", "102"))
+                                        )
+                                    ) : null,
+                                    new XElement(XName.Get("SpecifiedTradeSettlementLineMonetarySummation", ram),
                                         new XElement(XName.Get("LineTotalAmount", ram), NormalizeDecimal(prod.PrecioTotal))
                                     )
                                 )
@@ -121,6 +139,19 @@ namespace FacturacionAlemana.Services
                                 string.IsNullOrWhiteSpace(factura.BuyerReference) 
                                     ? $"REF-{factura.IdElement}" // Generar referencia automática si está vacía
                                     : factura.BuyerReference
+                            ),
+                            new XElement(XName.Get("SellerOrderReferencedDocument", ram),
+                                new XElement(XName.Get("IssuerAssignedID", ram), factura.SalesOrderNumber)
+                            ),
+                            new XElement(XName.Get("BuyerOrderReferencedDocument", ram),
+                                new XElement(XName.Get("IssuerAssignedID", ram), factura.PurchaseOrderNumber)
+                            ),
+                            new XElement(XName.Get("ContractReferencedDocument", ram),
+                                new XElement(XName.Get("IssuerAssignedID", ram), factura.ContractNumber)
+                            ),
+                            new XElement(XName.Get("SpecifiedProcuringProject", ram),
+                                new XElement(XName.Get("ID", ram), factura.ProjectNumber),
+                                new XElement(XName.Get("Name", ram), factura.ProjectNumber)
                             ),
                             new XElement(XName.Get("SellerTradeParty", ram),
                                 new XElement(XName.Get("Name", ram), factura.SellerName),
@@ -186,20 +217,19 @@ namespace FacturacionAlemana.Services
                                 )
                             )
                         ),
-                        
-                        // Información de Entrega
+                          // Información de Entrega
                         new XElement(XName.Get("ApplicableHeaderTradeDelivery", ram),
                             new XElement(XName.Get("ActualDeliverySupplyChainEvent", ram),
                                 new XElement(XName.Get("OccurrenceDateTime", ram),
                                     new XElement(XName.Get("DateTimeString", udt), 
                                         new XAttribute("format", "102"), 
-                                        factura.IssueDateElement
+                                        factura.DeliveryDate.ToString("yyyyMMdd")
                                     )
                                 )
                             )
-                        ),
-                          // Información de Liquidación (Settlement)
+                        ),                          // Información de Liquidación (Settlement)
                         new XElement(XName.Get("ApplicableHeaderTradeSettlement", ram),
+                            new XElement(XName.Get("PaymentReference", ram), factura.PaymentReference),
                             new XElement(XName.Get("InvoiceCurrencyCode", ram), factura.CurrencyID),
                             new XElement(XName.Get("SpecifiedTradeSettlementPaymentMeans", ram),
                                 new XElement(XName.Get("TypeCode", ram), factura.PaymentTypeCode),

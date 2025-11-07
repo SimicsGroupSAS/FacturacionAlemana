@@ -161,8 +161,8 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
+                            </Grid.ColumnDefinitions>                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
@@ -174,10 +174,11 @@
                             <TextBlock Text="Referencia del Comprador (BT-10):" Grid.Row="1" VerticalAlignment="Center"/>
                             <ui:TextBox x:Name="BuyerReferenceTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="REF-12345 (Obligatorio)"/>
                             <TextBlock Text="Fecha:" Grid.Row="2" VerticalAlignment="Center"/>
-                            <ui:TextBox x:Name="IssueDateTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="2025-10-28"/>
-                            <TextBlock Text="Fecha de Vencimiento:" Grid.Row="3" VerticalAlignment="Center"/>                            <ui:TextBox x:Name="DueDateTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="2025-11-28"/>
-                            <TextBlock Text="Moneda:" Grid.Row="4" VerticalAlignment="Center"/>
-                            <ComboBox x:Name="CurrencyComboBox" Grid.Row="4" Grid.Column="1" SelectedValuePath="Content">
+                            <ui:TextBox x:Name="IssueDateTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="2025-10-28"/>                            <TextBlock Text="Fecha de Vencimiento:" Grid.Row="3" VerticalAlignment="Center"/>                            <ui:TextBox x:Name="DueDateTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="2025-11-28"/>
+                            <TextBlock Text="Fecha de Entrega:" Grid.Row="4" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="DeliveryDateTextBox" Grid.Row="4" Grid.Column="1" PlaceholderText="2025-10-04"/>
+                            <TextBlock Text="Moneda:" Grid.Row="5" VerticalAlignment="Center"/>
+                            <ComboBox x:Name="CurrencyComboBox" Grid.Row="5" Grid.Column="1" SelectedValuePath="Content">
                                 <ComboBoxItem>EUR</ComboBoxItem>
                                 <ComboBoxItem>USD</ComboBoxItem>
                                 <ComboBoxItem>GBP</ComboBoxItem>
@@ -219,8 +220,31 @@
                             <ui:TextBox x:Name="IBANTextBox" Grid.Column="1" PlaceholderText="DE89370400440532013000"/>
                             <TextBlock Text="BIC:" Grid.Row="1" VerticalAlignment="Center"/>
                             <ui:TextBox x:Name="BICTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="COBADEFFXXX"/>
-                            <TextBlock Text="Nombre de Cuenta:" Grid.Row="2" VerticalAlignment="Center"/>
-                            <ui:TextBox x:Name="AccountNameTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Nombre Empresa"/>
+                            <TextBlock Text="Nombre de Cuenta:" Grid.Row="2" VerticalAlignment="Center"/>                            <ui:TextBox x:Name="AccountNameTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Nombre Empresa"/>
+                        </Grid>
+                        <TextBlock Text="Referencias de Documentos" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10"/>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Número de Proyecto:" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="ProjectNumberTextBox" Grid.Column="1" PlaceholderText="Numero del Proyecto"/>
+                            <TextBlock Text="Número de Contrato:" Grid.Row="1" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="ContractNumberTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Numero del Contrato"/>
+                            <TextBlock Text="Número de Orden:" Grid.Row="2" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="PurchaseOrderNumberTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Numero de Orden"/>
+                            <TextBlock Text="Número de Trabajo:" Grid.Row="3" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="SalesOrderNumberTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="Numero del Trabajo"/>
+                            <TextBlock Text="Concepto Pago:" Grid.Row="4" VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="PaymentReferenceTextBox" Grid.Row="4" Grid.Column="1" PlaceholderText="CONCEPTODELPAGODELCLIENTE"/>
                         </Grid>
                     </StackPanel>
                 </ui:Card>
@@ -231,7 +255,7 @@
                         <DataGrid x:Name="ProductsDataGrid" AutoGenerateColumns="False" 
                                   CanUserAddRows="False" CanUserDeleteRows="True" Height="200" Margin="0,0,0,15">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                                <DataGridTextColumn Header="Pos" Binding="{Binding Pos}" Width="50"/>
                                 <DataGridTextColumn Header="Descripción" Binding="{Binding Descripcion}" Width="*"/>
                                 <DataGridTextColumn Header="Cantidad" Binding="{Binding Cantidad}" Width="80"/>
                                 <DataGridTextColumn Header="Precio Unitario" Binding="{Binding PrecioUnitario}" Width="100"/>
@@ -240,17 +264,15 @@
                         </DataGrid>                        <TextBlock Text="Agregar Producto" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.8*"/>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="0.8*"/>
+                                <ColumnDefinition Width="3*"/>
                                 <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1.5*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <ui:TextBox x:Name="ProductIdTextBox" PlaceholderText="ID" FontSize="12"/>
-                            <ui:TextBox x:Name="ProductDescTextBox" Grid.Column="1" PlaceholderText="Descripción" Margin="10,0,0,0" FontSize="12"/>
-                            <ui:TextBox x:Name="ProductQtyTextBox" Grid.Column="2" PlaceholderText="Cant." Margin="10,0,0,0" FontSize="12"/>
-                            <ui:TextBox x:Name="ProductPriceTextBox" Grid.Column="3" PlaceholderText="Precio" Margin="10,0,0,0" FontSize="12"/>
-                            <ui:Button x:Name="AddProductButton" Content="✓ Agregar" Grid.Column="4" Click="OnAddProductClick" Margin="10,0,0,0" Padding="15,5"/>
+                            <ui:TextBox x:Name="ProductDescTextBox" PlaceholderText="Nombre del Producto" FontSize="12"/>
+                            <ui:TextBox x:Name="ProductQtyTextBox" Grid.Column="1" PlaceholderText="Cant." Margin="10,0,0,0" FontSize="12"/>
+                            <ui:TextBox x:Name="ProductPriceTextBox" Grid.Column="2" PlaceholderText="Precio" Margin="10,0,0,0" FontSize="12"/>
+                            <ui:Button x:Name="AddProductButton" Content="✓ Agregar" Grid.Column="3" Click="OnAddProductClick" Margin="10,0,0,0" Padding="15,5"/>
                         </Grid>                    </StackPanel>
                 </ui:Card>
 

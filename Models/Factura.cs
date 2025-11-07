@@ -65,5 +65,25 @@ namespace FacturacionAlemana.Models
         public string TaxAmount { get; set; } = "0"; // Monto total de impuestos
 
         public List<Producto> Productos { get; set; } = new List<Producto>(); // Agregar lista de productos
+
+        // Propiedades de información de factura
+        public required string InvoiceNumber { get; set; }
+        public DateTime IssueDate { get; set; }
+        public DateTime DeliveryDate { get; set; }
+        public DateTime DueDateValue { get; set; }
+        public required string ProjectNumber { get; set; }
+        public required string ContractNumber { get; set; }
+        public required string PurchaseOrderNumber { get; set; }
+        public required string SalesOrderNumber { get; set; }
+        public required string PaymentReference { get; set; }
+        public required string ShipToID { get; set; }
+        public required string ShipToName { get; set; }
+        public required string ShipToPostcodeCode { get; set; }
+        public required string ShipToLineOne { get; set; }
+        public string ShipToLineTwo { get; set; } = string.Empty;
+        public string ShipToLineThree { get; set; } = string.Empty;
+        public required string ShipToCityName { get; set; }
+        public required string ShipToCountryID { get; set; }
+        public required string ShipToCountrySubDivisionName { get; set; }
     }
 }

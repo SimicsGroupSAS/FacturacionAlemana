@@ -49,7 +49,19 @@ namespace FacturacionAlemana
                 {
                     var item = new ListViewItem { Content = fileName, Tag = filePath };
                     var lv = FindName("LvRecent") as System.Windows.Controls.ListView;
-                    if (lv != null) lv.Items.Insert(0, item);
+                    if (lv != null)
+                    {
+                        // Eliminar placeholder '(No hay archivos de ejemplo)' si está presente
+                        for (int i = lv.Items.Count - 1; i >= 0; i--)
+                        {
+                            if (lv.Items[i] is ListViewItem li && li.Content is string s && s == "(No hay archivos de ejemplo)")
+                            {
+                                lv.Items.RemoveAt(i);
+                            }
+                        }
+
+                        lv.Items.Insert(0, item);
+                    }
                 }
                 catch { }
             }

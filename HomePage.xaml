@@ -146,15 +146,22 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
+
+                <!-- Logo + app title: limitar ancho y permitir ellipsis -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="0">
                     <Image x:Name="IconImg" Source="Assets/Logo-v1_2024-SIMICS-TRADING-GmbH.png" Width="40" Height="40"/>
-                    <TextBlock Text="Facturación Alemana" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                    <TextBlock x:Name="AppTitle" Text="Facturación Alemana" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0,0,0"
+                               TextTrimming="CharacterEllipsis" MaxWidth="240"/>
                 </StackPanel>
 
-                <TextBlock Grid.Column="1" Text="Generador de facturas — rápido y sencillo" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#666666" Cursor="Arrow"/>
+                <!-- Subtítulo centrado: no capturable por ratón y con recorte si falta espacio -->
+                <TextBlock Grid.Column="1" Text="Generador de facturas — rápido y sencillo" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#666666"
+                           Cursor="Arrow" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" MaxWidth="520" IsHitTestVisible="False"/>
 
+                <!-- Zona derecha: status y controles: limitar ancho del status para que no empuje el centro -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <TextBlock x:Name="StatusText" Text="Listo" Foreground="#707070" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock x:Name="StatusText" Text="Listo" Foreground="#707070" VerticalAlignment="Center" Margin="0,0,12,0"
+                               TextTrimming="CharacterEllipsis" MaxWidth="220" TextWrapping="NoWrap"/>
                     <Button x:Name="BtnClose" Click="OnCloseWindowClick" ToolTip="Cerrar" Width="38" Height="28" Padding="0" Margin="8,0,0,0" Cursor="Hand"
                             Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{StaticResource AccessibleFocusVisual}">
                         <Grid>

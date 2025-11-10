@@ -22,9 +22,7 @@ namespace FacturacionAlemana
             CurrencyComboBox.SelectedIndex = 0;
             TaxRateTextBox.TextChanged += (s, e) => ActualizarResumenTotales();
             CurrencyComboBox.SelectionChanged += (s, e) => ActualizarResumenTotales();
-        }
-
-        private void OnAddProductClick(object sender, RoutedEventArgs e)
+        }        private void OnAddProductClick(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -60,6 +58,13 @@ namespace FacturacionAlemana
 
                 productos.Add(producto);
 
+                // Abrir ventana de detalles automáticamente
+                var detallesWindow = new ProductDetailsWindow(producto);
+                detallesWindow.Owner = Window.GetWindow(this);
+                detallesWindow.ShowDialog();
+
+                ProductsDataGrid.Items.Refresh();
+
                 ProductDescTextBox.Clear();
                 ProductQtyTextBox.Clear();
                 ProductPriceTextBox.Clear();
@@ -70,6 +75,21 @@ namespace FacturacionAlemana
             {
                 MessageBox.Show($"Error al agregar producto: {ex.Message}", "Error", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void EditProductDetails_Click(object sender, RoutedEventArgs e)
+        {
+            // Obtener el producto del DataGrid
+            if (ProductsDataGrid.SelectedItem is Producto producto)
+            {
+                var detallesWindow = new ProductDetailsWindow(producto);
+                detallesWindow.Owner = Window.GetWindow(this);
+                if (detallesWindow.ShowDialog() == true)
+                {
+                    ProductsDataGrid.Items.Refresh();
+                    ActualizarResumenTotales();
+                }
             }
         }
 
@@ -314,7 +334,7 @@ namespace FacturacionAlemana
                 TypeCodeElement = "380",
                 // Convertir fecha de yyyy-MM-dd a YYYYMMDD (formato requerido por EN 16931)
                 IssueDateElement = DateTime.ParseExact(IssueDateTextBox.Text, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("yyyyMMdd"),
-                PaymentNoteElement = "Términos de pago: Neto 30",
+                PaymentNoteElement = NotesTextBox.Text,
                 TaxAmount = totalImpuestos.ToString("F2", CultureInfo.InvariantCulture),
                 
                 SellerName = SellerNameTextBox.Text,
@@ -368,17 +388,19 @@ namespace FacturacionAlemana
                 PurchaseOrderNumber = PurchaseOrderNumberTextBox.Text,
                 SalesOrderNumber = SalesOrderNumberTextBox.Text,
                 PaymentReference = PaymentReferenceTextBox.Text,
-                
-                Productos = new List<Producto>(productos),
-                ShipToID = "",
-                ShipToName = "",
-                ShipToPostcodeCode = "",
-                ShipToLineOne = "",
-                ShipToLineTwo = "",
-                ShipToLineThree = "",
-                ShipToCityName = "",
-                ShipToCountryID = "",
-                ShipToCountrySubDivisionName = ""
+                  Productos = new List<Producto>(productos),
+                ShipToID = ShipToIDTextBox.Text,
+                ShipToName = ShipToNameTextBox.Text,
+                ShipToPostcodeCode = ShipToPostcodeCodeTextBox.Text,
+                ShipToLineOne = ShipToLineOneTextBox.Text,
+                ShipToLineTwo = ShipToLineTwoTextBox.Text,
+                ShipToLineThree = ShipToLineThreeTextBox.Text,
+                ShipToCityName = ShipToCityNameTextBox.Text,
+                ShipToCountryID = ShipToCountryIDTextBox.Text,
+                ShipToCountrySubDivisionName = ShipToCountrySubDivisionNameTextBox.Text,
+                Notes = NotesTextBox.Text,
+                GeneralNote = GeneralNoteTextBox.Text,
+                PaymentTermsDescription = PaymentTermsDescriptionTextBox.Text.Replace("{Total}", totalConImpuestos.ToString("F2", CultureInfo.InvariantCulture)).Replace("{DueDate}", DateTime.ParseExact(DueDateTextBox.Text, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd.MM.yyyy"))
             };
         }        private void OnCancelClick(object sender, RoutedEventArgs e)
         {

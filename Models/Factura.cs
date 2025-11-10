@@ -85,5 +85,8 @@ namespace FacturacionAlemana.Models
         public required string ShipToCityName { get; set; }
         public required string ShipToCountryID { get; set; }
         public required string ShipToCountrySubDivisionName { get; set; }
+        public string Notes { get; set; } = string.Empty;
+        public string GeneralNote { get; set; } = string.Empty;
+        public string PaymentTermsDescription { get; set; } = string.Empty;
     }
 }

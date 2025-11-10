@@ -83,8 +83,9 @@ namespace FacturacionAlemana.Services
                             )
                         ),
                         new XElement(XName.Get("IncludedNote", ram),
-                            new XElement(XName.Get("Content", ram), factura.PaymentNoteElement)
-                        )                    ),
+                            new XElement(XName.Get("Content", ram), factura.GeneralNote)
+                        )
+                    ),
                       // SupplyChainTradeTransaction - Debe usar namespace rsm: (Root Schema Module)
                     new XElement(XName.Get("SupplyChainTradeTransaction", rsm),
                         // Líneas de productos
@@ -249,7 +250,7 @@ namespace FacturacionAlemana.Services
                                 new XElement(XName.Get("RateApplicablePercent", ram), factura.TaxRatePercent)
                             ),
                             new XElement(XName.Get("SpecifiedTradePaymentTerms", ram),
-                                new XElement(XName.Get("Description", ram), factura.PaymentDescription)
+                                new XElement(XName.Get("Description", ram), factura.PaymentTermsDescription)
                             ),
                             new XElement(XName.Get("SpecifiedTradeSettlementHeaderMonetarySummation", ram),
                                 new XElement(XName.Get("LineTotalAmount", ram), NormalizeDecimal(factura.BasisAmount)),

@@ -10,6 +10,10 @@
                 <ui:ThemesDictionary Theme="Light" />
                 <!-- Importa el diccionario de controles de WPF UI -->
                 <ui:ControlsDictionary />
+                <!-- Paleta global -->
+                <ResourceDictionary Source="Themes/Colors.xaml" />
+                <!-- Importa estilos locales (botones, cards) -->
+                <ResourceDictionary Source="Themes/Controls.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

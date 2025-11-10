@@ -238,12 +238,16 @@ namespace FacturacionAlemana
             {
                 // Doble clic: alternar maximizar
                 window.WindowState = window.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                // Marcar el evento como manejado para que no burbujee hasta MainWindow y cause un segundo toggle
+                e.Handled = true;
                 return;
             }
 
             try
             {
                 window.DragMove();
+                // evitar que el evento siga burbujeando (puede interferir con handlers en la ventana)
+                e.Handled = true;
             }
             catch { }
         }

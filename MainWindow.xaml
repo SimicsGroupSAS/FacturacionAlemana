@@ -3,9 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:FacturacionAlemana"
         xmlns:chrome="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        MouseLeftButtonDown="MainBorder_MouseLeftButtonDown"
         Title="Generador de Facturas" 
         Height="580"
-        Width="820"
+        Width="920"
+        MinWidth="860"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
         WindowStyle="None"
@@ -21,16 +23,11 @@
         <chrome:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" CornerRadius="10" />
     </chrome:WindowChrome.WindowChrome>
 
-    <!-- Root visual para dar un fondo y sombra a la ventana sin barra de título -->
-    <Border Background="#FFF" CornerRadius="10" Padding="0" Margin="0" MouseLeftButtonDown="MainBorder_MouseLeftButtonDown">
-        <Border.Effect>
-            <DropShadowEffect Color="#22000000" BlurRadius="20" ShadowDepth="6" Opacity="0.45"/>
-        </Border.Effect>
-        <Frame x:Name="RootFrame" 
-            Source="/HomePage.xaml" 
-            NavigationUIVisibility="Hidden"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            RenderOptions.BitmapScalingMode="HighQuality"/>
-    </Border>
+    <!-- Mostrar directamente la HomePage dentro del Window (sin borde/sombra extra) -->
+    <Frame x:Name="RootFrame" 
+           Source="/HomePage.xaml" 
+           NavigationUIVisibility="Hidden"
+           HorizontalAlignment="Stretch"
+           VerticalAlignment="Stretch"
+           RenderOptions.BitmapScalingMode="HighQuality"/>
 </Window>

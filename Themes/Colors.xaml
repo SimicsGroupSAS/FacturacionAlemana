@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Paleta corporativa global: colores y brushes -->
+    <Color x:Key="PrimaryGreenColor">#FF118938</Color>
+    <Color x:Key="SecondaryGreenColor">#FF37AB4E</Color>
+    <!-- Hover / Pressed colors (Opción B) -->
+    <Color x:Key="HoverLightColor">#FF25B36A</Color>
+    <Color x:Key="HoverDarkColor">#FF169043</Color>
+    <Color x:Key="PressedDark1">#FF0E7A33</Color>
+    <Color x:Key="PressedDark2">#FF0B6B2A</Color>
+
+    <!-- Brushes reutilizables -->
+    <SolidColorBrush x:Key="PrimaryGreen" Color="{StaticResource PrimaryGreenColor}" />
+    <SolidColorBrush x:Key="SecondaryGreen" Color="{StaticResource SecondaryGreenColor}" />
+
+    <!-- Background / surface brushes -->
+    <SolidColorBrush x:Key="AppSurface" Color="#FFF4F6F7" />
+    <SolidColorBrush x:Key="CardSurface" Color="#FFF8FAFB" />
+    <SolidColorBrush x:Key="DividerBrush" Color="#FFE6E6E6" />
+    <SolidColorBrush x:Key="LightGray" Color="#FF9D9D9C" />
+    <SolidColorBrush x:Key="MidGray" Color="#FF706F6F" />
+    <SolidColorBrush x:Key="DarkGray" Color="#FF504F4E" />
+    <SolidColorBrush x:Key="AppBlack" Color="#FF1D1D1B" />
+    <SolidColorBrush x:Key="AppWhite" Color="#FFFFFFFF" />
+
+    <!-- Alias para text colors -->
+    <SolidColorBrush x:Key="PrimaryTextBrush" Color="#FF1D1D1B" />
+    <SolidColorBrush x:Key="SecondaryTextBrush" Color="#FF666666" />
+
+    <!-- Semi-transparent white para IconHolder hover -->
+    <SolidColorBrush x:Key="SemiTransparentWhite" Color="#44FFFFFF" />
+
+</ResourceDictionary>

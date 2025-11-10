@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+
+    <!-- Estilos extraídos: CardBorder y BigActionButton -->
+
+    <Style x:Key="CardBorder" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource CardSurface}" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Padding" Value="12" />
+        <Setter Property="Margin" Value="8" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect Color="#22000000" BlurRadius="20" ShadowDepth="6" Opacity="0.38"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="BigActionButton" TargetType="ui:Button">
+        <Setter Property="Width" Value="Auto" />
+        <Setter Property="MinWidth" Value="200" />
+        <Setter Property="MaxWidth" Value="320" />
+        <Setter Property="Height" Value="Auto" />
+        <Setter Property="MinHeight" Value="84" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Margin" Value="6" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="{StaticResource SecondaryGreenColor}" Offset="0" />
+                    <GradientStop Color="{StaticResource PrimaryGreenColor}" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Padding" Value="12" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ui:Button">
+                    <Border x:Name="RootBorder" Background="{TemplateBinding Background}" CornerRadius="16" SnapsToDevicePixels="True" RenderTransformOrigin="0.5,0.5" Padding="{TemplateBinding Padding}" ClipToBounds="False">
+                        <Border.RenderTransform>
+                            <ScaleTransform ScaleX="1" ScaleY="1" />
+                        </Border.RenderTransform>
+                        <Border.Effect>
+                            <DropShadowEffect Color="#24000000" BlurRadius="22" ShadowDepth="8" Opacity="0.45"/>
+                        </Border.Effect>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="64" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Icon circle: mostrar el Icon del botón dentro del círculo -->
+                            <Border Grid.Column="0" Width="56" Height="56" Background="{StaticResource AppWhite}" CornerRadius="28" HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="IconHolder" Margin="0">
+                                <TextBlock x:Name="IconText" Text="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=📄}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource PrimaryGreen}" FontSize="26" FontWeight="SemiBold" FontFamily="Segoe UI Emoji, Segoe UI Symbol, Segoe UI" TextAlignment="Center" />
+                            </Border>
+                            
+                            <!-- Texto -->
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,10,0">
+                                <TextBlock Text="{TemplateBinding Content}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}" FontSize="{TemplateBinding FontSize}" FontWeight="{TemplateBinding FontWeight}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <!-- DataTriggers: mapear nombres de iconos (string) a emojis como fallback visual -->
+                        <DataTrigger Binding="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Value="👁">
+                            <Setter TargetName="IconText" Property="Text" Value="👁" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Value="📄">
+                            <Setter TargetName="IconText" Property="Text" Value="📄" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Value="⤴️">
+                            <Setter TargetName="IconText" Property="Text" Value="⤴️" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Value="➕">
+                            <Setter TargetName="IconText" Property="Text" Value="➕" />
+                        </DataTrigger>
+
+                        <!-- DataTriggers: mapear nombres de iconos (string) a emojis como fallback visual -->
+                        <DataTrigger Binding="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Value="Eye24">
+                            <Setter TargetName="IconText" Property="Text" Value="👁" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Value="DocumentPdf24">
+                            <Setter TargetName="IconText" Property="Text" Value="📄" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Value="ArrowExport24">
+                            <Setter TargetName="IconText" Property="Text" Value="⤴️" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}}" Value="DocumentAdd24">
+                            <Setter TargetName="IconText" Property="Text" Value="➕" />
+                        </DataTrigger>
+
+                        <!-- Alternativa: mapear por Content (texto del botón) en caso de que Icon no esté disponible -->
+                        <DataTrigger Binding="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" Value="Cargar XML">
+                            <Setter TargetName="IconText" Property="Text" Value="📄" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" Value="Previsualizar">
+                            <Setter TargetName="IconText" Property="Text" Value="👁" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" Value="Generar PDF">
+                            <Setter TargetName="IconText" Property="Text" Value="⤴️" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" Value="Crear Factura">
+                            <Setter TargetName="IconText" Property="Text" Value="➕" />
+                        </DataTrigger>
+
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="RootBorder" Property="Background">
+                                <Setter.Value>
+                                    <!-- Opción B: hover más claro -> medio -->
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="{StaticResource HoverLightColor}" Offset="0" />
+                                        <GradientStop Color="{StaticResource HoverDarkColor}" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="RootBorder" Property="UIElement.RenderTransform">
+                                <Setter.Value>
+                                    <ScaleTransform ScaleX="1.028" ScaleY="1.028" />
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="IconHolder" Property="Background" Value="{StaticResource SemiTransparentWhite}" />
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="RootBorder" Property="Background">
+                                <Setter.Value>
+                                    <!-- Opción B: pressed más oscuro -->
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="{StaticResource PressedDark1}" Offset="0" />
+                                        <GradientStop Color="{StaticResource PressedDark2}" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="RootBorder" Property="UIElement.RenderTransform">
+                                <Setter.Value>
+                                    <ScaleTransform ScaleX="0.99" ScaleY="0.99" />
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Foreground" Value="#FFFFFF" />
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="RootBorder" Property="Opacity" Value="0.6" />
+                            <Setter TargetName="IconHolder" Property="Opacity" Value="0.6" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

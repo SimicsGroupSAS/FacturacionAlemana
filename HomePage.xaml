@@ -60,6 +60,70 @@
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <TextBlock x:Name="StatusText" Text="Listo" Foreground="{StaticResource SecondaryTextBrush}" VerticalAlignment="Center" Margin="0,0,12,0"
                                TextTrimming="CharacterEllipsis" MaxWidth="220" TextWrapping="NoWrap"/>
+                    
+                    <!-- Minimizar -->
+                    <Button x:Name="BtnMinimize" Click="OnMinimizeWindowClick" ToolTip="Minimizar" Width="38" Height="28" Padding="0" Margin="8,0,0,0" Cursor="Hand"
+                            Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{StaticResource AccessibleFocusVisual}">
+                        <Grid>
+                            <TextBlock Text="—" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFF2F2F2"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#FFE8E8E8"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Maximizar/Restaurar -->
+                    <Button x:Name="BtnMaxRestore" Click="OnToggleMaximizeClick" ToolTip="Maximizar/Restaurar" Width="38" Height="28" Padding="0" Margin="8,0,0,0" Cursor="Hand"
+                            Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{StaticResource AccessibleFocusVisual}">
+                        <Grid>
+                            <TextBlock Text="▢" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFF2F2F2"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#FFE8E8E8"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Cerrar -->
                     <Button x:Name="BtnClose" Click="OnCloseWindowClick" ToolTip="Cerrar" Width="38" Height="28" Padding="0" Margin="8,0,0,0" Cursor="Hand"
                             Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{StaticResource AccessibleFocusVisual}">
                         <Grid>

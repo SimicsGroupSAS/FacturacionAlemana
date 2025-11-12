@@ -15,7 +15,8 @@ namespace FacturacionAlemana
 {    
     public partial class HomePage : Page
     {
-        private Factura? factura;        public HomePage()
+        private Factura? factura;        
+        public HomePage()
         {
             InitializeComponent();
             LoadIcon();
@@ -234,6 +235,24 @@ namespace FacturacionAlemana
             if (window != null)
             {
                 window.Close();
+            }
+        }
+
+        private void OnMinimizeWindowClick(object sender, RoutedEventArgs e)
+        {
+            var window = Window.GetWindow(this);
+            if (window != null)
+            {
+                window.WindowState = WindowState.Minimized;
+            }
+        }
+
+        private void OnToggleMaximizeClick(object sender, RoutedEventArgs e)
+        {
+            var window = Window.GetWindow(this);
+            if (window != null)
+            {
+                window.WindowState = window.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
             }
         }
 

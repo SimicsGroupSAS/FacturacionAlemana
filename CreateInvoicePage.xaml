@@ -11,420 +11,943 @@
                 <ResourceDictionary Source="Themes/Colors.xaml"/>
                 <ResourceDictionary Source="Themes/Controls.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         </ResourceDictionary>
     </Page.Resources>
 
     <Grid Background="{StaticResource AppSurface}">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header arrastrable con controles de ventana -->
+        <Border Grid.Row="0" Background="{StaticResource AppWhite}" Padding="8,2" BorderBrush="{StaticResource DividerBrush}" BorderThickness="0,0,0,1"
+                MouseLeftButtonDown="CreateInvoiceHeader_MouseLeftButtonDown">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Crear Nueva Factura" VerticalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <!-- Minimizar -->
+                    <Button x:Name="BtnMinimizeCI" Click="OnMinimizeWindowClick" ToolTip="Minimizar" Width="38" Height="26" Padding="0" Margin="8,0,0,0" Cursor="Hand"
+                            Background="Transparent" BorderBrush="Transparent">
+                        <Grid>
+                            <TextBlock Text="—" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFF2F2F2"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#FFE8E8E8"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Maximizar/Restaurar -->
+                    <Button x:Name="BtnMaxRestoreCI" Click="OnToggleMaximizeClick" ToolTip="Maximizar/Restaurar" Width="38" Height="26" Padding="0" Margin="8,0,0,0" Cursor="Hand"
+                            Background="Transparent" BorderBrush="Transparent">
+                        <Grid>
+                            <TextBlock Text="▢" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFF2F2F2"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#FFE8E8E8"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Cerrar -->
+                    <Button x:Name="BtnCloseCI" Click="OnCloseWindowClick" ToolTip="Cerrar" Width="38" Height="26" Padding="0" Margin="8,0,0,0" Cursor="Hand"
+                            Background="Transparent" BorderBrush="Transparent">
+                        <Grid>
+                            <TextBlock Text="✕" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource PrimaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderBrush" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#FFF2F2F2"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#FFE8E8E8"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" 
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="20" Orientation="Vertical">
-                <TextBlock Text="Crear Nueva Factura" FontSize="28" FontWeight="Bold" Margin="0,0,0,20" HorizontalAlignment="Center" Foreground="{StaticResource PrimaryTextBrush}"/>
+                <!-- InfoBar / Alertas no intrusivas -->
+                <Border x:Name="TopAlertsPanel" Visibility="Collapsed" Margin="0,0,0,12" Padding="10" CornerRadius="6" Background="{DynamicResource SystemFillColorAttentionBackgroundBrush}" BorderBrush="{DynamicResource SystemFillColorAttentionBrush}" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock x:Name="TopAlertsTitle" Text="Revisa los campos pendientes" FontWeight="SemiBold"/>
+                        <ItemsControl x:Name="TopAlertsItems"/>
+                    </StackPanel>
+                </Border>
 
+                <!-- Título con botón Salir alineado a la izquierda -->
                 <Grid Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1.5*"/>
-                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-
-                    <!-- Columna Izquierda: Datos del Vendedor y Comprador -->
-                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                        <ui:Card Background="{StaticResource CardSurface}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Datos del Vendedor" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="Nombre:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="SellerNameTextBox" Grid.Column="1" PlaceholderText="Nombre de la empresa" Text="Giatec GmbH"/>
-                                    <TextBlock Text="Persona de Contacto:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="SellerPersonNameTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Nombre" Text="Frank Papenheim"/>
-                                    <TextBlock Text="Email:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="SellerEmailTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="email@empresa.com" Text="info@giatec.de"/>
-                                    <TextBlock Text="Teléfono:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="SellerPhoneTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="+49 123 456789" Text="(02324) 201890"/>
-                                </Grid>
-                                <TextBlock Text="Dirección del Vendedor" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="Calle línea 1:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="SellerStreetTextBox" Grid.Column="1" PlaceholderText="Calle y número" Text="Ruhrallee 5"/>
-                                    <TextBlock Text="Calle línea 2:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="SellerStreet2TextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Complemento dirección"/>
-                                    <TextBlock Text="Ciudad:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="SellerCityTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Ciudad" Text="Hattingen"/>
-                                    <TextBlock Text="Código Postal:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="SellerPostcodeTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="12345" Text="45525"/>
-                                </Grid>
-                                <Grid Margin="0,15,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="País:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="SellerCountryTextBox" Grid.Column="1" PlaceholderText="DE" Text="DE"/>
-                                </Grid>
-                                <TextBlock Text="Identificadores" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="VAT ID:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="SellerVATTextBox" Grid.Column="1" PlaceholderText="DE123456789" Text="DE162986901"/>
-                                    <TextBlock Text="St.-Nr.:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="SellerTaxTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="1111/1111/1111"/>
-                                </Grid>
-                            </StackPanel>
-                        </ui:Card>
-
-                        <ui:Card Background="{StaticResource CardSurface}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Datos del Comprador" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="Nombre:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BuyerNameTextBox" Grid.Column="1" PlaceholderText="Nombre empresa cliente"/>
-                                    <TextBlock Text="Persona de Contacto:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BuyerPersonNameTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Nombre"/>
-                                    <TextBlock Text="Email:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BuyerEmailTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="cliente@empresa.com"/>
-                                    <TextBlock Text="Teléfono:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BuyerPhoneTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="+49 987 654321"/>
-                                </Grid>
-                                <TextBlock Text="Dirección del Comprador" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="Calle:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BuyerStreetTextBox" Grid.Column="1" PlaceholderText="Calle y número"/>
-                                    <TextBlock Text="Calle 2:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BuyerStreet2TextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Calle línea 2"/>
-                                    <TextBlock Text="Ciudad:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BuyerCityTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Ciudad"/>
-                                    <TextBlock Text="Código Postal:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BuyerPostcodeTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="12345"/>
-                                </Grid>
-                                <Grid Margin="0,15,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="País:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BuyerCountryTextBox" Grid.Column="1" PlaceholderText="DE"/>
-                                </Grid>
-                                <Grid Margin="0,15,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="USt-ID:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BuyerVATTextBox" Grid.Column="1" PlaceholderText="DE123456789"/>
-                                </Grid>
-                                <Grid Margin="0,15,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="E-Adresse Contacto:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BuyerEmailContactTextBox" Grid.Column="1" PlaceholderText="contacto@cliente.com"/>
-                                </Grid>
-                            </StackPanel>
-                        </ui:Card>
-                    </StackPanel>
-
-                    <!-- Columna Centro: Productos/Servicios y Resumen -->
-                    <StackPanel Grid.Column="1" Margin="10,0,10,0">
-                        <ui:Card Background="{StaticResource CardSurface}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Productos/Servicios" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <DataGrid x:Name="ProductsDataGrid" AutoGenerateColumns="False" 
-                                          CanUserAddRows="False" CanUserDeleteRows="True" Height="200" Margin="0,0,0,15">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="Pos" Binding="{Binding Pos}" Width="50"/>
-                                        <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="*"/>
-                                        <DataGridTemplateColumn Header="Descripción" Width="*">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding DescripcionCompleta}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
-                                        <DataGridTextColumn Header="Cantidad" Binding="{Binding Cantidad}" Width="80"/>
-                                        <DataGridTextColumn Header="Unidad" Binding="{Binding Unit}" Width="60"/>
-                                        <DataGridTextColumn Header="Precio Unitario" Binding="{Binding PrecioUnitario}" Width="100"/>
-                                        <DataGridTextColumn Header="Total" Binding="{Binding PrecioTotal}" Width="100" IsReadOnly="True"/>
-                                        <DataGridTemplateColumn Header="Detalles" Width="100">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <ui:Button Content="Editar" Click="EditProductDetails_Click" Padding="5,2" Margin="2"/>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                                <TextBlock Text="Agregar Producto" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="3*"/>
-                                        <ColumnDefinition Width="1*"/>
-                                        <ColumnDefinition Width="1.5*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <ui:TextBox x:Name="ProductDescTextBox" PlaceholderText="Nombre del Producto" FontSize="12"/>
-                                    <ui:TextBox x:Name="ProductQtyTextBox" Grid.Column="1" PlaceholderText="Cant." Margin="10,0,0,0" FontSize="12"/>
-                                    <ui:TextBox x:Name="ProductPriceTextBox" Grid.Column="2" PlaceholderText="Precio" Margin="10,0,0,0" FontSize="12"/>
-                                    <ui:Button x:Name="AddProductButton" Content="✓ Agregar" Grid.Column="3" Click="OnAddProductClick" Margin="10,0,0,0" Padding="15,5"/>
-                                </Grid>
-                            </StackPanel>
-                        </ui:Card>
-
-                        <ui:Card Background="{StaticResource CardSurface}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Resumen de Factura" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <Border BorderBrush="{StaticResource DividerBrush}" 
-                                        BorderThickness="0,1,0,0" Padding="0,10,0,10">
-                                    <StackPanel>
-                                        <Grid Margin="0,0,0,10">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="Subtotal:" FontSize="13"/>
-                                            <TextBlock x:Name="SubtotalTextBlock" Grid.Column="1" FontSize="13" Text="€0,00" FontWeight="SemiBold"/>
-                                        </Grid>
-                                        <Grid Margin="0,0,0,10">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="Impuestos (IVA):" FontSize="13"/>
-                                            <TextBlock x:Name="TaxesTextBlock" Grid.Column="1" FontSize="13" Text="€0,00" FontWeight="SemiBold"/>
-                                        </Grid>
-                                        <Border BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
-                                                BorderThickness="0,1,0,0" Padding="0,10,0,0">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Text="Total a Pagar:" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
-                                                <TextBlock x:Name="TotalTextBlock" Grid.Column="1" FontSize="14" Text="€0,00" FontWeight="Bold" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
-                                            </Grid>
-                                        </Border>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </ui:Card>
-                    </StackPanel>
-
-                    <!-- Columna Derecha: Datos de la Factura -->
-                    <StackPanel Grid.Column="2" Margin="10,0,0,0">
-                        <ui:Card Background="{StaticResource CardSurface}" Margin="0,0,0,20">
-                            <StackPanel>
-                                <TextBlock Text="Datos de la Factura" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="Número de Factura:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="InvoiceNumberTextBox" Grid.Column="1" PlaceholderText="INV-001"/>
-                                    <TextBlock Text="Referencia del Comprador (BT-10):" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BuyerReferenceTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="REF-12345 (Obligatorio)"/>
-                                    <TextBlock Text="Fecha:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <DatePicker x:Name="IssueDatePicker" Grid.Row="2" Grid.Column="1"/>
-                                    <TextBlock Text="Fecha de Vencimiento:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <DatePicker x:Name="DueDatePicker" Grid.Row="3" Grid.Column="1"/>
-                                    <TextBlock Text="Fecha de Entrega:" Grid.Row="4" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <DatePicker x:Name="DeliveryDatePicker" Grid.Row="4" Grid.Column="1"/>
-                                    <TextBlock Text="Moneda:" Grid.Row="5" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ComboBox x:Name="CurrencyComboBox" Grid.Row="5" Grid.Column="1">
-                                    </ComboBox>
-                                </Grid>
-                                <TextBlock Text="Datos de Impuestos" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="Categoría de Impuesto:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ComboBox x:Name="TaxCategoryComboBox" Grid.Column="1"/>
-                                    <TextBlock Text="Tasa de Impuesto:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="TaxRateTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="19.00"/>
-                                </Grid>
-                                <TextBlock Text="Datos Bancarios" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="IBAN:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="IBANTextBox" Grid.Column="1" PlaceholderText="DE89370400440532013000"/>
-                                    <TextBlock Text="BIC:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="BICTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="COBADEFFXXX"/>
-                                    <TextBlock Text="Nombre de Cuenta:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="AccountNameTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Nombre Empresa"/>
-                                </Grid>
-                                <TextBlock Text="Referencias de Documentos" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="Número de Proyecto:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="ProjectNumberTextBox" Grid.Column="1" PlaceholderText="Numero del Proyecto"/>
-                                    <TextBlock Text="Número de Contrato:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="ContractNumberTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Numero del Contrato"/>
-                                    <TextBlock Text="Número de Orden:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="PurchaseOrderNumberTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Numero de Orden"/>
-                                    <TextBlock Text="Número de Trabajo:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="SalesOrderNumberTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="Numero del Trabajo"/>
-                                    <TextBlock Text="Concepto Pago:" Grid.Row="4" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="PaymentReferenceTextBox" Grid.Row="4" Grid.Column="1" PlaceholderText="CONCEPTODELPAGODELCLIENTE"/>
-                                </Grid>
-                                <TextBlock Text="Notas y Observaciones" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="Notas Generales:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="GeneralNoteTextBox" Grid.Column="1" PlaceholderText="Zahlungsart: Überweisung" Text="Zahlungsart: Überweisung"/>
-                                    <TextBlock Text="Descripción de Términos de Pago:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="PaymentTermsDescriptionTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Bitte überweisen Sie den Rechnungsbetrag in Höhe von X EUR bis zum Fälligkeitsdatum XX.XX.XXXX." Text="Bitte überweisen Sie den Rechnungsbetrag in Höhe von {Total} EUR bis zum Fälligkeitsdatum {DueDate}."/>
-                                </Grid>
-                                <TextBlock Text="Notas" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="Términos de Pago:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="NotesTextBox" Grid.Column="1" PlaceholderText="Zahlungsart: Überweisung" Text="Zahlungsart: Überweisung"/>
-                                </Grid>
-                                <TextBlock Text="Detalles de Entrega" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10"/>
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="Nombre de Entrega:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="ShipToNameTextBox" Grid.Column="1" PlaceholderText="Nombre del lugar de entrega"/>
-                                    <TextBlock Text="ID de Entrega:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="ShipToIDTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="ID del lugar"/>
-                                    <TextBlock Text="Calle línea 1:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="ShipToLineOneTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Calle y número"/>
-                                    <TextBlock Text="Calle línea 2:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="ShipToLineTwoTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="Complemento dirección"/>
-                                    <TextBlock Text="Calle línea 3:" Grid.Row="4" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="ShipToLineThreeTextBox" Grid.Row="4" Grid.Column="1" PlaceholderText="Información adicional"/>
-                                    <TextBlock Text="Ciudad:" Grid.Row="5" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="ShipToCityNameTextBox" Grid.Row="5" Grid.Column="1" PlaceholderText="Ciudad"/>
-                                    <TextBlock Text="Código Postal:" Grid.Row="6" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="ShipToPostcodeCodeTextBox" Grid.Row="6" Grid.Column="1" PlaceholderText="12345"/>
-                                    <TextBlock Text="País:" Grid.Row="7" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="ShipToCountryIDTextBox" Grid.Row="7" Grid.Column="1" PlaceholderText="DE"/>
-                                    <TextBlock Text="Subdivisión (Región):" Grid.Row="8" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                    <ui:TextBox x:Name="ShipToCountrySubDivisionNameTextBox" Grid.Row="8" Grid.Column="1" PlaceholderText="Bayern"/>
-                                </Grid>
-                            </StackPanel>
-                        </ui:Card>
-                    </StackPanel>
+                    <ui:Button x:Name="ExitButton" Content="⟵ Salir" Appearance="Secondary" Padding="18,8" Margin="0,0,12,0" Click="OnExitClick"/>
+                    <TextBlock Grid.Column="1" Text="Crear Nueva Factura" FontSize="28" FontWeight="Bold" HorizontalAlignment="Left" Foreground="{StaticResource PrimaryTextBrush}"/>
                 </Grid>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,30,0,0">
-                    <ui:Button Content="✓ Generar Factura" 
-                              Appearance="Success" 
-                              FontSize="14"
-                              Padding="40,12"
-                              Click="OnGenerateInvoiceClick"
-                              Margin="0,0,20,0"/>
-                    <ui:Button Content="✕ Cancelar" 
-                              Appearance="Secondary" 
-                              FontSize="14"
-                              Padding="40,12"
-                              Click="OnCancelClick"/>
+                <!-- BEGIN: Stepper (TabControl) -->
+                <TabControl x:Name="StepsTabControl" Margin="0,0,0,10">
+                    <!-- Paso 1: Emisor (Vendedor) -->
+                    <TabItem Header="1. Emisor (Vendedor)">
+                        <StackPanel>
+                            <ui:Card Background="{StaticResource CardSurface}" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock Text="Datos del Vendedor" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="Nombre*:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="SellerNameTextBox" Grid.Column="1" PlaceholderText="Nombre de la empresa" Text="Giatec GmbH"/>
+                                        <TextBlock Text="Persona de Contacto:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="SellerPersonNameTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Nombre" Text="Frank Papenheim"/>
+                                        <TextBlock Text="Email:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="SellerEmailTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="email@empresa.com" Text="info@giatec.de"/>
+                                        <TextBlock Text="Teléfono:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="SellerPhoneTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="+49 123 456789" Text="(02324) 201890"/>
+                                    </Grid>
+                                    <TextBlock Text="Dirección del Vendedor" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="Calle línea 1:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="SellerStreetTextBox" Grid.Column="1" PlaceholderText="Calle y número" Text="Ruhrallee 5"/>
+                                        <TextBlock Text="Calle línea 2:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="SellerStreet2TextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Complemento dirección"/>
+                                        <TextBlock Text="Ciudad:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="SellerCityTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Ciudad" Text="Hattingen"/>
+                                        <TextBlock Text="Código Postal:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="SellerPostcodeTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="12345" Text="45525"/>
+                                    </Grid>
+                                    <Grid Margin="0,15,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="País:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="SellerCountryTextBox" Grid.Column="1" PlaceholderText="DE" Text="DE" TextChanged="Country_Uppercase_TextChanged" ToolTip="Código país ISO-3166-1 alfa-2 (ej.: DE, ES, FR)"/>
+                                    </Grid>
+                                    <TextBlock Text="Identificadores" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="VAT ID*:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="SellerVATTextBox" Grid.Column="1" PlaceholderText="DE123456789" Text="DE162986901" LostFocus="Uppercase_OnLostFocus" ToolTip="VAT por país; debe iniciar por código (ej.: DE123456789)"/>
+                                        <TextBlock Text="St.-Nr.:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="SellerTaxTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="1111/1111/1111"/>
+                                    </Grid>
+                                </StackPanel>
+                            </ui:Card>
+                        </StackPanel>
+                    </TabItem>
+
+                    <!-- Paso 2: Receptor (Comprador) -->
+                    <TabItem Header="2. Receptor (Comprador)">
+                        <StackPanel>
+                            <ui:Card Background="{StaticResource CardSurface}" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock Text="Datos del Comprador" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="Nombre*:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="BuyerNameTextBox" Grid.Column="1" PlaceholderText="Nombre empresa cliente"/>
+                                        <TextBlock Text="Persona de Contacto:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="BuyerPersonNameTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Nombre"/>
+                                        <TextBlock Text="Email:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="BuyerEmailTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="cliente@empresa.com" ToolTip="Formato email válido (ej.: usuario@dominio.com)"/>
+                                        <TextBlock Text="Teléfono:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="BuyerPhoneTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="+49 987 654321"/>
+                                    </Grid>
+                                    <TextBlock Text="Dirección del Comprador" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="Calle:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="BuyerStreetTextBox" Grid.Column="1" PlaceholderText="Calle y número"/>
+                                        <TextBlock Text="Calle 2:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="BuyerStreet2TextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Calle línea 2"/>
+                                        <TextBlock Text="Ciudad:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="BuyerCityTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Ciudad"/>
+                                        <TextBlock Text="Código Postal:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="BuyerPostcodeTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="12345"/>
+                                    </Grid>
+                                    <Grid Margin="0,15,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="País:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="BuyerCountryTextBox" Grid.Column="1" PlaceholderText="DE" TextChanged="Country_Uppercase_TextChanged" ToolTip="Código país ISO-3166-1 alfa-2 (ej.: DE, ES, FR)"/>
+                                    </Grid>
+                                    <Grid Margin="0,15,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="USt-ID:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="BuyerVATTextBox" Grid.Column="1" PlaceholderText="DE123456789" LostFocus="Uppercase_OnLostFocus"/>
+                                    </Grid>
+                                    <Grid Margin="0,15,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="E-Adresse Contacto:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="BuyerEmailContactTextBox" Grid.Column="1" PlaceholderText="contacto@cliente.com"/>
+                                    </Grid>
+                                </StackPanel>
+                            </ui:Card>
+                        </StackPanel>
+                    </TabItem>
+
+                    <!-- Paso 3: Líneas -->
+                    <TabItem Header="3. Líneas">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <ui:Card Background="{StaticResource CardSurface}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Productos/Servicios" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                        <DataGrid x:Name="ProductsDataGrid" AutoGenerateColumns="False" 
+                                                  CanUserAddRows="False" CanUserDeleteRows="True" Height="200" Margin="0,0,0,15"
+                                                  EnableRowVirtualization="True" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingPanel.ScrollUnit="Pixel"
+                                                  KeyDown="ProductsDataGrid_KeyDown">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Pos" Binding="{Binding Pos}" Width="50"/>
+                                                <DataGridTextColumn Header="Nombre" Binding="{Binding Name}" Width="*"/>
+                                                <DataGridTemplateColumn Header="Descripción" Width="*">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding DescripcionCompleta}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <DataGridTextColumn Header="Cantidad" Binding="{Binding Cantidad, StringFormat=N2}" Width="80">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="TextAlignment" Value="Right"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Header="Unidad" Binding="{Binding Unit}" Width="60"/>
+                                                <DataGridTextColumn Header="Precio Unitario" Binding="{Binding PrecioUnitario, StringFormat=N2}" Width="100">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="TextAlignment" Value="Right"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Header="Total" Binding="{Binding PrecioTotal, StringFormat=N2}" Width="100" IsReadOnly="True">
+                                                    <DataGridTextColumn.ElementStyle>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="TextAlignment" Value="Right"/>
+                                                        </Style>
+                                                    </DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTemplateColumn Header="Acciones" Width="180">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                                <ui:Button Content="⬆" Padding="6,2" Margin="2" Click="MoveUp_Click"/>
+                                                                <ui:Button Content="⬇" Padding="6,2" Margin="2" Click="MoveDown_Click"/>
+                                                                <ui:Button Content="⎘" Padding="6,2" Margin="2" Click="Duplicate_Click"/>
+                                                                <ui:Button Content="🗑" Padding="6,2" Margin="2" Click="Delete_Click"/>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <DataGridTemplateColumn Header="Detalles" Width="100">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <ui:Button Content="Editar" Click="EditProductDetails_Click" Padding="5,2" Margin="2"/>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                        <TextBlock Text="Agregar Producto" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="3*"/>
+                                                <ColumnDefinition Width="1*"/>
+                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <ui:TextBox x:Name="ProductDescTextBox" PlaceholderText="Nombre del Producto" FontSize="12" KeyDown="AddProduct_Enter"/>
+                                            <ui:TextBox x:Name="ProductQtyTextBox" Grid.Column="1" PlaceholderText="Cant." Margin="10,0,0,0" FontSize="12" PreviewTextInput="OnlyNumeric_PreviewTextInput" DataObject.Pasting="OnlyNumeric_Pasting" LostFocus="FormatTwoDecimals_LostFocus" KeyDown="AddProduct_Enter"/>
+                                            <ui:TextBox x:Name="ProductPriceTextBox" Grid.Column="2" PlaceholderText="Precio" Margin="10,0,0,0" FontSize="12" PreviewTextInput="OnlyNumeric_PreviewTextInput" DataObject.Pasting="OnlyNumeric_Pasting" LostFocus="FormatTwoDecimals_LostFocus" KeyDown="AddProduct_Enter"/>
+                                            <ui:Button x:Name="AddProductButton" Content="✓ Agregar" Grid.Column="3" Click="OnAddProductClick" Margin="10,0,0,0" Padding="15,5"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </ui:Card>
+
+                                <ui:Card Background="{StaticResource CardSurface}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Resumen de Factura" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                        <Border BorderBrush="{StaticResource DividerBrush}" 
+                                                BorderThickness="0,1,0,0" Padding="0,10,0,10">
+                                            <StackPanel>
+                                                <Grid Margin="0,0,0,10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="Subtotal:" FontSize="13"/>
+                                                    <TextBlock x:Name="SubtotalTextBlock" Grid.Column="1" FontSize="13" Text="€0,00" FontWeight="SemiBold"/>
+                                                </Grid>
+                                                <Grid Margin="0,0,0,10">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Text="Impuestos (IVA):" FontSize="13"/>
+                                                    <TextBlock x:Name="TaxesTextBlock" Grid.Column="1" FontSize="13" Text="€0,00" FontWeight="SemiBold"/>
+                                                </Grid>
+                                                <Border BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" 
+                                                        BorderThickness="0,1,0,0" Padding="0,10,0,0">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="Total a Pagar:" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+                                                        <TextBlock x:Name="TotalTextBlock" Grid.Column="1" FontSize="14" Text="€0,00" FontWeight="Bold" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"/>
+                                                    </Grid>
+                                                </Border>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </ui:Card>
+                            </StackPanel>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Paso 4: Impuestos y Pagos -->
+                    <TabItem Header="4. Impuestos y Pagos">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <ui:Card Background="{StaticResource CardSurface}" Margin="0,0,0,20">
+                                    <StackPanel>
+                                        <TextBlock Text="Datos de la Factura" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,15" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="Número de Factura*:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                            <ui:TextBox x:Name="InvoiceNumberTextBox" Grid.Column="1" PlaceholderText="INV-001"/>
+                                            <TextBlock Text="Referencia del Comprador (BT-10)*:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                            <ui:TextBox x:Name="BuyerReferenceTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="REF-12345 (Obligatorio)" ToolTip="Obligatorio según XRechnung (BR-DE-15)"/>
+                                            <TextBlock Text="Fecha:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                            <DatePicker x:Name="IssueDatePicker" Grid.Row="2" Grid.Column="1"/>
+                                            <TextBlock Text="Fecha de Vencimiento:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                            <DatePicker x:Name="DueDatePicker" Grid.Row="3" Grid.Column="1"/>
+                                            <TextBlock Text="Fecha de Entrega:" Grid.Row="4" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                            <DatePicker x:Name="DeliveryDatePicker" Grid.Row="4" Grid.Column="1"/>
+                                            <TextBlock Text="Moneda:" Grid.Row="5" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                            <ComboBox x:Name="CurrencyComboBox" Grid.Row="5" Grid.Column="1">
+                                            </ComboBox>
+                                        </Grid>
+
+                                        <TextBlock Text="Datos de Impuestos" FontSize="14" FontWeight="SemiBold" Margin="0,20,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="Categoría de Impuesto:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                            <ComboBox x:Name="TaxCategoryComboBox" Grid.Column="1"/>
+                                            <TextBlock Text="Tasa de Impuesto:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                            <ui:TextBox x:Name="TaxRateTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="19.00" PreviewTextInput="OnlyNumeric_PreviewTextInput" DataObject.Pasting="OnlyNumeric_Pasting" ToolTip="Tasa IVA en %, use punto o coma (ej.: 19,00)"/>
+                                        </Grid>
+
+                                        <Expander Header="Datos Bancarios" IsExpanded="False" Margin="0,10,0,0">
+                                            <Grid Margin="0,10,0,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="IBAN*:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <Grid Grid.Column="1">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <ui:TextBox x:Name="IBANTextBox" Grid.Column="0" PlaceholderText="DE89370400440532013000" TextChanged="IBANTextBox_TextChanged" ToolTip="IBAN alemán (22 caracteres). Se valida mod-97."/>
+                                                    <Button Grid.Column="1" Content="Copiar" Margin="6,0,0,0" Padding="10,4" Click="CopyIban_Click"/>
+                                                </Grid>
+                                                <TextBlock Text="BIC:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="BICTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="COBADEFFXXX" LostFocus="Uppercase_OnLostFocus"/>
+                                                <TextBlock Text="Nombre de Cuenta:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="AccountNameTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Nombre Empresa"/>
+                                            </Grid>
+                                        </Expander>
+
+                                        <Expander Header="Referencias de Documentos" IsExpanded="False" Margin="0,10,0,0">
+                                            <Grid Margin="0,10,0,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="Número de Proyecto:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ProjectNumberTextBox" Grid.Column="1" PlaceholderText="Numero del Proyecto"/>
+                                                <TextBlock Text="Número de Contrato:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ContractNumberTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Numero del Contrato"/>
+                                                <TextBlock Text="Número de Orden:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="PurchaseOrderNumberTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Numero de Orden"/>
+                                                <TextBlock Text="Número de Trabajo:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="SalesOrderNumberTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="Numero del Trabajo"/>
+                                                <TextBlock Text="Concepto Pago:" Grid.Row="4" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="PaymentReferenceTextBox" Grid.Row="4" Grid.Column="1" PlaceholderText="CONCEPTODELPAGODELCLIENTE"/>
+                                            </Grid>
+                                        </Expander>
+
+                                        <Expander Header="Notas y Observaciones" IsExpanded="False" Margin="0,10,0,0">
+                                            <Grid Margin="0,10,0,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="Notas Generales:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="GeneralNoteTextBox" Grid.Column="1" PlaceholderText="Zahlungsart: Überweisung" Text="Zahlungsart: Überweisung"/>
+                                                <TextBlock Text="Descripción de Términos de Pago:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="PaymentTermsDescriptionTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Bitte überweisen Sie den Rechnungsbetrag in Höhe von X EUR bis zum Fälligkeitsdatum XX.XX.XXXX." Text="Bitte überweisen Sie den Rechnungsbetrag in Höhe von {Total} EUR bis zum Fälligkeitsdatum {DueDate}."/>
+                                            </Grid>
+                                        </Expander>
+
+                                        <Expander Header="Notas" IsExpanded="False" Margin="0,10,0,0">
+                                            <Grid Margin="0,10,0,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Términos de Pago:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="NotesTextBox" Grid.Column="1" PlaceholderText="Zahlungsart: Überweisung" Text="Zahlungsart: Überweisung"/>
+                                            </Grid>
+                                        </Expander>
+
+                                        <Expander Header="Detalles de Entrega" IsExpanded="False" Margin="0,10,0,0">
+                                            <Grid Margin="0,10,0,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <TextBlock Text="Nombre de Entrega:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ShipToNameTextBox" Grid.Column="1" PlaceholderText="Nombre del lugar de entrega"/>
+                                                <TextBlock Text="ID de Entrega:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ShipToIDTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="ID del lugar"/>
+                                                <TextBlock Text="Calle línea 1:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ShipToLineOneTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Calle y número"/>
+                                                <TextBlock Text="Calle línea 2:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ShipToLineTwoTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="Complemento dirección"/>
+                                                <TextBlock Text="Calle línea 3:" Grid.Row="4" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ShipToLineThreeTextBox" Grid.Row="4" Grid.Column="1" PlaceholderText="Información adicional"/>
+                                                <TextBlock Text="Ciudad:" Grid.Row="5" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ShipToCityNameTextBox" Grid.Row="5" Grid.Column="1" PlaceholderText="Ciudad"/>
+                                                <TextBlock Text="Código Postal:" Grid.Row="6" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ShipToPostcodeCodeTextBox" Grid.Row="6" Grid.Column="1" PlaceholderText="12345"/>
+                                                <TextBlock Text="País:" Grid.Row="7" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ShipToCountryIDTextBox" Grid.Row="7" Grid.Column="1" PlaceholderText="DE" TextChanged="Country_Uppercase_TextChanged"/>
+                                                <TextBlock Text="Subdivisión (Región):" Grid.Row="8" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ShipToCountrySubDivisionNameTextBox" Grid.Row="8" Grid.Column="1" PlaceholderText="Bayern"/>
+                                            </Grid>
+                                        </Expander>
+                                    </StackPanel>
+                                </ui:Card>
+                            </StackPanel>
+                        </Grid>
+                    </TabItem>
+
+                    <!-- Paso 5: Resumen final y acciones -->
+                    <TabItem Header="5. Resumen">
+                        <StackPanel>
+                            <ui:Card Background="{StaticResource CardSurface}" Margin="0,0,0,20">
+                                <StackPanel>
+                                    <TextBlock Text="Resumen de la factura" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                    <TextBlock Text="Verifica los datos antes de generar la factura." Opacity="0.85"/>
+
+                                    <Border BorderBrush="{StaticResource DividerBrush}" BorderThickness="0,1,0,0" Margin="0,12,0,0" Padding="0,12,0,0">
+                                        <StackPanel>
+                                            <!-- Emisor -->
+                                            <TextBlock Text="Emisor" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,6" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Nombre:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=SellerNameTextBox}"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="VAT ID:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=SellerVATTextBox}"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Dirección:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" TextWrapping="Wrap">
+                                                    <Run Text="{Binding Text, ElementName=SellerStreetTextBox}"/>
+                                                    <Run Text=" "/>
+                                                    <Run Text="{Binding Text, ElementName=SellerStreet2TextBox}"/>
+                                                    <Run Text=" · "/>
+                                                    <Run Text="{Binding Text, ElementName=SellerPostcodeTextBox}"/>
+                                                    <Run Text=" "/>
+                                                    <Run Text="{Binding Text, ElementName=SellerCityTextBox}"/>
+                                                    <Run Text=", "/>
+                                                    <Run Text="{Binding Text, ElementName=SellerCountryTextBox}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Contacto:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1">
+                                                    <Run Text="{Binding Text, ElementName=SellerEmailTextBox}"/>
+                                                    <Run Text="  ·  "/>
+                                                    <Run Text="{Binding Text, ElementName=SellerPhoneTextBox}"/>
+                                                </TextBlock>
+                                            </Grid>
+
+                                            <!-- Receptor -->
+                                            <TextBlock Text="Receptor" FontSize="14" FontWeight="SemiBold" Margin="0,12,0,6" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Nombre:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=BuyerNameTextBox}"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="VAT ID:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=BuyerVATTextBox}"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Dirección:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" TextWrapping="Wrap">
+                                                    <Run Text="{Binding Text, ElementName=BuyerStreetTextBox}"/>
+                                                    <Run Text=" "/>
+                                                    <Run Text="{Binding Text, ElementName=BuyerStreet2TextBox}"/>
+                                                    <Run Text=" · "/>
+                                                    <Run Text="{Binding Text, ElementName=BuyerPostcodeTextBox}"/>
+                                                    <Run Text=" "/>
+                                                    <Run Text="{Binding Text, ElementName=BuyerCityTextBox}"/>
+                                                    <Run Text=", "/>
+                                                    <Run Text="{Binding Text, ElementName=BuyerCountryTextBox}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Contacto:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1">
+                                                    <Run Text="{Binding Text, ElementName=BuyerEmailTextBox}"/>
+                                                    <Run Text="  ·  "/>
+                                                    <Run Text="{Binding Text, ElementName=BuyerPhoneTextBox}"/>
+                                                </TextBlock>
+                                            </Grid>
+
+                                            <!-- Factura -->
+                                            <TextBlock Text="Factura" FontSize="14" FontWeight="SemiBold" Margin="0,12,0,6" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Nº de factura:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=InvoiceNumberTextBox}"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Fechas:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1">
+                                                    <Run Text="Emisión: "/>
+                                                    <Run Text="{Binding SelectedDate, ElementName=IssueDatePicker, StringFormat={}{0:dd.MM.yyyy}}"/>
+                                                    <Run Text="   ·   Venc.: "/>
+                                                    <Run Text="{Binding SelectedDate, ElementName=DueDatePicker, StringFormat={}{0:dd.MM.yyyy}}"/>
+                                                    <Run Text="   ·   Entrega: "/>
+                                                    <Run Text="{Binding SelectedDate, ElementName=DeliveryDatePicker, StringFormat={}{0:dd.MM.yyyy}}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Moneda:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=CurrencyComboBox}"/>
+                                            </Grid>
+
+                                            <!-- Referencias clave -->
+                                            <TextBlock Text="Referencias clave" FontSize="14" FontWeight="SemiBold" Margin="0,12,0,6" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="BT-10 (Buyer Ref.):" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=BuyerReferenceTextBox}"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Concepto de pago:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=PaymentReferenceTextBox}"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Proyecto / Contrato / Orden:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1">
+                                                    <Run Text="{Binding Text, ElementName=ProjectNumberTextBox}"/>
+                                                    <Run Text="  ·  "/>
+                                                    <Run Text="{Binding Text, ElementName=ContractNumberTextBox}"/>
+                                                    <Run Text="  ·  "/>
+                                                    <Run Text="{Binding Text, ElementName=PurchaseOrderNumberTextBox}"/>
+                                                </TextBlock>
+                                            </Grid>
+
+                                            <!-- Líneas y totales -->
+                                            <TextBlock Text="Líneas y totales" FontSize="14" FontWeight="SemiBold" Margin="0,12,0,6" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Nº de líneas:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Items.Count, ElementName=ProductsDataGrid}"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Subtotal:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Text, ElementName=SubtotalTextBlock}"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Impuestos (IVA):" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Text, ElementName=TaxesTextBlock}"/>
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Total a pagar:" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" FontWeight="Bold"/>
+                                                <TextBlock Grid.Column="1" FontWeight="Bold" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" Text="{Binding Text, ElementName=TotalTextBlock}"/>
+                                            </Grid>
+
+                                            <!-- Impuestos -->
+                                            <TextBlock Text="Impuestos" FontSize="14" FontWeight="SemiBold" Margin="0,12,0,6" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Categoría:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=TaxCategoryComboBox}"/>
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Tasa:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=TaxRateTextBox}"/>
+                                            </Grid>
+
+                                            <!-- Pago -->
+                                            <TextBlock Text="Pago" FontSize="14" FontWeight="SemiBold" Margin="0,12,0,6" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="IBAN:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=IBANTextBox}"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="BIC:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=BICTextBox}"/>
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Titular de cuenta:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=AccountNameTextBox}"/>
+                                            </Grid>
+
+                                            <!-- Entrega -->
+                                            <TextBlock Text="Entrega" FontSize="14" FontWeight="SemiBold" Margin="0,12,0,6" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Nombre:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text, ElementName=ShipToNameTextBox}"/>
+                                            </Grid>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Ciudad / CP / País:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1">
+                                                    <Run Text="{Binding Text, ElementName=ShipToCityNameTextBox}"/>
+                                                    <Run Text="  ·  "/>
+                                                    <Run Text="{Binding Text, ElementName=ShipToPostcodeCodeTextBox}"/>
+                                                    <Run Text=", "/>
+                                                    <Run Text="{Binding Text, ElementName=ShipToCountryIDTextBox}"/>
+                                                </TextBlock>
+                                            </Grid>
+
+                                            <!-- Notas -->
+                                            <TextBlock Text="Notas" FontSize="14" FontWeight="SemiBold" Margin="0,12,0,6" Foreground="{StaticResource PrimaryTextBrush}"/>
+                                            <Grid Margin="0,0,0,6">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Generales:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="{Binding Text, ElementName=GeneralNoteTextBox}"/>
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="180"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="Términos de pago:" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <TextBlock Grid.Column="1" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="{Binding Text, ElementName=PaymentTermsDescriptionTextBox}"/>
+                                            </Grid>
+
+                                            <!-- Alertas (placeholder no intrusivo) -->
+                                            <Border x:Name="SummaryAlertsPanel" Visibility="Collapsed" Margin="0,12,0,0" Padding="10" CornerRadius="6" Background="{DynamicResource SystemFillColorAttentionBackgroundBrush}" BorderBrush="{DynamicResource SystemFillColorAttentionBrush}" BorderThickness="1">
+                                                <StackPanel>
+                                                    <TextBlock Text="Revisa los campos pendientes" FontWeight="SemiBold"/>
+                                                    <ItemsControl x:Name="SummaryAlertsItems"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <!-- Acciones -->
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                                                <ui:Button x:Name="PreviewButton" Content="👁 Previsualizar"
+                                                           Appearance="Secondary"
+                                                           FontSize="14"
+                                                           Padding="24,12"
+                                                           Click="OnPreviewInvoiceClick"
+                                                           Margin="0,0,14,0"/>
+                                                <ui:Button x:Name="GenerateButton" Content="✓ Generar Factura"
+                                                           Appearance="Success"
+                                                           FontSize="14"
+                                                           Padding="40,12"
+                                                           Click="OnGenerateInvoiceClick"
+                                                           Margin="0,0,20,0"/>
+                                                <ui:Button Content="✕ Cancelar"
+                                                           Appearance="Secondary"
+                                                           FontSize="14"
+                                                           Padding="40,12"
+                                                           Click="OnCancelClick"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ui:Card>
+                        </StackPanel>
+                    </TabItem>
+                </TabControl>
+                <!-- END: Stepper (TabControl) -->
+
+                <!-- Barra de navegación de pasos -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                    <TextBlock x:Name="ErrorCounterTextBlock" Text="" Foreground="{StaticResource SecondaryTextBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                    <ui:Button x:Name="PrevStepButton" Content="← Atrás" Appearance="Secondary" Padding="28,10" Margin="0,0,10,0" Click="PrevStep_Click"/>
+                    <ui:Button x:Name="NextStepButton" Content="Siguiente →" Appearance="Primary" Padding="28,10" Click="NextStep_Click"/>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

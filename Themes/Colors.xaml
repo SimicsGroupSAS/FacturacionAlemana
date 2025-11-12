@@ -32,4 +32,11 @@
     <!-- Semi-transparent white para IconHolder hover -->
     <SolidColorBrush x:Key="SemiTransparentWhite" Color="#44FFFFFF" />
 
+    <!-- Custom equivalents to system brushes referenced in XAML -->
+    <SolidColorBrush x:Key="SystemFillColorAttentionBackgroundBrush" Color="#FFFFF4CC" />
+    <SolidColorBrush x:Key="SystemFillColorAttentionBrush" Color="#FFF3C43C" />
+    <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#FF0E7A33" />
+    <SolidColorBrush x:Key="ControlStrokeColorDefaultBrush" Color="#33000000" />
+    <SolidColorBrush x:Key="ControlFillColorDefaultBrush" Color="#FFFFFFFF" />
+
 </ResourceDictionary>

@@ -4,7 +4,8 @@ using QuestPDF.Infrastructure;
 using FacturacionAlemana.Models;
 
 namespace FacturacionAlemana.Services
-{    public static class PdfGeneratorService
+{    
+    public static class PdfGeneratorService
     {
         private static string ConvertirFechaAleman(DateTime fecha)
         {
@@ -50,6 +51,24 @@ namespace FacturacionAlemana.Services
                 _ => codigoMoneda.ToUpper()
             };
         }
+
+        // Helpers para ocultar campos vacíos en PDF
+        private static bool HasAny(params string?[] values)
+        {
+            foreach (var v in values)
+            {
+                if (!string.IsNullOrWhiteSpace(v)) return true;
+            }
+            return false;
+        }
+
+        private static string JoinNonEmpty(string separator, params string?[] parts)
+        {
+            return string.Join(separator, parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+        }
+
+        private static bool IsValidDate(DateTime dt) => dt != default && dt.Year > 1900;
+
         public static byte[] GenerarFacturaPdfEnMemoria(Factura factura)
         {
             QuestPDF.Settings.License = LicenseType.Community;
@@ -73,7 +92,8 @@ namespace FacturacionAlemana.Services
             return Document.Create(container =>
             {
                 container.Page(page =>
-                {                    page.Size(PageSizes.A4);
+                {                    
+                    page.Size(PageSizes.A4);
                     page.Margin(0.5f, Unit.Centimetre);
 
                     page.Content().Column(column =>
@@ -89,7 +109,8 @@ namespace FacturacionAlemana.Services
                         column.Item().Row(row =>
                         {
                             row.RelativeItem().BorderBottom(1).BorderColor(Colors.Black).Height(1);
-                        });                        column.Item().PaddingTop(10);
+                        });                        
+                        column.Item().PaddingTop(10);
 
                         // Primera fila: Información del vendedor + Zahlungsdetails
                         column.Item().Row(row =>
@@ -97,29 +118,58 @@ namespace FacturacionAlemana.Services
                             // Columna izquierda - Información del vendedor
                             row.RelativeItem(1).Column(leftColumn =>
                             {
-                                leftColumn.Item().Text($"{factura.SellerName}").FontSize(11).Bold();
-                                leftColumn.Item().Text($"{factura.SellerLineOne}, {factura.SellerLineTwo}").FontSize(9);
-                                leftColumn.Item().Text($"{factura.SellerPostcodeCode} {factura.SellerCityName}, {factura.SellerCountryID}").FontSize(9);
+                                if (!string.IsNullOrWhiteSpace(factura.SellerName))
+                                    leftColumn.Item().Text(factura.SellerName).FontSize(11).Bold();
+
+                                var sellerStreet = JoinNonEmpty(", ", factura.SellerLineOne, factura.SellerLineTwo);
+                                if (!string.IsNullOrWhiteSpace(sellerStreet))
+                                    leftColumn.Item().Text(sellerStreet).FontSize(9);
+
+                                var sellerCity = JoinNonEmpty(" ", factura.SellerPostcodeCode, factura.SellerCityName);
+                                var sellerCountry = JoinNonEmpty(", ", sellerCity, factura.SellerCountryID);
+                                if (!string.IsNullOrWhiteSpace(sellerCountry))
+                                    leftColumn.Item().Text(sellerCountry).FontSize(9);
+
                                 leftColumn.Item().Text("").FontSize(8); // Salto de línea
-                                leftColumn.Item().Text($"USt-ID: {factura.SellerVATID}").FontSize(9);
-                                leftColumn.Item().Text($"St.-Nr.: {factura.SellerTaxNumber}").FontSize(9);
-                                leftColumn.Item().Text($"E-Adresse: {factura.SellerEmail}").FontSize(9);
+
+                                if (!string.IsNullOrWhiteSpace(factura.SellerVATID))
+                                    leftColumn.Item().Text($"USt-ID: {factura.SellerVATID}").FontSize(9);
+                                if (!string.IsNullOrWhiteSpace(factura.SellerTaxNumber))
+                                    leftColumn.Item().Text($"St.-Nr.: {factura.SellerTaxNumber}").FontSize(9);
+                                if (!string.IsNullOrWhiteSpace(factura.SellerEmail))
+                                    leftColumn.Item().Text($"E-Adresse: {factura.SellerEmail}").FontSize(9);
                                 leftColumn.Item().Text($"Web: TEXTO:WWW.CORREO.COM").FontSize(9);
-                            });                            // Columna derecha - Zahlungsdetails + Kontakt
+                            });                            
+                            // Columna derecha - Zahlungsdetails + Kontakt
                             row.RelativeItem(1).Column(rightColumn =>
                             {
-                                rightColumn.Item().AlignRight().Text("Zahlungsdetails").FontSize(11).Bold();
-                                rightColumn.Item().AlignRight().Text("Bank: NOMBREBANCO").FontSize(9);
-                                rightColumn.Item().AlignRight().Text($"Kontoinhaber: {factura.AccountName}").FontSize(9);
-                                rightColumn.Item().AlignRight().Text($"IBAN: {factura.IBANID}").FontSize(9);
-                                rightColumn.Item().AlignRight().Text($"BIC: {factura.BICID}").FontSize(9);
-                                rightColumn.Item().Text("").FontSize(8); // Salto
+                                // Zahlungsdetails
+                                if (HasAny(factura.AccountName, factura.IBANID, factura.BICID))
+                                {
+                                    rightColumn.Item().AlignRight().Text("Zahlungsdetails").FontSize(11).Bold();
+                                    rightColumn.Item().AlignRight().Text("Bank: NOMBREBANCO").FontSize(9);
+                                    if (!string.IsNullOrWhiteSpace(factura.AccountName))
+                                        rightColumn.Item().AlignRight().Text($"Kontoinhaber: {factura.AccountName}").FontSize(9);
+                                    if (!string.IsNullOrWhiteSpace(factura.IBANID))
+                                        rightColumn.Item().AlignRight().Text($"IBAN: {factura.IBANID}").FontSize(9);
+                                    if (!string.IsNullOrWhiteSpace(factura.BICID))
+                                        rightColumn.Item().AlignRight().Text($"BIC: {factura.BICID}").FontSize(9);
+                                    rightColumn.Item().Text("").FontSize(8); // Salto
+                                }
+
                                 // Kontakt
-                                rightColumn.Item().AlignRight().Text("Kontakt").FontSize(11).Bold();
-                                rightColumn.Item().AlignRight().Text($"Name: {factura.SellerPersonName}").FontSize(9);
-                                rightColumn.Item().AlignRight().Text($"E-Mail: {factura.SellerEmail}").FontSize(9);
-                                rightColumn.Item().AlignRight().Text($"Tel: {factura.SellerCompleteNumber}").FontSize(9);
-                            });                        });
+                                if (HasAny(factura.SellerPersonName, factura.SellerEmail, factura.SellerCompleteNumber))
+                                {
+                                    rightColumn.Item().AlignRight().Text("Kontakt").FontSize(11).Bold();
+                                    if (!string.IsNullOrWhiteSpace(factura.SellerPersonName))
+                                        rightColumn.Item().AlignRight().Text($"Name: {factura.SellerPersonName}").FontSize(9);
+                                    if (!string.IsNullOrWhiteSpace(factura.SellerEmail))
+                                        rightColumn.Item().AlignRight().Text($"E-Mail: {factura.SellerEmail}").FontSize(9);
+                                    if (!string.IsNullOrWhiteSpace(factura.SellerCompleteNumber))
+                                        rightColumn.Item().AlignRight().Text($"Tel: {factura.SellerCompleteNumber}").FontSize(9);
+                                }
+                            });                        
+                        });
 
                         // Espaciado antes de la línea separadora
                         column.Item().PaddingTop(10);
@@ -128,7 +178,8 @@ namespace FacturacionAlemana.Services
                         column.Item().Row(row =>
                         {
                             row.RelativeItem().BorderBottom(1).BorderColor(Colors.Black).Height(1);
-                        });                        // Espaciado después de la línea separadora
+                        });                        
+                        // Espaciado después de la línea separadora
                         column.Item().PaddingTop(10);
 
                         // Segunda fila: Empfänger + Kontakt
@@ -138,66 +189,115 @@ namespace FacturacionAlemana.Services
                             row.RelativeItem(1).Column(leftColumn =>
                             {
                                 leftColumn.Item().Text("Empfänger").FontSize(11).Bold();
-                                leftColumn.Item().Text($"{factura.BuyerName}").FontSize(9);
-                                leftColumn.Item().Text($"{factura.BuyerLineOne}, {factura.BuyerLineTwo}").FontSize(9);
-                                leftColumn.Item().Text($"{factura.BuyerPostcodeCode} {factura.BuyerCityName}, {factura.BuyerCountryID}").FontSize(9);
+                                if (!string.IsNullOrWhiteSpace(factura.BuyerName))
+                                    leftColumn.Item().Text(factura.BuyerName).FontSize(9);
+
+                                var buyerStreet = JoinNonEmpty(", ", factura.BuyerLineOne, factura.BuyerLineTwo);
+                                if (!string.IsNullOrWhiteSpace(buyerStreet))
+                                    leftColumn.Item().Text(buyerStreet).FontSize(9);
+
+                                var buyerCity = JoinNonEmpty(" ", factura.BuyerPostcodeCode, factura.BuyerCityName);
+                                var buyerCountry = JoinNonEmpty(", ", buyerCity, factura.BuyerCountryID);
+                                if (!string.IsNullOrWhiteSpace(buyerCountry))
+                                    leftColumn.Item().Text(buyerCountry).FontSize(9);
+
                                 leftColumn.Item().Text("").FontSize(8); // Salto
-                                leftColumn.Item().Text($"USt-ID: {factura.BuyerVATID}").FontSize(9);
-                                leftColumn.Item().Text($"E-Adresse: {factura.BuyerEmail}").FontSize(9);
-                                leftColumn.Item().Text("").FontSize(8); // Salto
-                                leftColumn.Item().Text("Kontakt").FontSize(11).Bold();
-                                leftColumn.Item().Text($"Name: {factura.BuyerPersonName}").FontSize(9);
-                                leftColumn.Item().Text($"E-Mail: {factura.BuyerEmailContact}").FontSize(9);
-                                leftColumn.Item().Text($"Tel: {factura.BuyerCompleteNumber}").FontSize(9);                            });
+                                if (!string.IsNullOrWhiteSpace(factura.BuyerVATID))
+                                    leftColumn.Item().Text($"USt-ID: {factura.BuyerVATID}").FontSize(9);
+                                if (!string.IsNullOrWhiteSpace(factura.BuyerEmail))
+                                    leftColumn.Item().Text($"E-Adresse: {factura.BuyerEmail}").FontSize(9);
+
+                                if (HasAny(factura.BuyerPersonName, factura.BuyerEmailContact, factura.BuyerCompleteNumber))
+                                {
+                                    leftColumn.Item().Text("").FontSize(8); // Salto
+                                    leftColumn.Item().Text("Kontakt").FontSize(11).Bold();
+                                    if (!string.IsNullOrWhiteSpace(factura.BuyerPersonName))
+                                        leftColumn.Item().Text($"Name: {factura.BuyerPersonName}").FontSize(9);
+                                    if (!string.IsNullOrWhiteSpace(factura.BuyerEmailContact))
+                                        leftColumn.Item().Text($"E-Mail: {factura.BuyerEmailContact}").FontSize(9);
+                                    if (!string.IsNullOrWhiteSpace(factura.BuyerCompleteNumber))
+                                        leftColumn.Item().Text($"Tel: {factura.BuyerCompleteNumber}").FontSize(9);
+                                }
+                            });
 
                             // Columna derecha - Información de Factura
                             row.RelativeItem(1).Column(rightColumn =>
                             {
-                                rightColumn.Item().Row(subRow =>
+                                if (!string.IsNullOrWhiteSpace(factura.InvoiceNumber))
                                 {
-                                    subRow.RelativeItem(1).Text("Rechnungs-Nr.").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).AlignRight().Text($"{factura.InvoiceNumber}").FontSize(9);
-                                });
-                                rightColumn.Item().Row(subRow =>
+                                    rightColumn.Item().Row(subRow =>
+                                    {
+                                        subRow.RelativeItem(1).Text("Rechnungs-Nr.").FontSize(9).Bold();
+                                        subRow.RelativeItem(1).AlignRight().Text(factura.InvoiceNumber).FontSize(9);
+                                    });
+                                }
+                                if (IsValidDate(factura.IssueDate))
                                 {
-                                    subRow.RelativeItem(1).Text("Rechnungsdatum").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).AlignRight().Text($"{factura.IssueDate:dd.MM.yyyy}").FontSize(9);
-                                });
-                                rightColumn.Item().Row(subRow =>
+                                    rightColumn.Item().Row(subRow =>
+                                    {
+                                        subRow.RelativeItem(1).Text("Rechnungsdatum").FontSize(9).Bold();
+                                        subRow.RelativeItem(1).AlignRight().Text($"{factura.IssueDate:dd.MM.yyyy}").FontSize(9);
+                                    });
+                                }
+                                if (IsValidDate(factura.DeliveryDate))
                                 {
-                                    subRow.RelativeItem(1).Text("Lieferdatum").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).AlignRight().Text($"{factura.DeliveryDate:dd.MM.yyyy}").FontSize(9);
-                                });                                rightColumn.Item().Row(subRow =>
+                                    rightColumn.Item().Row(subRow =>
+                                    {
+                                        subRow.RelativeItem(1).Text("Lieferdatum").FontSize(9).Bold();
+                                        subRow.RelativeItem(1).AlignRight().Text($"{factura.DeliveryDate:dd.MM.yyyy}").FontSize(9);
+                                    });
+                                }
+                                if (IsValidDate(factura.DueDateValue))
                                 {
-                                    subRow.RelativeItem(1).Text("Fälligkeitsdatum").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).AlignRight().Text($"{factura.DueDateValue:dd.MM.yyyy}").FontSize(9);
-                                });
-                                rightColumn.Item().Row(subRow =>
+                                    rightColumn.Item().Row(subRow =>
+                                    {
+                                        subRow.RelativeItem(1).Text("Fälligkeitsdatum").FontSize(9).Bold();
+                                        subRow.RelativeItem(1).AlignRight().Text($"{factura.DueDateValue:dd.MM.yyyy}").FontSize(9);
+                                    });
+                                }
+                                if (!string.IsNullOrWhiteSpace(factura.ProjectNumber))
                                 {
-                                    subRow.RelativeItem(1).Text("Projektnummer").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).AlignRight().Text($"{factura.ProjectNumber}").FontSize(9);
-                                });
-                                rightColumn.Item().Row(subRow =>
+                                    rightColumn.Item().Row(subRow =>
+                                    {
+                                        subRow.RelativeItem(1).Text("Projektnummer").FontSize(9).Bold();
+                                        subRow.RelativeItem(1).AlignRight().Text(factura.ProjectNumber).FontSize(9);
+                                    });
+                                }
+                                if (!string.IsNullOrWhiteSpace(factura.ContractNumber))
                                 {
-                                    subRow.RelativeItem(1).Text("Vertragsnummer").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).AlignRight().Text($"{factura.ContractNumber}").FontSize(9);
-                                });
-                                rightColumn.Item().Row(subRow =>
+                                    rightColumn.Item().Row(subRow =>
+                                    {
+                                        subRow.RelativeItem(1).Text("Vertragsnummer").FontSize(9).Bold();
+                                        subRow.RelativeItem(1).AlignRight().Text(factura.ContractNumber).FontSize(9);
+                                    });
+                                }
+                                if (!string.IsNullOrWhiteSpace(factura.PurchaseOrderNumber))
                                 {
-                                    subRow.RelativeItem(1).Text("Bestellnummer").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).AlignRight().Text($"{factura.PurchaseOrderNumber}").FontSize(9);
-                                });
-                                rightColumn.Item().Row(subRow =>
+                                    rightColumn.Item().Row(subRow =>
+                                    {
+                                        subRow.RelativeItem(1).Text("Bestellnummer").FontSize(9).Bold();
+                                        subRow.RelativeItem(1).AlignRight().Text(factura.PurchaseOrderNumber).FontSize(9);
+                                    });
+                                }
+                                if (!string.IsNullOrWhiteSpace(factura.SalesOrderNumber))
                                 {
-                                    subRow.RelativeItem(1).Text("Auftragsnummer").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).AlignRight().Text($"{factura.SalesOrderNumber}").FontSize(9);
-                                });
-                                rightColumn.Item().Row(subRow =>
+                                    rightColumn.Item().Row(subRow =>
+                                    {
+                                        subRow.RelativeItem(1).Text("Auftragsnummer").FontSize(9).Bold();
+                                        subRow.RelativeItem(1).AlignRight().Text(factura.SalesOrderNumber).FontSize(9);
+                                    });
+                                }
+                                if (!string.IsNullOrWhiteSpace(factura.PaymentReference))
                                 {
-                                    subRow.RelativeItem(1).Text("Verwendungszweck").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).AlignRight().Text($"{factura.PaymentReference}").FontSize(9);
-                                });
-                            });                        });                        // Sección de descripción de pago - Encima de la tabla de productos
+                                    rightColumn.Item().Row(subRow =>
+                                    {
+                                        subRow.RelativeItem(1).Text("Verwendungszweck").FontSize(9).Bold();
+                                        subRow.RelativeItem(1).AlignRight().Text(factura.PaymentReference).FontSize(9);
+                                    });
+                                }
+                            });                        
+                        });                        
+                        // Sección de descripción de pago - Encima de la tabla de productos
                         column.Item().PaddingVertical(15).Column(infoColumn =>
                         {
                             var fechaVencimiento = ConvertirFechaAleman(factura.DueDateValue);
@@ -305,13 +405,30 @@ namespace FacturacionAlemana.Services
                         {
                             row.RelativeItem(1).Column(leftColumn =>
                             {
-                                leftColumn.Item().Text("Lieferdetails").FontSize(9).Bold();
-                                leftColumn.Item().Text($"Name: {factura.ShipToName}").FontSize(9);
-                                leftColumn.Item().Text($"Kennung des Ortes: {factura.ShipToID}").FontSize(9);
-                                leftColumn.Item().Text($"Anschrift: {factura.ShipToLineOne}, {factura.ShipToLineTwo}, {factura.ShipToLineThree}, {factura.ShipToPostcodeCode} {factura.ShipToCityName}, {factura.ShipToCountryID}, {factura.ShipToCountrySubDivisionName}").FontSize(9);
-                                leftColumn.Item().PaddingTop(8).Text("Hinweise und Bemerkungen").FontSize(9).Bold();
-                                leftColumn.Item().Text(factura.PaymentNoteElement).FontSize(9);
-                                leftColumn.Item().Text(factura.PaymentDescription).FontSize(9);
+                                if (HasAny(factura.ShipToName, factura.ShipToID, factura.ShipToLineOne, factura.ShipToLineTwo, factura.ShipToLineThree, factura.ShipToPostcodeCode, factura.ShipToCityName, factura.ShipToCountryID, factura.ShipToCountrySubDivisionName))
+                                {
+                                    leftColumn.Item().Text("Lieferdetails").FontSize(9).Bold();
+                                    if (!string.IsNullOrWhiteSpace(factura.ShipToName))
+                                        leftColumn.Item().Text($"Name: {factura.ShipToName}").FontSize(9);
+                                    if (!string.IsNullOrWhiteSpace(factura.ShipToID))
+                                        leftColumn.Item().Text($"Kennung des Ortes: {factura.ShipToID}").FontSize(9);
+
+                                    var shipStreet = JoinNonEmpty(", ", factura.ShipToLineOne, factura.ShipToLineTwo, factura.ShipToLineThree);
+                                    var shipCity = JoinNonEmpty(" ", factura.ShipToPostcodeCode, factura.ShipToCityName);
+                                    var shipCountry = JoinNonEmpty(", ", factura.ShipToCountryID, factura.ShipToCountrySubDivisionName);
+                                    var shipAddress = JoinNonEmpty(", ", shipStreet, shipCity, shipCountry);
+                                    if (!string.IsNullOrWhiteSpace(shipAddress))
+                                        leftColumn.Item().Text($"Anschrift: {shipAddress}").FontSize(9);
+                                }
+
+                                if (HasAny(factura.PaymentNoteElement, factura.PaymentDescription))
+                                {
+                                    leftColumn.Item().PaddingTop(8).Text("Hinweise und Bemerkungen").FontSize(9).Bold();
+                                    if (!string.IsNullOrWhiteSpace(factura.PaymentNoteElement))
+                                        leftColumn.Item().Text(factura.PaymentNoteElement).FontSize(9);
+                                    if (!string.IsNullOrWhiteSpace(factura.PaymentDescription))
+                                        leftColumn.Item().Text(factura.PaymentDescription).FontSize(9);
+                                }
                             });
                         });
                     });

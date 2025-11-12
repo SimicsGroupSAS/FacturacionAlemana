@@ -1,4 +1,6 @@
 using System;
+using System;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
@@ -12,17 +14,50 @@ namespace FacturacionAlemana
 {
     public partial class CreateInvoicePage : Page
     {
-        private ObservableCollection<Producto> productos = new();        public CreateInvoicePage()
+        private ObservableCollection<Producto> productos = new();        
+        public CreateInvoicePage()
         {
             InitializeComponent();
-            ProductsDataGrid.ItemsSource = productos;
-            IssueDateTextBox.Text = DateTime.Now.ToString("yyyy-MM-dd");
-            DeliveryDateTextBox.Text = DateTime.Now.ToString("yyyy-MM-dd");
-            DueDateTextBox.Text = DateTime.Now.AddMonths(1).ToString("yyyy-MM-dd");
+            // Maximizar la ventana cuando se carga esta página
+            this.Loaded += (s, e) => 
+            {
+                var window = Window.GetWindow(this);
+                if (window != null)
+                {
+                    window.WindowState = WindowState.Maximized;
+                }
+            };            ProductsDataGrid.ItemsSource = productos;
+            IssueDatePicker.SelectedDate = DateTime.Now;
+            DeliveryDatePicker.SelectedDate = DateTime.Now;
+            DueDatePicker.SelectedDate = DateTime.Now.AddMonths(1);
+            
+            // Inicializar ComboBox de moneda
+            var currencyItems = new List<ComboBoxItem>
+            {
+                new ComboBoxItem { Content = "EUR", IsSelected = true },
+                new ComboBoxItem { Content = "USD" },
+                new ComboBoxItem { Content = "GBP" },
+                new ComboBoxItem { Content = "CHF" }
+            };
+            CurrencyComboBox.ItemsSource = currencyItems;
             CurrencyComboBox.SelectedIndex = 0;
+            
+            // Inicializar ComboBox de categoría de impuestos
+            TaxCategoryComboBox.ItemsSource = new List<string> { "S", "AA", "Z", "E", "O", "AE" };
+            
+            // Conectar eventos ANTES de cambiar selecciones
+            TaxCategoryComboBox.SelectionChanged += TaxCategoryComboBox_SelectionChanged;
             TaxRateTextBox.TextChanged += (s, e) => ActualizarResumenTotales();
             CurrencyComboBox.SelectionChanged += (s, e) => ActualizarResumenTotales();
-        }        private void OnAddProductClick(object sender, RoutedEventArgs e)
+            
+            // Establecer valores iniciales DESPUÉS de conectar eventos
+            TaxCategoryComboBox.SelectedValue = "S";
+            TaxRateTextBox.Text = "19.00";
+            
+            // Forzar cálculo inicial
+            ActualizarResumenTotales();
+        }        
+        private void OnAddProductClick(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -78,6 +113,25 @@ namespace FacturacionAlemana
             }
         }
 
+        private void TaxCategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (TaxCategoryComboBox.SelectedItem is string selectedCategory)
+            {
+                if (selectedCategory == "S")
+                {
+                    TaxRateTextBox.Text = "19.00";
+                }
+                else if (selectedCategory == "AA")
+                {
+                    TaxRateTextBox.Text = "7.00";
+                }
+                else
+                {
+                    TaxRateTextBox.Text = "0.00";
+                }
+            }
+        }
+
         private void EditProductDetails_Click(object sender, RoutedEventArgs e)
         {
             // Obtener el producto del DataGrid
@@ -91,9 +145,7 @@ namespace FacturacionAlemana
                     ActualizarResumenTotales();
                 }
             }
-        }
-
-        private void ActualizarResumenTotales()
+        }        private void ActualizarResumenTotales()
         {
             try
             {
@@ -101,10 +153,11 @@ namespace FacturacionAlemana
                 foreach (var prod in productos)
                 {
                     subtotal += prod.PrecioTotal;
+                }                decimal tasaIVA = 19m; // Valor por defecto
+                if (!string.IsNullOrEmpty(TaxRateTextBox.Text))
+                {
+                    decimal.TryParse(TaxRateTextBox.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out tasaIVA);
                 }
-
-                decimal.TryParse(TaxRateTextBox.Text, out var tasaIVA);
-                if (tasaIVA <= 0) tasaIVA = 19m;
 
                 decimal impuestos = subtotal * (tasaIVA / 100m);
                 decimal total = subtotal + impuestos;
@@ -132,7 +185,8 @@ namespace FacturacionAlemana
                 "CHF" => "CHF ",
                 _ => codigo + " "
             };
-        }        private void OnGenerateInvoiceClick(object sender, RoutedEventArgs e)
+        }        
+        private void OnGenerateInvoiceClick(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -180,7 +234,8 @@ namespace FacturacionAlemana
                         $"Formato esperado: DE89400900505012345678", "Validación IBAN", 
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
-                }                // Validar VAT-ID e IBAN antes de generar la factura
+                }                
+                // Validar VAT-ID e IBAN antes de generar la factura
                 if (!ValidarDatosFactura())
                 {
                     return;
@@ -207,7 +262,9 @@ namespace FacturacionAlemana
             {
                 MessageBox.Show($"Error al generar factura: {ex.Message}", "Error", 
                     MessageBoxButton.OK, MessageBoxImage.Error);
-            }        }        private bool ValidarDatosFactura()
+            }        
+        }        
+        private bool ValidarDatosFactura()
         {
             // Validar código de país del Vendedor (ISO 3166-1)
             string sellerCountry = SellerCountryTextBox.Text.Trim().ToUpper();
@@ -243,7 +300,8 @@ namespace FacturacionAlemana
                     "Ejemplos válidos: DE, ES, FR, CO",
                     "Validación de País del Comprador", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
-            }            // Validar VAT-ID
+            }            
+            // Validar VAT-ID
             string vatID = SellerVATTextBox.Text.Trim();
             if (string.IsNullOrEmpty(vatID))
             {
@@ -284,7 +342,8 @@ namespace FacturacionAlemana
                 MessageBox.Show("El IBAN debe comenzar con un código de país de 2 letras (ej: DE, ES, FR).",
                     "Validación de IBAN", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
-            }            // El resto del IBAN debe ser numérico
+            }            
+            // El resto del IBAN debe ser numérico
             if (!iban.Substring(2).All(char.IsDigit))
             {
                 MessageBox.Show("Después del código de país, el IBAN solo debe contener números.",
@@ -311,19 +370,22 @@ namespace FacturacionAlemana
             foreach (var prod in productos)
             {
                 totalGeneral += prod.PrecioTotal;
+            }            decimal tasaIVA = 19m; // Valor por defecto
+            if (!string.IsNullOrEmpty(TaxRateTextBox.Text))
+            {
+                decimal.TryParse(TaxRateTextBox.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out tasaIVA);
             }
-
-            decimal.TryParse(TaxRateTextBox.Text, out var tasaIVA);
-            if (tasaIVA <= 0) tasaIVA = 19m;
             
             decimal totalImpuestos = totalGeneral * (tasaIVA / 100m);
             decimal totalConImpuestos = totalGeneral + totalImpuestos;
 
             var monedaSeleccionada = (CurrencyComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "EUR";
-            var categoriaImpuesto = (TaxCategoryComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "S";            return new Factura            {
+            var categoriaImpuesto = TaxCategoryComboBox.SelectedItem as string ?? "S";            
+            return new Factura            
+            {
                 Cliente = BuyerNameTextBox.Text,
                 Total = totalConImpuestos,
-                DueDate = DueDateTextBox.Text,
+                DueDate = DueDatePicker.SelectedDate?.ToString("yyyy-MM-dd") ?? DateTime.Now.AddMonths(1).ToString("yyyy-MM-dd"),
                 GrandTotalAmount = totalConImpuestos.ToString("F2", CultureInfo.InvariantCulture),
                 DuePayableAmount = totalConImpuestos.ToString("F2", CultureInfo.InvariantCulture),
                 DateTimeFormat = "102",
@@ -333,17 +395,18 @@ namespace FacturacionAlemana
                 IdElement = InvoiceNumberTextBox.Text,
                 TypeCodeElement = "380",
                 // Convertir fecha de yyyy-MM-dd a YYYYMMDD (formato requerido por EN 16931)
-                IssueDateElement = DateTime.ParseExact(IssueDateTextBox.Text, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("yyyyMMdd"),
+                IssueDateElement = IssueDatePicker.SelectedDate?.ToString("yyyyMMdd") ?? DateTime.Now.ToString("yyyyMMdd"),
                 PaymentNoteElement = NotesTextBox.Text,
                 TaxAmount = totalImpuestos.ToString("F2", CultureInfo.InvariantCulture),
                 
                 SellerName = SellerNameTextBox.Text,
                 SellerPersonName = SellerPersonNameTextBox.Text,
                 SellerDepartmentName = "Ventas",
-                SellerCompleteNumber = SellerPhoneTextBox.Text,                SellerEmail = SellerEmailTextBox.Text,
+                SellerCompleteNumber = SellerPhoneTextBox.Text,                
+                SellerEmail = SellerEmailTextBox.Text,
                 SellerPostcodeCode = SellerPostcodeTextBox.Text,
                 SellerLineOne = SellerStreetTextBox.Text,
-                SellerLineTwo = SellerStreet2TextBox.Text,
+                SellerLineTwo = SellerStreetTextBox.Text,
                 SellerCityName = SellerCityTextBox.Text,
                 SellerCountryID = SellerCountryTextBox.Text.Trim().ToUpper(),
                 SellerVATID = SellerVATTextBox.Text,
@@ -368,9 +431,11 @@ namespace FacturacionAlemana
                 ChargeAmount = productos[0].PrecioTotal.ToString("F2", CultureInfo.InvariantCulture),
                 BilledQuantity = productos[0].Cantidad.ToString("F2", CultureInfo.InvariantCulture),
                 TaxTypeCode = "VAT",
-                TaxCategoryCode = categoriaImpuesto,                TaxRatePercent = tasaIVA.ToString("F0"),
+                TaxCategoryCode = categoriaImpuesto,                
+                TaxRatePercent = tasaIVA.ToString("F0"),
                 LineTotalAmount = productos[0].PrecioTotal.ToString("F2", CultureInfo.InvariantCulture),
-                InvoiceCurrencyCode = monedaSeleccionada,                PaymentTypeCode = "30",
+                InvoiceCurrencyCode = monedaSeleccionada,                
+                PaymentTypeCode = "30",
                 PaymentInformation = "SEPA",
                 IBANID = IBANTextBox.Text.Replace(" ", "").ToUpper(), // Remover espacios y convertir a mayúsculas
                 AccountName = AccountNameTextBox.Text,
@@ -380,9 +445,9 @@ namespace FacturacionAlemana
                 PaymentDescription = "Pago según términos acordados",
                 
                 InvoiceNumber = InvoiceNumberTextBox.Text,
-                IssueDate = DateTime.ParseExact(IssueDateTextBox.Text, "yyyy-MM-dd", CultureInfo.InvariantCulture),
-                DeliveryDate = DateTime.ParseExact(DeliveryDateTextBox.Text, "yyyy-MM-dd", CultureInfo.InvariantCulture),
-                DueDateValue = DateTime.ParseExact(DueDateTextBox.Text, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+                IssueDate = IssueDatePicker.SelectedDate ?? DateTime.Now,
+                DeliveryDate = DeliveryDatePicker.SelectedDate ?? DateTime.Now,
+                DueDateValue = DueDatePicker.SelectedDate ?? DateTime.Now.AddMonths(1),
                 ProjectNumber = ProjectNumberTextBox.Text,
                 ContractNumber = ContractNumberTextBox.Text,
                 PurchaseOrderNumber = PurchaseOrderNumberTextBox.Text,
@@ -400,9 +465,10 @@ namespace FacturacionAlemana
                 ShipToCountrySubDivisionName = ShipToCountrySubDivisionNameTextBox.Text,
                 Notes = NotesTextBox.Text,
                 GeneralNote = GeneralNoteTextBox.Text,
-                PaymentTermsDescription = PaymentTermsDescriptionTextBox.Text.Replace("{Total}", totalConImpuestos.ToString("F2", CultureInfo.InvariantCulture)).Replace("{DueDate}", DateTime.ParseExact(DueDateTextBox.Text, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd.MM.yyyy"))
+                PaymentTermsDescription = PaymentTermsDescriptionTextBox.Text.Replace("{Total}", totalConImpuestos.ToString("F2", CultureInfo.InvariantCulture)).Replace("{DueDate}", DueDatePicker.SelectedDate?.ToString("dd.MM.yyyy") ?? DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy"))
             };
-        }        private void OnCancelClick(object sender, RoutedEventArgs e)
+        }        
+        private void OnCancelClick(object sender, RoutedEventArgs e)
         {
             NavigationService.GoBack();
         }
@@ -690,7 +756,8 @@ namespace FacturacionAlemana
                     $"Formato: {countryCode}... (código de país + identificación)",
                     "Validación de VAT-ID", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
-            }            return true;
+            }            
+            return true;
         }
     }
 }

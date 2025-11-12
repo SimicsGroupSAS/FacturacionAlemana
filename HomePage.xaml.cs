@@ -15,13 +15,21 @@ namespace FacturacionAlemana
 {    
     public partial class HomePage : Page
     {
-        private Factura? factura;
-
-        public HomePage()
+        private Factura? factura;        public HomePage()
         {
             InitializeComponent();
             LoadIcon();
             InitializeRecentList();
+
+            // Restaurar ventana a tamaño normal cuando se carga HomePage
+            this.Loaded += (s, e) => 
+            {
+                var window = Window.GetWindow(this);
+                if (window != null)
+                {
+                    window.WindowState = WindowState.Normal;
+                }
+            };
 
             // Registrar evento para doble click en la lista (buscamos control dinámicamente)
             try

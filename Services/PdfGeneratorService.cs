@@ -138,7 +138,6 @@ namespace FacturacionAlemana.Services
                                     leftColumn.Item().Text($"St.-Nr.: {factura.SellerTaxNumber}").FontSize(9);
                                 if (!string.IsNullOrWhiteSpace(factura.SellerEmail))
                                     leftColumn.Item().Text($"E-Adresse: {factura.SellerEmail}").FontSize(9);
-                                leftColumn.Item().Text($"Web: TEXTO:WWW.CORREO.COM").FontSize(9);
                             });                            
                             // Columna derecha - Zahlungsdetails + Kontakt
                             row.RelativeItem(1).Column(rightColumn =>

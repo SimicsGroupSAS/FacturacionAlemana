@@ -135,6 +135,11 @@
                     <StackPanel>
                         <TextBlock x:Name="TopAlertsTitle" Text="Revisa los campos pendientes" FontWeight="SemiBold"/>
                         <ItemsControl x:Name="TopAlertsItems"/>
+                        <!-- Acciones de alerta -->
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <ui:Button x:Name="GoToFirstErrorButton" Content="Ir al primer error" Padding="12,6" Click="OnGoToFirstErrorClick"/>
+                            <ui:Button x:Name="DismissAlertsButton" Content="Ocultar" Padding="12,6" Margin="8,0,0,0" Appearance="Secondary" Click="OnDismissAlertsClick"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 

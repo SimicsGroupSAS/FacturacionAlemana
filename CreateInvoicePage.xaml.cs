@@ -23,6 +23,8 @@ namespace FacturacionAlemana
         // Maximizar solo una vez al cargar la página
         private bool _windowStateAdjusted = false;
         private bool _showGlobalAlerts = false;
+        private bool _alertsDismissed = false;
+        private bool _allowProgrammaticStepJump = false;
 
         public CreateInvoicePage()
         {
@@ -696,7 +698,24 @@ namespace FacturacionAlemana
             bool has = count > 0;
             if (TopAlertsPanel != null)
             {
-                TopAlertsPanel.Visibility = (_showGlobalAlerts && has) ? Visibility.Visible : Visibility.Collapsed;
+                // Si el usuario las ocultó, sólo re-mostrar si cambió el conjunto de errores
+                if (_alertsDismissed && has)
+                {
+                    // Si el usuario ha ocultado, mantener oculto hasta que intenten avanzar o cambie el conteo
+                    if (_lastErrorCount == count && !_showGlobalAlerts)
+                    {
+                        TopAlertsPanel.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        TopAlertsPanel.Visibility = (_showGlobalAlerts && has) ? Visibility.Visible : Visibility.Collapsed;
+                        _alertsDismissed = false;
+                    }
+                }
+                else
+                {
+                    TopAlertsPanel.Visibility = (_showGlobalAlerts && has) ? Visibility.Visible : Visibility.Collapsed;
+                }
             }
             if (TopAlertsItems != null)
             {
@@ -718,6 +737,87 @@ namespace FacturacionAlemana
                 {
                     ErrorCounterTextBlock.Text = string.Empty;
                     ErrorCounterTextBlock.Visibility = Visibility.Collapsed;
+                }
+            }
+            _lastErrorCount = count;
+        }
+
+        private int _lastErrorCount = 0;
+
+        private void OnDismissAlertsClick(object sender, RoutedEventArgs e)
+        {
+            _alertsDismissed = true;
+            TopAlertsPanel.Visibility = Visibility.Collapsed;
+        }
+
+        private void OnGoToFirstErrorClick(object sender, RoutedEventArgs e)
+        {
+            // Activar visualización de alertas y refrescar
+            _showGlobalAlerts = true;
+            RefreshAlerts();
+
+            // Definir controles por paso en el orden de validación
+            var stepControls = new List<(int step, Control ctl, Func<bool> isError)>
+            {
+                // Paso 1
+                (0, SellerNameTextBox, () => string.IsNullOrWhiteSpace(SellerNameTextBox.Text)),
+                (0, SellerCountryTextBox, () => HasError(SellerCountryTextBox)),
+                (0, SellerVATTextBox, () => HasError(SellerVATTextBox)),
+                (0, SellerPostcodeTextBox, () => HasError(SellerPostcodeTextBox)),
+                (0, SellerEmailTextBox, () => HasError(SellerEmailTextBox)),
+                // Paso 2
+                (1, BuyerNameTextBox, () => string.IsNullOrWhiteSpace(BuyerNameTextBox.Text)),
+                (1, BuyerCountryTextBox, () => HasError(BuyerCountryTextBox)),
+                (1, BuyerPostcodeTextBox, () => HasError(BuyerPostcodeTextBox)),
+                (1, BuyerEmailTextBox, () => HasError(BuyerEmailTextBox)),
+                // Paso 4
+                (3, BuyerReferenceTextBox, () => HasError(BuyerReferenceTextBox)),
+                (3, IBANTextBox, () => HasError(IBANTextBox)),
+            };
+
+            // Refrescar validaciones por si cambió algo
+            UpdateCountryValidation(SellerCountryTextBox);
+            UpdateVatValidation();
+            UpdateCountryValidation(BuyerCountryTextBox);
+            UpdateBuyerRefValidation();
+            UpdateIbanValidation();
+            UpdatePostcodeValidation(SellerPostcodeTextBox, SellerCountryTextBox);
+            UpdatePostcodeValidation(BuyerPostcodeTextBox, BuyerCountryTextBox);
+            UpdateEmailValidation(SellerEmailTextBox);
+            UpdateEmailValidation(BuyerEmailTextBox);
+
+            // Caso especial: sin líneas
+            if (productos.Count == 0)
+            {
+                _allowProgrammaticStepJump = true;
+                StepsTabControl.SelectedIndex = 2;
+                _currentStepIndex = 2;
+                UpdateStepButtons();
+                this.Dispatcher.InvokeAsync(() =>
+                {
+                    ProductsDataGrid?.Focus();
+                    ProductsDataGrid?.BringIntoView();
+                });
+                return;
+            }
+
+            foreach (var (step, ctl, isError) in stepControls)
+            {
+                if (isError())
+                {
+                    _allowProgrammaticStepJump = true;
+                    StepsTabControl.SelectedIndex = step;
+                    _currentStepIndex = step;
+                    UpdateStepButtons();
+                    // Enfocar y asegurar visibilidad
+                    this.Dispatcher.InvokeAsync(() =>
+                    {
+                        ctl.BringIntoView();
+                        ctl.Focus();
+                        if (ctl is TextBox tbox)
+                            tbox.SelectAll();
+                    });
+                    return;
                 }
             }
         }
@@ -925,6 +1025,16 @@ namespace FacturacionAlemana
         {
             if (StepsTabControl == null) return;
             var targetIndex = StepsTabControl.SelectedIndex;
+
+            // Permitir saltos programáticos (por "Ir al primer error")
+            if (_allowProgrammaticStepJump)
+            {
+                _currentStepIndex = targetIndex;
+                _allowProgrammaticStepJump = false;
+                UpdateStepButtons();
+                return;
+            }
+
             if (targetIndex <= _currentStepIndex)
             {
                 _currentStepIndex = targetIndex;

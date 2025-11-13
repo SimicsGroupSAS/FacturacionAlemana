@@ -242,7 +242,8 @@ namespace FacturacionAlemana.Services
                                 new XElement(XName.Get("PayeeSpecifiedCreditorFinancialInstitution", ram),
                                     new XElement(XName.Get("BICID", ram), factura.BICID)
                                 )
-                            ),                            new XElement(XName.Get("ApplicableTradeTax", ram),
+                            ),                            
+                            new XElement(XName.Get("ApplicableTradeTax", ram),
                                 new XElement(XName.Get("CalculatedAmount", ram), NormalizeDecimal(factura.CalculatedAmount)),
                                 new XElement(XName.Get("TypeCode", ram), factura.TaxTypeCode),
                                 new XElement(XName.Get("BasisAmount", ram), NormalizeDecimal(factura.BasisAmount)),

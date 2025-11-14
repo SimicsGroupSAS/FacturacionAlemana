@@ -2,6 +2,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using FacturacionAlemana.Models;
+using System.IO;
 
 namespace FacturacionAlemana.Services
 {    
@@ -98,8 +99,41 @@ namespace FacturacionAlemana.Services
 
                     page.Content().Column(column =>
                     {
-                        // Título centrado
-                        column.Item().AlignCenter().Text("Rechnung").FontSize(24).FontFamily("Century Gothic").Bold();
+                        // Cabecera: logo a la izquierda + título centrado (con espacio simétrico a la derecha para centrar)
+                        column.Item().Row(row =>
+                        {
+                            // Intentar cargar logo desde la carpeta Assets del ejecutable
+                            try
+                            {
+                                var exeDir = AppDomain.CurrentDomain.BaseDirectory ?? string.Empty;
+                                var logoPath = Path.Combine(exeDir, "Assets", "Logo-v1_2024-SIMICS-TRADING-GmbH.png");
+                                if (File.Exists(logoPath))
+                                {
+                                    var logoBytes = File.ReadAllBytes(logoPath);
+                                    // Anchura constante para que encaje bien; la imagen se escala por altura
+                                    row.ConstantItem(140).AlignLeft().Image(logoBytes, ImageScaling.FitHeight);
+                                }
+                                else
+                                {
+                                    // Si no hay logo, reservar el mismo espacio para mantener consistencia
+                                    row.ConstantItem(140);
+                                }
+                            }
+                            catch
+                            {
+                                // No bloquear generación si falla la carga del logo; reservar espacio para simetría
+                                row.ConstantItem(140);
+                            }
+
+                            // Título en mayúsculas centrado en el espacio restante
+                            row.RelativeItem().AlignCenter().Column(titleCol =>
+                            {
+                                titleCol.Item().Text("RECHNUNG").FontSize(24).FontFamily("Century Gothic").Bold();
+                            });
+
+                            // Espacio derecho simétrico al logo para centrar el título en la página
+                            row.ConstantItem(140);
+                        });
 
                         // Línea horizontal
                         column.Item().Row(row =>

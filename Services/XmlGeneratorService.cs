@@ -5,9 +5,9 @@ using System.Globalization;
 using FacturacionAlemana.Models;
 
 namespace FacturacionAlemana.Services
-{
-    public static class XmlGeneratorService
-    {        /// <summary>
+{    public static class XmlGeneratorService
+    {
+        /// <summary>
         /// Convierte un valor decimal a string con formato de punto (.), no coma (,)
         /// Requerido por EN 16931 que especifica punto como separador decimal
         /// </summary>
@@ -27,6 +27,33 @@ namespace FacturacionAlemana.Services
             
             // Reemplazar comas por puntos para asegurar formato universal
             return value.Replace(",", ".");
+        }        /// <summary>
+        /// Crea un XElement solo si el contenido no está vacío (omite elementos vacíos por PEPPOL-EN16931-R008)
+        /// </summary>
+        private static XElement? CreateElementIfNotEmpty(string name, string? content, string ns)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return null;
+            return new XElement(XName.Get(name, ns), content);
+        }        /// <summary>
+        /// Crea un XElement con atributos solo si el contenido no está vacío
+        /// </summary>
+        private static XElement? CreateElementWithAttrIfNotEmpty(string name, string? content, string attrName, string attrValue, string ns)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return null;
+            return new XElement(XName.Get(name, ns), 
+                new XAttribute(attrName, attrValue), 
+                content);
+        }
+
+        /// <summary>
+        /// Compila una lista de elementos filtrando los null
+        /// Necesario porque XElement no filtra automáticamente null en params object[]
+        /// </summary>
+        private static XElement[] CompileElements(params XElement?[] elements)
+        {
+            return elements.Where(x => x != null).Cast<XElement>().ToArray();
         }
 
         public static void GenerarFacturaXml(Factura factura, string outputPath)
@@ -93,17 +120,15 @@ namespace FacturacionAlemana.Services
                             new XElement(XName.Get("IncludedSupplyChainTradeLineItem", ram),
                                 new XElement(XName.Get("AssociatedDocumentLineDocument", ram),
                                     new XElement(XName.Get("LineID", ram), (index + 1).ToString())
-                                ),
-                                new XElement(XName.Get("SpecifiedTradeProduct", ram),
-                                    new XElement(XName.Get("SellerAssignedID", ram), prod.SellerAssignedID ?? ""),
-                                    new XElement(XName.Get("BuyerAssignedID", ram), prod.BuyerAssignedID ?? ""),
+                                ),                                new XElement(XName.Get("SpecifiedTradeProduct", ram),
+                                    CreateElementIfNotEmpty("SellerAssignedID", prod.SellerAssignedID, ram),
+                                    CreateElementIfNotEmpty("BuyerAssignedID", prod.BuyerAssignedID, ram),
                                     new XElement(XName.Get("Name", ram), prod.Name),
-                                    new XElement(XName.Get("Description", ram), prod.Descripcion)
-                                ),
-                                new XElement(XName.Get("SpecifiedLineTradeAgreement", ram),
-                                    new XElement(XName.Get("BuyerOrderReferencedDocument", ram),
-                                        new XElement(XName.Get("LineID", ram), prod.BuyerOrderLineID ?? "")
-                                    ),
+                                    CreateElementIfNotEmpty("Description", prod.Descripcion, ram)
+                                ),                                new XElement(XName.Get("SpecifiedLineTradeAgreement", ram),
+                                    !string.IsNullOrWhiteSpace(prod.BuyerOrderLineID) ? new XElement(XName.Get("BuyerOrderReferencedDocument", ram),
+                                        new XElement(XName.Get("LineID", ram), prod.BuyerOrderLineID)
+                                    ) : null,
                                     new XElement(XName.Get("NetPriceProductTradePrice", ram),
                                         new XElement(XName.Get("ChargeAmount", ram), NormalizeDecimal(prod.PrecioUnitario)),
                                         new XElement(XName.Get("BasisQuantity", ram), 
@@ -133,92 +158,97 @@ namespace FacturacionAlemana.Services
                                         new XElement(XName.Get("LineTotalAmount", ram), NormalizeDecimal(prod.PrecioTotal))
                                     )
                                 )
-                            )
-                        ).ToArray(),                        // Información de Aplicación del Acuerdo Comercial
+                            )                        ).ToArray(),                        // Información de Aplicación del Acuerdo Comercial
                         new XElement(XName.Get("ApplicableHeaderTradeAgreement", ram),
                             new XElement(XName.Get("BuyerReference", ram), 
                                 string.IsNullOrWhiteSpace(factura.BuyerReference) 
                                     ? $"REF-{factura.IdElement}" // Generar referencia automática si está vacía
                                     : factura.BuyerReference
-                            ),
-                            new XElement(XName.Get("SellerOrderReferencedDocument", ram),
-                                new XElement(XName.Get("IssuerAssignedID", ram), factura.SalesOrderNumber)
-                            ),
-                            new XElement(XName.Get("BuyerOrderReferencedDocument", ram),
-                                new XElement(XName.Get("IssuerAssignedID", ram), factura.PurchaseOrderNumber)
-                            ),
-                            new XElement(XName.Get("ContractReferencedDocument", ram),
-                                new XElement(XName.Get("IssuerAssignedID", ram), factura.ContractNumber)
-                            ),
-                            new XElement(XName.Get("SpecifiedProcuringProject", ram),
-                                new XElement(XName.Get("ID", ram), factura.ProjectNumber),
-                                new XElement(XName.Get("Name", ram), factura.ProjectNumber)
-                            ),
-                            new XElement(XName.Get("SellerTradeParty", ram),
+                            ),                            new XElement(XName.Get("SellerTradeParty", ram),
                                 new XElement(XName.Get("Name", ram), factura.SellerName),
                                 new XElement(XName.Get("DefinedTradeContact", ram),
-                                    new XElement(XName.Get("PersonName", ram), factura.SellerPersonName),
-                                    new XElement(XName.Get("DepartmentName", ram), factura.SellerDepartmentName),
-                                    new XElement(XName.Get("TelephoneUniversalCommunication", ram),
+                                    CreateElementIfNotEmpty("PersonName", factura.SellerPersonName, ram),
+                                    CreateElementIfNotEmpty("DepartmentName", factura.SellerDepartmentName, ram),
+                                    !string.IsNullOrWhiteSpace(factura.SellerCompleteNumber) ? new XElement(XName.Get("TelephoneUniversalCommunication", ram),
                                         new XElement(XName.Get("CompleteNumber", ram), factura.SellerCompleteNumber)
-                                    ),
-                                    new XElement(XName.Get("EmailURIUniversalCommunication", ram),
+                                    ) : null,
+                                    !string.IsNullOrWhiteSpace(factura.SellerEmail) ? new XElement(XName.Get("EmailURIUniversalCommunication", ram),
                                         new XElement(XName.Get("URIID", ram), factura.SellerEmail)
+                                    ) : null
+                                ),                                new XElement(XName.Get("PostalTradeAddress", ram),
+                                    CompileElements(
+                                        CreateElementIfNotEmpty("PostcodeCode", factura.SellerPostcodeCode, ram),
+                                        CreateElementIfNotEmpty("LineOne", factura.SellerLineOne, ram),
+                                        CreateElementIfNotEmpty("LineTwo", factura.SellerLineTwo, ram),
+                                        CreateElementIfNotEmpty("CityName", factura.SellerCityName, ram),
+                                        new XElement(XName.Get("CountryID", ram), factura.SellerCountryID)
                                     )
                                 ),
-                                new XElement(XName.Get("PostalTradeAddress", ram),
-                                    new XElement(XName.Get("PostcodeCode", ram), factura.SellerPostcodeCode),
-                                    new XElement(XName.Get("LineOne", ram), factura.SellerLineOne),
-                                    new XElement(XName.Get("LineTwo", ram), factura.SellerLineTwo),
-                                    new XElement(XName.Get("CityName", ram), factura.SellerCityName),
-                                    new XElement(XName.Get("CountryID", ram), factura.SellerCountryID)
-                                ),
-                                new XElement(XName.Get("URIUniversalCommunication", ram),
+                                !string.IsNullOrWhiteSpace(factura.SellerEmail) ? new XElement(XName.Get("URIUniversalCommunication", ram),
                                     new XElement(XName.Get("URIID", ram), 
                                         new XAttribute("schemeID", "EM"), 
                                         factura.SellerEmail
                                     )
-                                ),
-                                new XElement(XName.Get("SpecifiedTaxRegistration", ram),
+                                ) : null,
+                                !string.IsNullOrWhiteSpace(factura.SellerVATID) ? new XElement(XName.Get("SpecifiedTaxRegistration", ram),
                                     new XElement(XName.Get("ID", ram), 
                                         new XAttribute("schemeID", "VA"), 
                                         factura.SellerVATID
                                     )
-                                )
-                            ),
-                            new XElement(XName.Get("BuyerTradeParty", ram),
+                                ) : null
+                            ),                            new XElement(XName.Get("BuyerTradeParty", ram),
                                 new XElement(XName.Get("Name", ram), factura.BuyerName),
+                                // Solo crear DefinedTradeContact si hay al menos un dato
+                                (CreateElementIfNotEmpty("PersonName", factura.BuyerPersonName, ram) != null ||
+                                 !string.IsNullOrWhiteSpace(factura.BuyerCompleteNumber) ||
+                                 !string.IsNullOrWhiteSpace(factura.BuyerEmail)) ?
                                 new XElement(XName.Get("DefinedTradeContact", ram),
-                                    new XElement(XName.Get("PersonName", ram), factura.BuyerPersonName),
-                                    new XElement(XName.Get("TelephoneUniversalCommunication", ram),
+                                    CreateElementIfNotEmpty("PersonName", factura.BuyerPersonName, ram),
+                                    !string.IsNullOrWhiteSpace(factura.BuyerCompleteNumber) ? new XElement(XName.Get("TelephoneUniversalCommunication", ram),
                                         new XElement(XName.Get("CompleteNumber", ram), factura.BuyerCompleteNumber)
-                                    ),
-                                    new XElement(XName.Get("EmailURIUniversalCommunication", ram),
+                                    ) : null,
+                                    !string.IsNullOrWhiteSpace(factura.BuyerEmail) ? new XElement(XName.Get("EmailURIUniversalCommunication", ram),
                                         new XElement(XName.Get("URIID", ram), factura.BuyerEmail)
+                                    ) : null
+                                ) : null,                                new XElement(XName.Get("PostalTradeAddress", ram),
+                                    CompileElements(
+                                        !string.IsNullOrWhiteSpace(factura.BuyerPostcodeCode) ? new XElement(XName.Get("PostcodeCode", ram), factura.BuyerPostcodeCode) : null,
+                                        !string.IsNullOrWhiteSpace(factura.BuyerLineOne) ? new XElement(XName.Get("LineOne", ram), factura.BuyerLineOne) : null,
+                                        !string.IsNullOrWhiteSpace(factura.BuyerLineTwo) ? new XElement(XName.Get("LineTwo", ram), factura.BuyerLineTwo) : null,
+                                        !string.IsNullOrWhiteSpace(factura.BuyerCityName) ? new XElement(XName.Get("CityName", ram), factura.BuyerCityName) : null,
+                                        new XElement(XName.Get("CountryID", ram), factura.BuyerCountryID)
                                     )
                                 ),
-                                new XElement(XName.Get("PostalTradeAddress", ram),
-                                    new XElement(XName.Get("PostcodeCode", ram), factura.BuyerPostcodeCode),
-                                    new XElement(XName.Get("LineOne", ram), factura.BuyerLineOne),
-                                    new XElement(XName.Get("LineTwo", ram), factura.BuyerLineTwo),
-                                    new XElement(XName.Get("CityName", ram), factura.BuyerCityName),
-                                    new XElement(XName.Get("CountryID", ram), factura.BuyerCountryID)
-                                ),
-                                new XElement(XName.Get("URIUniversalCommunication", ram),
+                                !string.IsNullOrWhiteSpace(factura.BuyerEmail) ? new XElement(XName.Get("URIUniversalCommunication", ram),
                                     new XElement(XName.Get("URIID", ram), 
                                         new XAttribute("schemeID", "EM"), 
                                         factura.BuyerEmail
                                     )
-                                ),
-                                new XElement(XName.Get("SpecifiedTaxRegistration", ram),
+                                ) : null,
+                                !string.IsNullOrWhiteSpace(factura.BuyerVATID) ? new XElement(XName.Get("SpecifiedTaxRegistration", ram),
                                     new XElement(XName.Get("ID", ram), 
                                         new XAttribute("schemeID", "VA"), 
                                         factura.BuyerVATID
                                     )
-                                )
-                            )
-                        ),
-                          // Información de Entrega
+                                ) : null
+                            ),CreateElementIfNotEmpty("SellerOrderReferencedDocument", "", ram) != null || !string.IsNullOrWhiteSpace(factura.SalesOrderNumber) ? 
+                            new XElement(XName.Get("SellerOrderReferencedDocument", ram),
+                                CreateElementIfNotEmpty("IssuerAssignedID", factura.SalesOrderNumber, ram)
+                            ) : null,
+                            CreateElementIfNotEmpty("BuyerOrderReferencedDocument", "", ram) != null || !string.IsNullOrWhiteSpace(factura.PurchaseOrderNumber) ? 
+                            new XElement(XName.Get("BuyerOrderReferencedDocument", ram),
+                                CreateElementIfNotEmpty("IssuerAssignedID", factura.PurchaseOrderNumber, ram)
+                            ) : null,
+                            CreateElementIfNotEmpty("ContractReferencedDocument", "", ram) != null || !string.IsNullOrWhiteSpace(factura.ContractNumber) ? 
+                            new XElement(XName.Get("ContractReferencedDocument", ram),
+                                CreateElementIfNotEmpty("IssuerAssignedID", factura.ContractNumber, ram)
+                            ) : null,
+                            (!string.IsNullOrWhiteSpace(factura.ProjectNumber)) ? 
+                            new XElement(XName.Get("SpecifiedProcuringProject", ram),
+                                CreateElementIfNotEmpty("ID", factura.ProjectNumber, ram),
+                                CreateElementIfNotEmpty("Name", factura.ProjectNumber, ram)
+                            ) : null                        ),
+                        // Información de Entrega
                         new XElement(XName.Get("ApplicableHeaderTradeDelivery", ram),
                             new XElement(XName.Get("ActualDeliverySupplyChainEvent", ram),
                                 new XElement(XName.Get("OccurrenceDateTime", ram),
@@ -228,21 +258,22 @@ namespace FacturacionAlemana.Services
                                     )
                                 )
                             )
-                        ),                          // Información de Liquidación (Settlement)
+                        ),
+                        // Información de Liquidación (Settlement)
                         new XElement(XName.Get("ApplicableHeaderTradeSettlement", ram),
-                            new XElement(XName.Get("PaymentReference", ram), factura.PaymentReference),
+                            CreateElementIfNotEmpty("PaymentReference", factura.PaymentReference, ram),
                             new XElement(XName.Get("InvoiceCurrencyCode", ram), factura.CurrencyID),
                             new XElement(XName.Get("SpecifiedTradeSettlementPaymentMeans", ram),
                                 new XElement(XName.Get("TypeCode", ram), factura.PaymentTypeCode),
                                 new XElement(XName.Get("Information", ram), factura.PaymentInformation),
                                 new XElement(XName.Get("PayeePartyCreditorFinancialAccount", ram),
                                     new XElement(XName.Get("IBANID", ram), factura.IBANID),
-                                    new XElement(XName.Get("AccountName", ram), factura.AccountName)
+                                    CreateElementIfNotEmpty("AccountName", factura.AccountName, ram)
                                 ),
-                                new XElement(XName.Get("PayeeSpecifiedCreditorFinancialInstitution", ram),
+                                !string.IsNullOrWhiteSpace(factura.BICID) ? new XElement(XName.Get("PayeeSpecifiedCreditorFinancialInstitution", ram),
                                     new XElement(XName.Get("BICID", ram), factura.BICID)
-                                )
-                            ),                            
+                                ) : null
+                            ),
                             new XElement(XName.Get("ApplicableTradeTax", ram),
                                 new XElement(XName.Get("CalculatedAmount", ram), NormalizeDecimal(factura.CalculatedAmount)),
                                 new XElement(XName.Get("TypeCode", ram), factura.TaxTypeCode),

@@ -29,6 +29,8 @@ namespace FacturacionAlemana
         public CreateInvoicePage()
         {
             InitializeComponent();
+            // Prellenar el campo de número de factura
+            InvoiceNumberTextBox.Text = $"STR-{DateTime.Now.Year.ToString().Substring(2)}-";
             // Maximizar al cargar sin forzar posteriormente minimizar/restaurar
             this.Loaded += OnCreateInvoicePageLoaded;
             ProductsDataGrid.ItemsSource = productos;
@@ -60,10 +62,20 @@ namespace FacturacionAlemana
             TaxRateTextBox.Text = "19.00";
             
             // Forzar cálculo inicial
-            ActualizarResumenTotales();
-
-            // Validación en tiempo real
+            ActualizarResumenTotales();            // Validación en tiempo real
             HookRealtimeValidation();
+              // Validar campos obligatorios desde el inicio
+            // Vendedor (Paso 1)
+            UpdateCountryValidation(SellerCountryTextBox);
+            UpdateVatValidation();
+            UpdatePostcodeValidation(SellerPostcodeTextBox, SellerCountryTextBox);
+            UpdateEmailValidation(SellerEmailTextBox);
+            
+            // Comprador (Paso 2)
+            UpdateBuyerPostcodeValidation();
+            UpdateBuyerCityValidation();
+            UpdateBuyerEmailValidation();
+            
             RefreshAlerts(); // calcula pero no muestra hasta que _showGlobalAlerts sea true
 
             // Configurar Stepper
@@ -292,6 +304,8 @@ namespace FacturacionAlemana
                     return;
                 }
 
+                string invoiceNumber = InvoiceNumberTextBox.Text.Trim();
+
                 var factura = CrearFacturaDesdeFormulario();
 
                 string rutaReal = Process.GetCurrentProcess().MainModule?.FileName ?? 
@@ -299,9 +313,9 @@ namespace FacturacionAlemana
                 var directorioReal = Path.GetDirectoryName(rutaReal) ?? 
                     throw new InvalidOperationException("No se pudo determinar el directorio del ejecutable.");
                 
-                var numeroFactura = InvoiceNumberTextBox.Text.Replace("/", "_").Replace("\\", "_");
-                var pdfPath = Path.Combine(directorioReal, $"Factura_{numeroFactura}.pdf");
-                var xmlPath = Path.Combine(directorioReal, $"Factura_{numeroFactura}.xml");
+                string fileNameBase = invoiceNumber;
+                var pdfPath = Path.Combine(directorioReal, $"{fileNameBase}.pdf");
+                var xmlPath = Path.Combine(directorioReal, $"{fileNameBase}.xml");
 
                 PdfGeneratorService.GenerarFacturaPdf(factura, pdfPath);
                 XmlGeneratorService.GenerarFacturaXml(factura, xmlPath);
@@ -409,6 +423,43 @@ namespace FacturacionAlemana
                 MessageBox.Show("La referencia del comprador (BT-10) es obligatoria según la norma XRechnung.\n\n" +
                     "Ingresa un valor como:\n- REF-12345\n- PO-2025-001\n- ORDEN-123",
                     "Validación de Referencia del Comprador", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            // Validar campos obligatorios del comprador según XRechnung/EN 16931
+            string buyerCity = BuyerCityTextBox.Text.Trim();
+            if (string.IsNullOrEmpty(buyerCity))
+            {
+                MessageBox.Show("La ciudad del comprador (BT-52) es obligatoria según la norma XRechnung.\n\n" +
+                    "Ingresa la ciudad del comprador.",
+                    "Validación de Ciudad del Comprador", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            string buyerPostcode = BuyerPostcodeTextBox.Text.Trim();
+            if (string.IsNullOrEmpty(buyerPostcode))
+            {
+                MessageBox.Show("El código postal del comprador (BT-53) es obligatorio según la norma XRechnung.\n\n" +
+                    "Ingresa el código postal del comprador.",
+                    "Validación de Código Postal del Comprador", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            string buyerEmail = BuyerEmailTextBox.Text.Trim();
+            if (string.IsNullOrEmpty(buyerEmail))
+            {
+                MessageBox.Show("El email del comprador es obligatorio según PEPPOL-EN16931-R010.\n\n" +
+                    "Ingresa el email electrónico del comprador.",
+                    "Validación de Email del Comprador", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            // Validar formato de email básico
+            if (!buyerEmail.Contains("@") || !buyerEmail.Contains("."))
+            {
+                MessageBox.Show("El email del comprador debe tener un formato válido.\n\n" +
+                    "Ejemplo: nombre@empresa.com",
+                    "Validación de Email del Comprador", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
@@ -748,58 +799,57 @@ namespace FacturacionAlemana
         {
             _alertsDismissed = true;
             TopAlertsPanel.Visibility = Visibility.Collapsed;
-        }
-
-        private void OnGoToFirstErrorClick(object sender, RoutedEventArgs e)
+        }        private void OnGoToFirstErrorClick(object sender, RoutedEventArgs e)
         {
             // Activar visualización de alertas y refrescar
             _showGlobalAlerts = true;
             RefreshAlerts();
 
-            // Definir controles por paso en el orden de validación
+            // Refrescar validaciones por si cambió algo (en orden de pasos)
+            // Paso 0: Vendedor
+            UpdateCountryValidation(SellerCountryTextBox);
+            UpdateVatValidation();
+            UpdatePostcodeValidation(SellerPostcodeTextBox, SellerCountryTextBox);
+            UpdateEmailValidation(SellerEmailTextBox);
+
+            // Paso 1: Comprador
+            if (string.IsNullOrWhiteSpace(BuyerNameTextBox.Text))
+                SetError(BuyerNameTextBox, "Obligatorio");
+            else
+                SetError(BuyerNameTextBox, null);
+            UpdateCountryValidation(BuyerCountryTextBox);
+            UpdatePostcodeValidation(BuyerPostcodeTextBox, BuyerCountryTextBox);
+            UpdateBuyerCityValidation();
+            UpdateBuyerEmailValidation();
+
+            // Paso 3: Pagos
+            UpdateBuyerRefValidation();
+            UpdateIbanValidation();
+
+            // Definir controles por paso en el orden correcto: 0 (Vendedor) → 1 (Comprador) → 2 (Productos) → 3 (Pagos)
             var stepControls = new List<(int step, Control ctl, Func<bool> isError)>
             {
-                // Paso 1
+                // Paso 0: Vendedor
                 (0, SellerNameTextBox, () => string.IsNullOrWhiteSpace(SellerNameTextBox.Text)),
                 (0, SellerCountryTextBox, () => HasError(SellerCountryTextBox)),
                 (0, SellerVATTextBox, () => HasError(SellerVATTextBox)),
                 (0, SellerPostcodeTextBox, () => HasError(SellerPostcodeTextBox)),
                 (0, SellerEmailTextBox, () => HasError(SellerEmailTextBox)),
-                // Paso 2
+
+                // Paso 1: Comprador (nombre, email, código postal, ciudad, país)
                 (1, BuyerNameTextBox, () => string.IsNullOrWhiteSpace(BuyerNameTextBox.Text)),
-                (1, BuyerCountryTextBox, () => HasError(BuyerCountryTextBox)),
-                (1, BuyerPostcodeTextBox, () => HasError(BuyerPostcodeTextBox)),
                 (1, BuyerEmailTextBox, () => HasError(BuyerEmailTextBox)),
-                // Paso 4
+                (1, BuyerPostcodeTextBox, () => HasError(BuyerPostcodeTextBox)),
+                (1, BuyerCityTextBox, () => HasError(BuyerCityTextBox)),
+                (1, BuyerCountryTextBox, () => HasError(BuyerCountryTextBox)),
+
+                // Paso 2: Productos/Líneas (mínimo 1 producto)
+                (2, ProductsDataGrid, () => productos.Count == 0),
+
+                // Paso 3: Pagos (BT-10 y IBAN)
                 (3, BuyerReferenceTextBox, () => HasError(BuyerReferenceTextBox)),
                 (3, IBANTextBox, () => HasError(IBANTextBox)),
             };
-
-            // Refrescar validaciones por si cambió algo
-            UpdateCountryValidation(SellerCountryTextBox);
-            UpdateVatValidation();
-            UpdateCountryValidation(BuyerCountryTextBox);
-            UpdateBuyerRefValidation();
-            UpdateIbanValidation();
-            UpdatePostcodeValidation(SellerPostcodeTextBox, SellerCountryTextBox);
-            UpdatePostcodeValidation(BuyerPostcodeTextBox, BuyerCountryTextBox);
-            UpdateEmailValidation(SellerEmailTextBox);
-            UpdateEmailValidation(BuyerEmailTextBox);
-
-            // Caso especial: sin líneas
-            if (productos.Count == 0)
-            {
-                _allowProgrammaticStepJump = true;
-                StepsTabControl.SelectedIndex = 2;
-                _currentStepIndex = 2;
-                UpdateStepButtons();
-                this.Dispatcher.InvokeAsync(() =>
-                {
-                    ProductsDataGrid?.Focus();
-                    ProductsDataGrid?.BringIntoView();
-                });
-                return;
-            }
 
             foreach (var (step, ctl, isError) in stepControls)
             {
@@ -808,10 +858,12 @@ namespace FacturacionAlemana
                     _allowProgrammaticStepJump = true;
                     StepsTabControl.SelectedIndex = step;
                     _currentStepIndex = step;
-                    UpdateStepButtons();
-                    // Enfocar y asegurar visibilidad
+                    UpdateStepButtons();                    // Enfocar y asegurar visibilidad
                     this.Dispatcher.InvokeAsync(() =>
                     {
+                        // Expandir Expanders padres si es necesario
+                        ExpandParentExpanders(ctl);
+                        
                         ctl.BringIntoView();
                         ctl.Focus();
                         if (ctl is TextBox tbox)
@@ -822,24 +874,71 @@ namespace FacturacionAlemana
             }
         }
 
+        /// <summary>
+        /// Expande todos los Expander controls que son ancestros del control especificado.
+        /// </summary>
+        private void ExpandParentExpanders(Control ctl)
+        {
+            DependencyObject parent = LogicalTreeHelper.GetParent(ctl);
+            while (parent != null)
+            {
+                if (parent is Expander expander)
+                {
+                    expander.IsExpanded = true;
+                }
+                parent = LogicalTreeHelper.GetParent(parent);
+            }
+        }
+
         private void RefreshAlerts()
         {
             var errors = new List<string>();
-            if (string.IsNullOrWhiteSpace(SellerNameTextBox.Text)) errors.Add("El nombre del vendedor es obligatorio.");
-            if ((SellerCountryTextBox.Text ?? string.Empty).Trim().Length != 2) errors.Add("País del vendedor debe ser ISO-2.");
-            if (!EsVATValidoSilencioso((SellerVATTextBox.Text ?? string.Empty).Trim(), (SellerCountryTextBox.Text ?? string.Empty).Trim())) errors.Add("VAT del vendedor no es válido.");
-            if (string.IsNullOrWhiteSpace(BuyerNameTextBox.Text)) errors.Add("El nombre del comprador es obligatorio.");
-            if (productos.Count == 0) errors.Add("Agrega al menos una línea de producto.");
-            var iban = (IBANTextBox.Text ?? string.Empty).Replace(" ", string.Empty);
-            if (iban.Length != 22 || !IsValidIbanMod97(iban)) errors.Add("IBAN inválido (longitud/mod 97).");
+
+            // ===== PASO 0: VENDEDOR =====
+            if (string.IsNullOrWhiteSpace(SellerNameTextBox.Text)) 
+                errors.Add("Paso 1 - Vendedor: Nombre es obligatorio");
+            if ((SellerCountryTextBox.Text ?? string.Empty).Trim().Length != 2) 
+                errors.Add("Paso 1 - Vendedor: País debe ser ISO-2 (ej: DE)");
+            if (!EsVATValidoSilencioso((SellerVATTextBox.Text ?? string.Empty).Trim(), (SellerCountryTextBox.Text ?? string.Empty).Trim())) 
+                errors.Add("Paso 1 - Vendedor: VAT no es válido para el país");
+            if (!string.IsNullOrEmpty(SellerPostcodeTextBox.Text) && !IsPostcodeValidForCountry(SellerPostcodeTextBox.Text.Trim(), (SellerCountryTextBox.Text ?? string.Empty).Trim().ToUpper())) 
+                errors.Add("Paso 1 - Vendedor: Código Postal inválido");
+            if (!string.IsNullOrEmpty(SellerEmailTextBox.Text) && !Regex.IsMatch(SellerEmailTextBox.Text.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")) 
+                errors.Add("Paso 1 - Vendedor: Email inválido");            // ===== PASO 1: COMPRADOR =====
+            if (string.IsNullOrWhiteSpace(BuyerNameTextBox.Text)) 
+                errors.Add("Paso 2 - Comprador: Nombre es obligatorio");
+            var buyerEmail = (BuyerEmailTextBox.Text ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(buyerEmail)) 
+                errors.Add("Paso 2 - Comprador: Email (PEPPOL-EN16931-R010) es obligatorio");
+            else if (!Regex.IsMatch(buyerEmail, @"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")) 
+                errors.Add("Paso 2 - Comprador: Email inválido");
+            var buyerCity = (BuyerCityTextBox.Text ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(buyerCity)) 
+                errors.Add("Paso 2 - Comprador: Ciudad (BT-52) es obligatoria");
+            var buyerPostcode = (BuyerPostcodeTextBox.Text ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(buyerPostcode)) 
+                errors.Add("Paso 2 - Comprador: Código Postal (BT-53) es obligatorio");
+            else if (!IsPostcodeValidForCountry(buyerPostcode, (BuyerCountryTextBox.Text ?? string.Empty).Trim().ToUpper())) 
+                errors.Add("Paso 2 - Comprador: Código Postal inválido");
+            if ((BuyerCountryTextBox.Text ?? string.Empty).Trim().Length != 2) 
+                errors.Add("Paso 2 - Comprador: País debe ser ISO-2 (ej: DE)");
+
+            // ===== PASO 2: PRODUCTOS =====
+            if (productos.Count == 0) 
+                errors.Add("Paso 3 - Productos: Agrega al menos una línea");
+
+            // ===== PASO 3: PAGOS =====
             var bt10 = (BuyerReferenceTextBox.Text ?? string.Empty).Trim();
-            if (string.IsNullOrEmpty(bt10)) errors.Add("BT-10 (Referencia del comprador) es obligatoria.");
-            // Emails si están informados
-            if (!string.IsNullOrEmpty(SellerEmailTextBox.Text) && !Regex.IsMatch(SellerEmailTextBox.Text.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")) errors.Add("Email del vendedor inválido.");
-            if (!string.IsNullOrEmpty(BuyerEmailTextBox.Text) && !Regex.IsMatch(BuyerEmailTextBox.Text.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")) errors.Add("Email del comprador inválido.");
-            // CP si están informados
-            if (!string.IsNullOrEmpty(SellerPostcodeTextBox.Text) && !IsPostcodeValidForCountry(SellerPostcodeTextBox.Text.Trim(), (SellerCountryTextBox.Text ?? string.Empty).Trim().ToUpper())) errors.Add("CP vendedor inválido.");
-            if (!string.IsNullOrEmpty(BuyerPostcodeTextBox.Text) && !IsPostcodeValidForCountry(BuyerPostcodeTextBox.Text.Trim(), (BuyerCountryTextBox.Text ?? string.Empty).Trim().ToUpper())) errors.Add("CP comprador inválido.");
+            if (string.IsNullOrEmpty(bt10)) 
+                errors.Add("Paso 4 - Pagos: Referencia del Comprador (BT-10) es obligatoria");
+            var iban = (IBANTextBox.Text ?? string.Empty).Replace(" ", string.Empty);
+            if (string.IsNullOrEmpty(iban)) 
+                errors.Add("Paso 4 - Pagos: IBAN es obligatorio");
+            else if (iban.Length != 22) 
+                errors.Add("Paso 4 - Pagos: IBAN debe tener 22 caracteres (sin espacios)");
+            else if (!IsValidIbanMod97(iban)) 
+                errors.Add("Paso 4 - Pagos: IBAN no supera validación (mod 97)");
+
             ShowAlerts(errors.ToArray());
         }
 
@@ -847,24 +946,23 @@ namespace FacturacionAlemana
         {
             SellerVATTextBox.TextChanged += (_, __) => { UpdateVatValidation(); RefreshAlerts(); };
             SellerCountryTextBox.TextChanged += (_, __) => { UpdateCountryValidation(SellerCountryTextBox); UpdateVatValidation(); UpdatePostcodeValidation(SellerPostcodeTextBox, SellerCountryTextBox); RefreshAlerts(); };
-            BuyerCountryTextBox.TextChanged += (_, __) => { UpdateCountryValidation(BuyerCountryTextBox); UpdatePostcodeValidation(BuyerPostcodeTextBox, BuyerCountryTextBox); RefreshAlerts(); };
+            BuyerCountryTextBox.TextChanged += (_, __) => { 
+                if (string.IsNullOrWhiteSpace(BuyerNameTextBox.Text))
+                    SetError(BuyerNameTextBox, "Obligatorio");
+                UpdateCountryValidation(BuyerCountryTextBox); 
+                UpdatePostcodeValidation(BuyerPostcodeTextBox, BuyerCountryTextBox); 
+                RefreshAlerts(); 
+            };
             BuyerReferenceTextBox.TextChanged += (_, __) => { UpdateBuyerRefValidation(); RefreshAlerts(); };
-            // IBAN ya tiene TextChanged para máscara; validación se invoca al final del handler
-            IBANTextBox.TextChanged += (_, __) => { UpdateIbanValidation(); RefreshAlerts(); };
-
-            // Email / Teléfono
-            SellerEmailTextBox.TextChanged += (_, __) => { UpdateEmailValidation(SellerEmailTextBox); };
-            BuyerEmailTextBox.TextChanged += (_, __) => { UpdateEmailValidation(BuyerEmailTextBox); };
-            BuyerEmailContactTextBox.TextChanged += (_, __) => { UpdateEmailValidation(BuyerEmailContactTextBox); };
-            SellerPhoneTextBox.TextChanged += (_, __) => { UpdatePhoneValidation(SellerPhoneTextBox); };
-            BuyerPhoneTextBox.TextChanged += (_, __) => { UpdatePhoneValidation(BuyerPhoneTextBox); };
-
-            // Códigos postales
-            SellerPostcodeTextBox.TextChanged += (_, __) => { UpdatePostcodeValidation(SellerPostcodeTextBox, SellerCountryTextBox); };
-            BuyerPostcodeTextBox.TextChanged += (_, __) => { UpdatePostcodeValidation(BuyerPostcodeTextBox, BuyerCountryTextBox); };
-        }
-
-        private void SetError(Control ctl, string? message)
+            BuyerCityTextBox.TextChanged += (_, __) => { UpdateBuyerCityValidation(); RefreshAlerts(); };
+            BuyerPostcodeTextBox.TextChanged += (_, __) => { UpdateBuyerPostcodeValidation(); RefreshAlerts(); };
+            BuyerEmailTextBox.TextChanged += (_, __) => { UpdateBuyerEmailValidation(); RefreshAlerts(); };
+            // IBAN ya tiene TextChanged para máscara; validación se invoca al final del handler            // Email / Teléfono
+            SellerEmailTextBox.TextChanged += (_, __) => { UpdateEmailValidation(SellerEmailTextBox); RefreshAlerts(); };
+            BuyerEmailContactTextBox.TextChanged += (_, __) => { UpdateEmailValidation(BuyerEmailContactTextBox); RefreshAlerts(); };
+            SellerPhoneTextBox.TextChanged += (_, __) => { UpdatePhoneValidation(SellerPhoneTextBox); RefreshAlerts(); };
+            BuyerPhoneTextBox.TextChanged += (_, __) => { UpdatePhoneValidation(BuyerPhoneTextBox); RefreshAlerts(); };
+        }        private void SetError(Control ctl, string? message)
         {
             if (string.IsNullOrWhiteSpace(message))
             {
@@ -873,7 +971,7 @@ namespace FacturacionAlemana
             }
             else
             {
-                ctl.BorderBrush = Brushes.IndianRed;
+                ctl.BorderBrush = Brushes.Red;
                 ctl.ToolTip = message;
             }
         }
@@ -899,6 +997,34 @@ namespace FacturacionAlemana
         {
             var txt = (BuyerReferenceTextBox.Text ?? string.Empty).Trim();
             SetError(BuyerReferenceTextBox, string.IsNullOrEmpty(txt) ? "Obligatorio (BT-10)" : null);
+        }
+
+        private void UpdateBuyerCityValidation()
+        {
+            var txt = (BuyerCityTextBox.Text ?? string.Empty).Trim();
+            SetError(BuyerCityTextBox, string.IsNullOrEmpty(txt) ? "Obligatorio (BT-52)" : null);
+        }
+
+        private void UpdateBuyerPostcodeValidation()
+        {
+            var txt = (BuyerPostcodeTextBox.Text ?? string.Empty).Trim();
+            SetError(BuyerPostcodeTextBox, string.IsNullOrEmpty(txt) ? "Obligatorio (BT-53)" : null);
+        }
+
+        private void UpdateBuyerEmailValidation()
+        {
+            var txt = (BuyerEmailTextBox.Text ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(txt))
+            {
+                SetError(BuyerEmailTextBox, "Obligatorio (PEPPOL-EN16931-R010)");
+                return;
+            }
+            if (!Regex.IsMatch(txt, @"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$"))
+            {
+                SetError(BuyerEmailTextBox, "Formato de email inválido");
+                return;
+            }
+            SetError(BuyerEmailTextBox, null);
         }
 
         private void UpdateVatValidation()
@@ -972,7 +1098,7 @@ namespace FacturacionAlemana
         {
             var zip = (zipTb.Text ?? string.Empty).Trim();
             var country = (countryTb.Text ?? string.Empty).Trim().ToUpper();
-            if (string.IsNullOrEmpty(zip)) { SetError(zipTb, null); return; }
+            if (string.IsNullOrEmpty(zip)) return; // No cambiar el error existente si está vacío
             bool ok = IsPostcodeValidForCountry(zip, country);
             SetError(zipTb, ok ? null : "CP inválido para " + country);
         }
@@ -1097,7 +1223,7 @@ namespace FacturacionAlemana
             // Considera error si el borde está marcado en rojo por SetError
             if (ctl == null) return false;
             var brush = ctl.BorderBrush as SolidColorBrush;
-            return brush != null && brush.Color == Colors.IndianRed;
+            return brush != null && brush.Color == Colors.Red;
         }
 
         private bool ValidateCurrentStep()

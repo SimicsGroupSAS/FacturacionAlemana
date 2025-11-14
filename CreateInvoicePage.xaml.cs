@@ -64,17 +64,18 @@ namespace FacturacionAlemana
             // Forzar cálculo inicial
             ActualizarResumenTotales();            // Validación en tiempo real
             HookRealtimeValidation();
-              // Validar campos obligatorios desde el inicio
-            // Vendedor (Paso 1)
+            
+            // Validar campos OBLIGATORIOS desde el inicio (solo vendedor)
+            // Vendedor (Paso 1) - Solo campos obligatorios
             UpdateCountryValidation(SellerCountryTextBox);
             UpdateVatValidation();
-            UpdatePostcodeValidation(SellerPostcodeTextBox, SellerCountryTextBox);
-            UpdateEmailValidation(SellerEmailTextBox);
+            // Email y Postcode del vendedor son opcionales, NO validar aquí
             
-            // Comprador (Paso 2)
-            UpdateBuyerPostcodeValidation();
-            UpdateBuyerCityValidation();
-            UpdateBuyerEmailValidation();
+            // Comprador (Paso 2) - Los campos del comprador se validan en tiempo real
+            // al momento de la interacción del usuario, NO en la carga inicial
+            // UpdateBuyerPostcodeValidation();  // REMOVED - validated on real-time events
+            // UpdateBuyerCityValidation();      // REMOVED - validated on real-time events
+            // UpdateBuyerEmailValidation();     // REMOVED - validated on real-time events
             
             RefreshAlerts(); // calcula pero no muestra hasta que _showGlobalAlerts sea true
 
@@ -1238,11 +1239,19 @@ namespace FacturacionAlemana
                     if (HasError(SellerVATTextBox)) return false;
                     if (HasError(SellerCountryTextBox)) return false;
                     SetError(SellerNameTextBox, null);
-                    return true;
-                // Paso 2: Receptor
+                    return true;                // Paso 2: Receptor
                 case 1:
                     UpdateCountryValidation(BuyerCountryTextBox);
+                    UpdateBuyerCityValidation();
+                    UpdateBuyerPostcodeValidation();
+                    UpdateBuyerEmailValidation();
+                    
                     if (string.IsNullOrWhiteSpace(BuyerNameTextBox.Text)) { SetError(BuyerNameTextBox, "Obligatorio"); return false; }
+                    if (HasError(BuyerCountryTextBox)) return false;
+                    if (HasError(BuyerCityTextBox)) return false;
+                    if (HasError(BuyerPostcodeTextBox)) return false;
+                    if (HasError(BuyerEmailTextBox)) return false;
+                    
                     SetError(BuyerNameTextBox, null);
                     return true;
                 // Paso 3: Líneas

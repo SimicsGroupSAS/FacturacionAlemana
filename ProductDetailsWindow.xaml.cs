@@ -7,13 +7,10 @@ namespace FacturacionAlemana
 {
     public partial class ProductDetailsWindow : Window
     {
-        public Producto? Producto { get; set; }
-
-        public ProductDetailsWindow(Producto? existingProducto = null)
-        {
-            InitializeComponent();
+        public Producto? Producto { get; set; }        public ProductDetailsWindow(Producto? existingProducto = null)
+        {            InitializeComponent();
             
-            UnitComboBox.ItemsSource = new List<string> { "H87", "EA", "PCE", "KG", "LTR", "MTR", "BOX", "PAL" };
+            UnitComboBox.ItemsSource = new List<string> { "EA", "KG", "H87", "HUR","KGM", "LTR", "MTR", "PAL", "C62", "BOX" };
             
             if (existingProducto != null)
             {
@@ -23,14 +20,14 @@ namespace FacturacionAlemana
                 SellerAssignedIDTextBox.Text = existingProducto.SellerAssignedID ?? "";
                 BuyerAssignedIDTextBox.Text = existingProducto.BuyerAssignedID ?? "";
                 BuyerOrderLineIDTextBox.Text = existingProducto.BuyerOrderLineID ?? "";
-                UnitComboBox.SelectedItem = existingProducto.Unit ?? "H87";
+                UnitComboBox.SelectedItem = existingProducto.Unit ?? "EA";
                 
                 BillingStartDatePicker.SelectedDate = existingProducto.BillingStartDate;
                 BillingEndDatePicker.SelectedDate = existingProducto.BillingEndDate;
             }
             else
             {
-                UnitComboBox.SelectedItem = "H87";
+                UnitComboBox.SelectedItem = "EA";
             }
         }
 
@@ -48,7 +45,7 @@ namespace FacturacionAlemana
             Producto.SellerAssignedID = SellerAssignedIDTextBox.Text?.Trim();
             Producto.BuyerAssignedID = BuyerAssignedIDTextBox.Text?.Trim();
             Producto.BuyerOrderLineID = BuyerOrderLineIDTextBox.Text?.Trim();
-            Producto.Unit = UnitComboBox.SelectedItem?.ToString() ?? "H87";
+            Producto.Unit = UnitComboBox.SelectedItem?.ToString() ?? "EA";
 
             // Asignar fechas directamente desde DatePicker
             Producto.BillingStartDate = BillingStartDatePicker.SelectedDate;

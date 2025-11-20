@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using Wpf.Ui.Appearance;
 using FacturacionAlemana.Utils;
+using FacturacionAlemana.Services;
 
 namespace FacturacionAlemana
 {
@@ -10,6 +11,9 @@ namespace FacturacionAlemana
         {
             base.OnStartup(e);
             ApplicationThemeManager.Apply(ApplicationTheme.Light);
+
+            // Inicializar servicio de localización
+            var localization = LocalizationService.Instance;
 
             // Registrar manejadores para capturar excepciones no controladas y mostrarlas
             this.DispatcherUnhandledException += App_DispatcherUnhandledException;

@@ -3,12 +3,49 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using FacturacionAlemana.Models;
 using System.IO;
+using System.Globalization;
 
 namespace FacturacionAlemana.Services
-{    
-    public static class PdfGeneratorService
+{      public static class PdfGeneratorService
     {
-        private static string ConvertirFechaAleman(DateTime fecha)
+        private static string _currentLanguage = "de"; // Idioma por defecto (Alemán)
+
+        /// <summary>
+        /// Establece el idioma para la generación del PDF
+        /// </summary>
+        public static void SetLanguage(string languageCode)
+        {
+            _currentLanguage = languageCode.ToLower();
+        }
+
+        /// <summary>
+        /// Obtiene el título de la factura traducido
+        /// </summary>
+        private static string GetInvoiceTitle()
+        {
+            return _currentLanguage switch
+            {
+                "en" => "INVOICE",
+                "de" => "RECHNUNG",
+                "es" => "FACTURA",
+                _ => "RECHNUNG"
+            };
+        }
+
+        /// <summary>
+        /// Obtiene un texto traducido
+        /// </summary>
+        private static string GetText(string key)
+        {
+            try
+            {
+                return LocalizationService.Instance.Get($"PDF.{key}");
+            }
+            catch
+            {
+                return key; // Fallback
+            }
+        }        private static string ConvertirFechaAleman(DateTime fecha)
         {
             var mesesAleman = new Dictionary<int, string>
             {
@@ -27,6 +64,23 @@ namespace FacturacionAlemana.Services
             };
 
             return $"{fecha.Day:D2}. {mesesAleman[fecha.Month]} {fecha.Year}";
+        }
+
+        /// <summary>
+        /// Convierte una fecha al idioma actual
+        /// </summary>
+        private static string ConvertirFecha(DateTime fecha)
+        {
+            if (fecha == default || fecha.Year < 1900)
+                return "";
+
+            return _currentLanguage switch
+            {
+                "de" => ConvertirFechaAleman(fecha),
+                "en" => fecha.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture),
+                "es" => fecha.ToString("dd 'de' MMMM 'de' yyyy", new CultureInfo("es-ES")),
+                _ => fecha.ToString("dd/MM/yyyy")
+            };
         }
 
         private static string ConvertirMonedaASimolo(string? codigoMoneda)
@@ -123,12 +177,10 @@ namespace FacturacionAlemana.Services
                             {
                                 // No bloquear generación si falla la carga del logo; reservar espacio para simetría
                                 row.ConstantItem(140);
-                            }
-
-                            // Título en mayúsculas centrado en el espacio restante
+                            }                            // Título en mayúsculas centrado en el espacio restante
                             row.RelativeItem().AlignCenter().Column(titleCol =>
                             {
-                                titleCol.Item().Text("RECHNUNG").FontSize(24).FontFamily("Century Gothic").Bold();
+                                titleCol.Item().Text(GetInvoiceTitle()).FontSize(24).FontFamily("Century Gothic").Bold();
                             });
 
                             // Espacio derecho simétrico al logo para centrar el título en la página
@@ -175,18 +227,19 @@ namespace FacturacionAlemana.Services
                             });                            
                             // Columna derecha - Zahlungsdetails + Kontakt
                             row.RelativeItem(1).Column(rightColumn =>
-                            {
-                                // Zahlungsdetails
-                                if (HasAny(factura.AccountName, factura.IBANID, factura.BICID))
+                            {                                // Zahlungsdetails                                if (HasAny(factura.AccountName, factura.IBANID, factura.BICID))
                                 {
                                     rightColumn.Item().AlignRight().Text("Zahlungsdetails").FontSize(11).Bold();
-                                    rightColumn.Item().AlignRight().Text("Bank: NOMBREBANCO").FontSize(9);
+                                    if (!string.IsNullOrWhiteSpace(factura.BankName))
+                                        rightColumn.Item().AlignRight().Text($"Bank: {factura.BankName}").FontSize(9);
                                     if (!string.IsNullOrWhiteSpace(factura.AccountName))
                                         rightColumn.Item().AlignRight().Text($"Kontoinhaber: {factura.AccountName}").FontSize(9);
                                     if (!string.IsNullOrWhiteSpace(factura.IBANID))
                                         rightColumn.Item().AlignRight().Text($"IBAN: {factura.IBANID}").FontSize(9);
                                     if (!string.IsNullOrWhiteSpace(factura.BICID))
                                         rightColumn.Item().AlignRight().Text($"BIC: {factura.BICID}").FontSize(9);
+                                    if (!string.IsNullOrWhiteSpace(factura.BLZ))
+                                        rightColumn.Item().AlignRight().Text($"BLZ: {factura.BLZ}").FontSize(9);
                                     rightColumn.Item().Text("").FontSize(8); // Salto
                                 }
 

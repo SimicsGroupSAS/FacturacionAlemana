@@ -6,7 +6,7 @@
         MouseLeftButtonDown="MainBorder_MouseLeftButtonDown"
         Title="Generador de Facturas" 
         Height="580"
-        Width="920"
+        Width="1080"
         MinWidth="860"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"

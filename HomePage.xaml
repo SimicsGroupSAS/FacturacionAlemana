@@ -47,19 +47,26 @@
 
                 <!-- Logo + app title: limitar ancho y permitir ellipsis -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="0">
-                    <Image x:Name="IconImg" Source="Assets/Logo-v1_2024-SIMICS-TRADING-GmbH.png" Width="40" Height="40"/>
-                    <TextBlock x:Name="AppTitle" Text="Facturación Alemana" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0,0,0"
+                    <Image x:Name="IconImg" Source="Assets/Logo-v1_2024-SIMICS-TRADING-GmbH.png" Width="40" Height="40"/>                <TextBlock x:Name="AppTitle" Text="Facturación Alemana" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" Margin="12,0,0,0"
                                TextTrimming="CharacterEllipsis" MaxWidth="240" Foreground="{StaticResource PrimaryTextBrush}" />
                 </StackPanel>
 
                 <!-- Subtítulo centrado: no capturable por ratón y con recorte si falta espacio -->
-                <TextBlock Grid.Column="1" Text="Generador de facturas — rápido y sencillo" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"
-                           Cursor="Arrow" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" MaxWidth="520" IsHitTestVisible="False"/>
-
-                <!-- Zona derecha: status y controles: limitar ancho del status para que no empuje el centro -->
+                <TextBlock x:Name="Subtitle" Grid.Column="1" Text="Generador de facturas — rápido y sencillo" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"
+                           Cursor="Arrow" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" MaxWidth="520" IsHitTestVisible="False"/><!-- Zona derecha: status y controles: limitar ancho del status para que no empuje el centro -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                     <TextBlock x:Name="StatusText" Text="Listo" Foreground="{StaticResource SecondaryTextBrush}" VerticalAlignment="Center" Margin="0,0,12,0"
                                TextTrimming="CharacterEllipsis" MaxWidth="220" TextWrapping="NoWrap"/>
+                    
+                    <!-- Selector de Idioma -->
+                    <ComboBox x:Name="LanguageComboBox" Width="120" Height="28" Margin="8,0,12,0" VerticalAlignment="Center"
+                              SelectionChanged="OnLanguageSelectionChanged"
+                              Background="{StaticResource AppWhite}" 
+                              Foreground="{StaticResource PrimaryTextBrush}"
+                              BorderBrush="{StaticResource DividerBrush}"
+                              BorderThickness="1"
+                              Padding="8,4"
+                              FontSize="12" />
                     
                     <!-- Minimizar -->
                     <Button x:Name="BtnMinimize" Click="OnMinimizeWindowClick" ToolTip="Minimizar" Width="38" Height="28" Padding="0" Margin="8,0,0,0" Cursor="Hand"
@@ -184,7 +191,7 @@
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="Acciones" FontSize="20" FontWeight="SemiBold" Margin="4,2,0,12" Grid.Row="0" Foreground="{StaticResource PrimaryTextBrush}" />
+                                <TextBlock x:Name="ActionsTitle" Text="Acciones" FontSize="20" FontWeight="SemiBold" Margin="4,2,0,12" Grid.Row="0" Foreground="{StaticResource PrimaryTextBrush}" />
 
                                 <Grid Grid.Row="1">
                                     <Grid.ColumnDefinitions>
@@ -194,19 +201,15 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="*" />
                                         <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
-
-                                    <!-- Usar estilo primario para todos los botones para mantener paleta coherente -->
-                                    <ui:Button Grid.Row="0" Grid.Column="0" Style="{StaticResource BigActionButton}" Icon="📄" Tag="📄" Content="Cargar XML" Click="OnLoadXmlClick" Margin="8"/>
-                                    <ui:Button Grid.Row="0" Grid.Column="1" Style="{StaticResource BigActionButton}" Icon="👁" Tag="👁" Content="Previsualizar" Click="OnPreviewClick" Margin="8"/>
-                                    <ui:Button Grid.Row="1" Grid.Column="0" Style="{StaticResource BigActionButton}" Icon="⤴️" Tag="⤴️" Content="Generar PDF" Click="OnGeneratePdfClick" Margin="8"/>
-                                    <ui:Button Grid.Row="1" Grid.Column="1" Style="{StaticResource BigActionButton}" Icon="➕" Tag="➕" Content="Crear Factura" Click="OnCreateInvoiceClick" Margin="8"/>
+                                    </Grid.RowDefinitions>                                    <!-- Usar estilo primario para todos los botones para mantener paleta coherente -->
+                                    <ui:Button x:Name="BtnLoadXml" Grid.Row="0" Grid.Column="0" Style="{StaticResource BigActionButton}" Icon="📄" Tag="📄" Content="Cargar XML" Click="OnLoadXmlClick" Margin="8"/>
+                                    <ui:Button x:Name="BtnPreview" Grid.Row="0" Grid.Column="1" Style="{StaticResource BigActionButton}" Icon="👁" Tag="👁" Content="Previsualizar" Click="OnPreviewClick" Margin="8"/>
+                                    <ui:Button x:Name="BtnGeneratePdf" Grid.Row="1" Grid.Column="0" Style="{StaticResource BigActionButton}" Icon="⤴️" Tag="⤴️" Content="Generar PDF" Click="OnGeneratePdfClick" Margin="8"/>
+                                    <ui:Button x:Name="BtnCreateInvoice" Grid.Row="1" Grid.Column="1" Style="{StaticResource BigActionButton}" Icon="➕" Tag="➕" Content="Crear Factura" Click="OnCreateInvoiceClick" Margin="8"/>
                                 </Grid>
                             </Grid>
-                        </Border>
-
-                        <!-- 'Ayuda rápida' ahora aparece como un subtitulo / comentario debajo de la card de acciones -->
-                        <TextBlock Text="Ayuda rápida: carga tu XML y usa 'Previsualizar' para verificar datos. Usa 'Crear Factura' para iniciar desde cero." 
+                        </Border>                        <!-- 'Ayuda rápida' ahora aparece como un subtitulo / comentario debajo de la card de acciones -->
+                        <TextBlock x:Name="QuickHelpText" Text="Ayuda rápida: carga tu XML y usa 'Previsualizar' para verificar datos. Usa 'Crear Factura' para iniciar desde cero." 
                                    Foreground="{StaticResource SecondaryTextBrush}" FontSize="12" Margin="0,8,0,0" TextWrapping="Wrap" Opacity="0.95" MaxWidth="640" Grid.Row="1"/>
                     </Grid>
 
@@ -226,12 +229,12 @@
                                     <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Text="Últimas cargas" FontWeight="Bold" FontSize="14" Grid.Row="0" Foreground="{StaticResource PrimaryTextBrush}" />
+                                <TextBlock x:Name="RecentFilesTitle" Text="Últimas cargas" FontWeight="Bold" FontSize="14" Grid.Row="0" Foreground="{StaticResource PrimaryTextBrush}" />
 
                                 <!-- ListView estirable: mostrará todos los ítems en el espacio disponible -->
                                 <ListView x:Name="LvRecent" Grid.Row="1" Margin="0,8,0,0" VerticalAlignment="Stretch" />
 
-                                <TextBlock Text="Haz clic en una fila para previsualizar o generar PDF rápidamente." FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" TextWrapping="Wrap" Margin="0,8,0,0" Grid.Row="2" />
+                                <TextBlock x:Name="RecentFilesHint" Text="Haz clic en una fila para previsualizar o generar PDF rápidamente." FontSize="12" Foreground="{StaticResource SecondaryTextBrush}" TextWrapping="Wrap" Margin="0,8,0,0" Grid.Row="2" />
                             </Grid>
                         </Border>
 

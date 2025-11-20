@@ -59,6 +59,8 @@ namespace FacturacionAlemana.Models
         public required string IBANID { get; set; }
         public required string AccountName { get; set; }
         public required string BICID { get; set; }
+        public string BankName { get; set; } = string.Empty; // Nombre del banco
+        public string BLZ { get; set; } = string.Empty; // BLZ (Bankleitzahl - código de banco alemán)
         public required string CalculatedAmount { get; set; }
         public required string BasisAmount { get; set; }
         public required string PaymentDescription { get; set; }

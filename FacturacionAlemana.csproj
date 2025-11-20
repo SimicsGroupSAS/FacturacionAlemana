@@ -20,12 +20,24 @@
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     <PackageReference Include="WPF-UI" Version="4.0.2" />
   </ItemGroup>
-
   <ItemGroup>
     <Resource Include="Assets\icono.ico" />
     <EmbeddedResource Include="Assets\plantilla.png" />
     <!-- Asegurar que el logo se copie al output para que PdfGenerator lo cargue en tiempo de ejecución -->
     <None Include="Assets\Logo-v1_2024-SIMICS-TRADING-GmbH.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <!-- Copiar archivos JSON de idiomas al output -->
+  <ItemGroup>
+    <None Include="Resources\Languages\es.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Languages\en.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Languages\de.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

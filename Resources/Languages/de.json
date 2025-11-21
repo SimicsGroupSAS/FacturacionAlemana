@@ -19,7 +19,10 @@
     "ExamplesDirectory": "Beispielordner",
     "Minimize": "Minimieren",
     "MaximizeRestore": "Maximieren/Wiederherstellen",
-    "Close": "Schließen"
+    "Close": "Schließen",
+    "Errors": {
+      "NoXmlLoaded": "Bitte laden Sie zuerst eine XML-Datei hoch."
+    }
   },
   "CreateInvoicePage": {
     "Title": "Neue Rechnung erstellen",

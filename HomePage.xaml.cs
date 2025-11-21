@@ -220,7 +220,13 @@ namespace FacturacionAlemana
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al leer el archivo XML: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var msg = (_localization != null && _localization.Exists("Messages.ErrorLoadingXml"))
+                    ? string.Format(_localization.Get("Messages.ErrorLoadingXml"), ex.Message)
+                    : $"Error al leer el archivo XML: {ex.Message}";
+                var title = (_localization != null && _localization.Exists("Messages.ErrorTitle"))
+                    ? _localization.Get("Messages.ErrorTitle")
+                    : "Error";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -230,7 +236,14 @@ namespace FacturacionAlemana
             {
                 if (factura == null)
                 {
-                    MessageBox.Show("Por favor, carga un archivo XML primero.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    const string noXmlKey = "HomePage.Errors.NoXmlLoaded";
+                    var noXmlMsg = (_localization != null && _localization.Exists(noXmlKey))
+                        ? _localization.Get(noXmlKey)
+                        : "Por favor, carga un archivo XML primero.";
+                    var errTitle = (_localization != null && _localization.Exists("Messages.ErrorTitle"))
+                        ? _localization.Get("Messages.ErrorTitle")
+                        : "Error";
+                    MessageBox.Show(noXmlMsg, errTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -263,7 +276,13 @@ namespace FacturacionAlemana
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al previsualizar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var msg = (_localization != null && _localization.Exists("Messages.ErrorGeneratingPdf"))
+                    ? string.Format(_localization.Get("Messages.ErrorGeneratingPdf"), ex.Message)
+                    : $"Error al previsualizar: {ex.Message}";
+                var title = (_localization != null && _localization.Exists("Messages.ErrorTitle"))
+                    ? _localization.Get("Messages.ErrorTitle")
+                    : "Error";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -273,7 +292,14 @@ namespace FacturacionAlemana
             {
                 if (factura == null)
                 {
-                    MessageBox.Show("Por favor, carga un archivo XML primero.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    const string noXmlKey = "HomePage.Errors.NoXmlLoaded";
+                    var noXmlMsg = (_localization != null && _localization.Exists(noXmlKey))
+                        ? _localization.Get(noXmlKey)
+                        : "Por favor, carga un archivo XML primero.";
+                    var errTitle = (_localization != null && _localization.Exists("Messages.ErrorTitle"))
+                        ? _localization.Get("Messages.ErrorTitle")
+                        : "Error";
+                    MessageBox.Show(noXmlMsg, errTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
 
@@ -289,11 +315,23 @@ namespace FacturacionAlemana
                 PdfGeneratorService.GenerarFacturaPdf(factura, outputPath);
                 var st2 = FindName("StatusText") as TextBlock;
                 if (st2 != null) st2.Text = $"PDF generado: {outputPath}";
-                MessageBox.Show("Factura generada exitosamente.", "Éxito", MessageBoxButton.OK, MessageBoxImage.Information);
+                var successMsg = (_localization != null && _localization.Exists("Messages.SuccessPdfGenerated"))
+                    ? string.Format(_localization.Get("Messages.SuccessPdfGenerated"), outputPath)
+                    : $"PDF generado: {outputPath}";
+                var successTitle = (_localization != null && _localization.Exists("Messages.SuccessTitle"))
+                    ? _localization.Get("Messages.SuccessTitle")
+                    : "Éxito";
+                MessageBox.Show(successMsg, successTitle, MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al generar el PDF: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var msg = (_localization != null && _localization.Exists("Messages.ErrorGeneratingPdf"))
+                    ? string.Format(_localization.Get("Messages.ErrorGeneratingPdf"), ex.Message)
+                    : $"Error al generar el PDF: {ex.Message}";
+                var title = (_localization != null && _localization.Exists("Messages.ErrorTitle"))
+                    ? _localization.Get("Messages.ErrorTitle")
+                    : "Error";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -310,7 +348,13 @@ namespace FacturacionAlemana
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"No se pudo abrir la configuración: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var msg = (_localization != null && _localization.Exists("Messages.UnexpectedError"))
+                    ? string.Format(_localization.Get("Messages.UnexpectedError"), ex.Message)
+                    : $"No se pudo abrir la configuración: {ex.Message}";
+                var title = (_localization != null && _localization.Exists("Messages.ErrorTitle"))
+                    ? _localization.Get("Messages.ErrorTitle")
+                    : "Error";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }        
         private void InitializeRecentList()
@@ -371,7 +415,13 @@ namespace FacturacionAlemana
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar el archivo seleccionado: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var msg = (_localization != null && _localization.Exists("Messages.ErrorLoadingXml"))
+                    ? string.Format(_localization.Get("Messages.ErrorLoadingXml"), ex.Message)
+                    : $"Error al cargar el archivo seleccionado: {ex.Message}";
+                var title = (_localization != null && _localization.Exists("Messages.ErrorTitle"))
+                    ? _localization.Get("Messages.ErrorTitle")
+                    : "Error";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -386,7 +436,13 @@ namespace FacturacionAlemana
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar el ícono: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var msg = (_localization != null && _localization.Exists("Messages.ErrorLoadingXml"))
+                    ? string.Format(_localization.Get("Messages.ErrorLoadingXml"), ex.Message)
+                    : $"Error al cargar el ícono: {ex.Message}";
+                var title = (_localization != null && _localization.Exists("Messages.ErrorTitle"))
+                    ? _localization.Get("Messages.ErrorTitle")
+                    : "Error";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

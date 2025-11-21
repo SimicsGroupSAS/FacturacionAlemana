@@ -19,7 +19,10 @@
     "ExamplesDirectory": "Examples folder",
     "Minimize": "Minimize",
     "MaximizeRestore": "Maximize/Restore",
-    "Close": "Close"
+    "Close": "Close",
+    "Errors": {
+      "NoXmlLoaded": "Please load an XML file first."
+    }
   },
   "CreateInvoicePage": {
     "Title": "Create New Invoice",

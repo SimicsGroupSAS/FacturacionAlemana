@@ -19,7 +19,10 @@
     "ExamplesDirectory": "Carpeta de ejemplos",
     "Minimize": "Minimizar",
     "MaximizeRestore": "Maximizar/Restaurar",
-    "Close": "Cerrar"
+    "Close": "Cerrar",
+    "Errors": {
+      "NoXmlLoaded": "Por favor, carga un archivo XML primero."
+    }
   },
   "CreateInvoicePage": {
     "Title": "Crear Nueva Factura",

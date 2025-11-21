@@ -21,6 +21,12 @@ using WinButton = System.Windows.Controls.Button;
 using WinTextBlock = System.Windows.Controls.TextBlock;
 using WinDataGrid = System.Windows.Controls.DataGrid;
 
+// Evitar ambigüedades con System.Windows.Forms al habilitar UseWindowsForms
+using Control = System.Windows.Controls.Control;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using Brushes = System.Windows.Media.Brushes;
+using Clipboard = System.Windows.Clipboard;
+
 namespace FacturacionAlemana
 {
     public partial class CreateInvoicePage : Page
@@ -308,13 +314,23 @@ namespace FacturacionAlemana
 
                 var factura = CrearFacturaDesdeFormulario();
 
-                string rutaReal = Process.GetCurrentProcess().MainModule?.FileName ?? 
-                    throw new InvalidOperationException("No se pudo determinar la ruta del ejecutable.");
-                var directorioReal = Path.GetDirectoryName(rutaReal) ?? 
-                    throw new InvalidOperationException("No se pudo determinar el directorio del ejecutable.");
-                  string fileNameBase = invoiceNumber;
-                var pdfPath = Path.Combine(directorioReal, $"{fileNameBase}.pdf");
-                var xmlPath = Path.Combine(directorioReal, $"{fileNameBase}.xml");
+                // Pedir al usuario una carpeta donde guardar ambos archivos (PDF + XML)
+                // Usamos SaveFileDialog para seleccionar carpeta sin agregar dependencia de WinForms.
+                var saveDlg = new Microsoft.Win32.SaveFileDialog();
+                saveDlg.FileName = invoiceNumber + ".pdf";
+                saveDlg.Filter = "PDF Files (*.pdf)|*.pdf|All files (*.*)|*.*";
+                saveDlg.Title = _localization?.Get("CreateInvoicePage.SelectOutputFolder") ?? "Selecciona carpeta donde guardar la factura";
+                bool? saveResult = saveDlg.ShowDialog();
+                if (saveResult != true || string.IsNullOrWhiteSpace(saveDlg.FileName))
+                {
+                    // Usuario canceló
+                    return;
+                }
+
+                var outputFolder = Path.GetDirectoryName(saveDlg.FileName) ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                string fileNameBase = invoiceNumber;
+                var pdfPath = Path.Combine(outputFolder, $"{fileNameBase}.pdf");
+                var xmlPath = Path.Combine(outputFolder, $"{fileNameBase}.xml");
 
                 // Establecer el idioma actual para el PDF
                 PdfGeneratorService.SetLanguage(_localization?.CurrentLanguage ?? "es");
@@ -1472,6 +1488,7 @@ namespace FacturacionAlemana
                     { "IBANLabel", "CreateInvoicePage.IBAN" },
                     { "BICLabel", "CreateInvoicePage.BIC" },
                     { "AccountNameLabel", "CreateInvoicePage.AccountName" },
+                    { "BankNameLabel", "CreateInvoicePage.BankName" },
 
                     { "ProjectNumberLabel", "CreateInvoicePage.ProjectNumber" },
                     { "ContractNumberLabel", "CreateInvoicePage.ContractNumber" },
@@ -1540,6 +1557,10 @@ namespace FacturacionAlemana
                     var tb = FindName(kv.Key) as WinTextBlock;
                     if (tb != null) tb.Text = _localization.Get(kv.Value);
                 }
+
+                // Asegurar BankNameLabel también se actualiza
+                var bankNameLabel = FindName("BankNameLabel") as WinTextBlock;
+                if (bankNameLabel != null) bankNameLabel.Text = _localization.Get("CreateInvoicePage.BankName");
 
                 var dg = FindName("ProductsDataGrid") as WinDataGrid;
                 if (dg != null && dg.Columns.Count >= 9)
@@ -1618,6 +1639,7 @@ namespace FacturacionAlemana
                     { "IBANTextBox", "CreateInvoicePage.IBANPlaceholder" },
                     { "BICTextBox", "CreateInvoicePage.BICPlaceholder" },
                     { "AccountNameTextBox", "CreateInvoicePage.AccountNamePlaceholder" },
+                    { "BankNameTextBox", "CreateInvoicePage.BankNamePlaceholder" },
                     { "ProjectNumberTextBox", "CreateInvoicePage.ProjectNumberPlaceholder" },
                     { "ContractNumberTextBox", "CreateInvoicePage.ContractNumberPlaceholder" },
                     { "PurchaseOrderNumberTextBox", "CreateInvoicePage.PurchaseOrderNumberPlaceholder" },
@@ -1666,6 +1688,13 @@ namespace FacturacionAlemana
                 if (btnMaxRestore != null) btnMaxRestore.ToolTip = _localization.Get("HomePage.MaximizeRestore");
                 var btnClose = FindName("BtnCloseCI") as WinButton;
                 if (btnClose != null) btnClose.ToolTip = _localization.Get("HomePage.Close");
+
+                // Añadir placeholder para BankNameTextBox si no estaba en la lista
+                var bankNameTb = FindName("BankNameTextBox") as Wpf.Ui.Controls.TextBox;
+                if (bankNameTb != null)
+                {
+                    bankNameTb.PlaceholderText = _localization.Get("CreateInvoicePage.BankNamePlaceholder");
+                }
             }
             catch { }
         }

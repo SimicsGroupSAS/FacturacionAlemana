@@ -77,7 +77,9 @@
     "TotalPrice": "Gesamtpreis:",
     "Tax": "Steuer (%):",
     "AddProduct": "Produkt hinzufügen",
-    "RemoveProduct": "Produkt entfernen",    "Banking": "Bankdaten",    "IBAN": "IBAN:",
+    "RemoveProduct": "Produkt entfernen",
+    "Banking": "Bankdaten",
+    "IBAN": "IBAN:",
     "BIC": "BIC:",
     "AccountName": "Kontoname:",
     "BankName": "Bankname:",
@@ -172,6 +174,7 @@
     "BuyerReferenceTooltip": "Erforderlich gemäß XRechnung (BR-DE-15)",
     "TaxRateTooltip": "USt-Satz in %, Punkt oder Komma verwenden (z.B.: 19,00)",
     "IBANTooltip": "Deutsche IBAN (22 Zeichen). Wird mit mod-97 validiert.",
+    "BankNameTooltip": "Name der Bank (z.B.: Sparkasse, Deutsche Bank)",
     "Prev": "Zurück",
     "Next": "Weiter",
     "SellerNamePlaceholder": "Firmenname",
@@ -204,6 +207,7 @@
     "IBANPlaceholder": "DE89370400440532013000",
     "BICPlaceholder": "COBADEFFXXX",
     "AccountNamePlaceholder": "Firmenname",
+    "BankNamePlaceholder": "Name der Bank",
     "ProjectNumberPlaceholder": "Projektnummer",
     "ContractNumberPlaceholder": "Vertragsnummer",
     "PurchaseOrderNumberPlaceholder": "Bestellnummer",
@@ -221,6 +225,7 @@
     "ShipToPostcodeCodePlaceholder": "12345",
     "ShipToCountryIDPlaceholder": "DE",
     "ShipToCountrySubDivisionNamePlaceholder": "Bayern",
+    "SelectOutputFolder": "Ordner auswählen, um die Rechnung zu speichern",
     "Errors": {
       "Required": "Erforderlich",
       "RequiredCountryCode": "Erforderlich (ISO-2-Code)",
@@ -303,6 +308,7 @@
     "LanguageChanged": "Sprache geändert in {0}",
     "FileNotFound": "Datei nicht gefunden: {0}",
     "UnexpectedError": "Unerwarteter Fehler: {0}",
-    "ErrorTitle": "Fehler"
+    "ErrorTitle": "Fehler",
+    "PdfGenerationCancelled": "PDF-Erstellung abgebrochen"
   }
 }

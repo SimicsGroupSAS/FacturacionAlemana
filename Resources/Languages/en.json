@@ -76,8 +76,11 @@
     "UnitPrice": "Unit Price:",
     "TotalPrice": "Total Price:",
     "Tax": "Tax (%):",
+    "TaxData": "Tax Data",
     "AddProduct": "Add Product",
-    "RemoveProduct": "Remove Product",    "Banking": "Banking Details",    "IBAN": "IBAN:",
+    "RemoveProduct": "Remove Product",
+    "Banking": "Banking Details",
+    "IBAN": "IBAN:",
     "BIC": "BIC:",
     "AccountName": "Account Name:",
     "BankName": "Bank Name:",
@@ -98,15 +101,12 @@
     "Total": "Total to Pay:",
     "InvoiceData": "Invoice Data",
     "IssueDate": "Date:",
-    "TaxData": "Tax Data",
-    "TaxCategory": "Tax Category:",
-    "TaxRate": "Tax Rate:",
-    "DocumentRefs": "Document References",
-    "SalesOrderNumber": "Work Order Number:",
     "NotesObs": "Notes and Observations",
     "GeneralNote": "General Notes:",
     "PaymentTermsDescription": "Payment Terms Description:",
     "Notes": "Notes",
+    "DocumentRefs": "Document References",
+    "SalesOrderNumber": "Work Order Number:",
     "Delivery": "Delivery Details",
     "ShipToName": "Delivery Name:",
     "ShipToID": "Delivery ID:",
@@ -171,6 +171,8 @@
     "BuyerReferenceTooltip": "Required according to XRechnung (BR-DE-15)",
     "TaxRateTooltip": "VAT rate in %, use dot or comma (e.g.: 19.00)",
     "IBANTooltip": "German IBAN (22 characters). Validated with mod-97.",
+    "BankNamePlaceholder": "Bank name",
+    "BankNameTooltip": "Bank name (e.g.: Sparkasse, Deutsche Bank)",
     "Prev": "Back",
     "Next": "Next",
     "SellerNamePlaceholder": "Company Name",
@@ -256,7 +258,8 @@
       "PaymentIBANRequired": "Step 4 - Payments: IBAN is required",
       "PaymentIBANLength": "Step 4 - Payments: IBAN must have 22 characters (no spaces)",
       "PaymentIBANInvalid": "Step 4 - Payments: IBAN fails validation (mod 97)"
-    }
+    },
+    "SelectOutputFolder": "Select folder to save the invoice"
   },
   "PDF": {
     "InvoiceTitle": "INVOICE",
@@ -302,6 +305,7 @@
     "LanguageChanged": "Language changed to {0}",
     "FileNotFound": "File not found: {0}",
     "UnexpectedError": "Unexpected error: {0}",
-    "ErrorTitle": "Error"
+    "ErrorTitle": "Error",
+    "PdfGenerationCancelled": "PDF generation cancelled"
   }
 }

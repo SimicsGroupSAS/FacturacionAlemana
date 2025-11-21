@@ -1,4 +1,6 @@
 ﻿using System.Windows;
+using Application = System.Windows.Application;
+using WinMessageBox = System.Windows.MessageBox;
 using Wpf.Ui.Appearance;
 using FacturacionAlemana.Utils;
 using FacturacionAlemana.Services;
@@ -23,19 +25,19 @@ namespace FacturacionAlemana
 
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            MessageBox.Show($"Excepción no controlada (Dispatcher): {e.Exception}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            WinMessageBox.Show($"Excepción no controlada (Dispatcher): {e.Exception}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         }
 
         private void CurrentDomain_UnhandledException(object? sender, UnhandledExceptionEventArgs e)
         {
             var ex = e.ExceptionObject as Exception;
-            MessageBox.Show($"Excepción no controlada (AppDomain): {ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            WinMessageBox.Show($"Excepción no controlada (AppDomain): {ex}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         private void TaskScheduler_UnobservedTaskException(object? sender, System.Threading.Tasks.UnobservedTaskExceptionEventArgs e)
         {
-            MessageBox.Show($"Excepción de tarea no observada: {e.Exception}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            WinMessageBox.Show($"Excepción de tarea no observada: {e.Exception}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             e.SetObserved();
         }
     }

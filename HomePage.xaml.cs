@@ -266,12 +266,24 @@ namespace FacturacionAlemana
                 if (previewWindow.ShowDialog() == true)
                 {
                     var st = FindName("StatusText") as TextBlock;
-                    if (st != null) st.Text = $"PDF generado: {outputPath}";
+                    if (st != null)
+                    {
+                        var key = "Messages.SuccessPdfGenerated";
+                        st.Text = (_localization != null && _localization.Exists(key))
+                            ? string.Format(_localization.Get(key), outputPath)
+                            : $"PDF generado: {outputPath}";
+                    }
                 }
                 else
                 {
                     var st = FindName("StatusText") as TextBlock;
-                    if (st != null) st.Text = "Generación de PDF cancelada";
+                    if (st != null)
+                    {
+                        var key = "Messages.PdfGenerationCancelled";
+                        st.Text = (_localization != null && _localization.Exists(key))
+                            ? _localization.Get(key)
+                            : "Generación de PDF cancelada";
+                    }
                 }
             }
             catch (Exception ex)
@@ -314,7 +326,13 @@ namespace FacturacionAlemana
                 var outputPath = Path.Combine(directorioReal, "Factura.pdf");
                 PdfGeneratorService.GenerarFacturaPdf(factura, outputPath);
                 var st2 = FindName("StatusText") as TextBlock;
-                if (st2 != null) st2.Text = $"PDF generado: {outputPath}";
+                if (st2 != null)
+                {
+                    var key2 = "Messages.SuccessPdfGenerated";
+                    st2.Text = (_localization != null && _localization.Exists(key2))
+                        ? string.Format(_localization.Get(key2), outputPath)
+                        : $"PDF generado: {outputPath}";
+                }
                 var successMsg = (_localization != null && _localization.Exists("Messages.SuccessPdfGenerated"))
                     ? string.Format(_localization.Get("Messages.SuccessPdfGenerated"), outputPath)
                     : $"PDF generado: {outputPath}";

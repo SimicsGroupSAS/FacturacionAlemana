@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Windows;
 
 namespace FacturacionAlemana.Services
@@ -272,21 +273,34 @@ namespace FacturacionAlemana.Services
                         }
                         else
                         {
-                            return $"[{key}]"; // Retornar clave si no se encuentra
+                            // Retornar versión legible del segmento final en vez de la clave entre corchetes
+                            return PrettifyKey(keys.Last());
                         }
                     }
                     else
                     {
-                        return $"[{key}]";
+                        return PrettifyKey(keys.Last());
                     }
                 }
 
-                return value?.ToString() ?? $"[{key}]";
+                return value?.ToString() ?? PrettifyKey(keys.Last());
             }
             catch
             {
-                return $"[{key}]";
+                return PrettifyKey(key.Split('.').Last());
             }
+        }
+
+        private string PrettifyKey(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
+            // Reemplazar guiones/underscores por espacios
+            string s = raw.Replace('_', ' ').Replace('-', ' ');
+            // Insertar espacios entre camelCase/PascalCase
+            s = Regex.Replace(s, "([a-z])([A-Z])", "$1 $2");
+            // Si aún contiene segmentos concatenados con mayúsculas, separar grupos de mayúsculas seguidas
+            s = Regex.Replace(s, "([A-Z]+)([A-Z][a-z])", "$1 $2");
+            return s.Trim();
         }
 
         /// <summary>

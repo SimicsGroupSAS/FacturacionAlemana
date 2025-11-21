@@ -10,10 +10,12 @@ namespace FacturacionAlemana
     {
         private Factura factura;
         private string outputPath;
+        private LocalizationService? _localization;
 
         public PreviewWindow(Factura factura, string outputPath)
         {
             InitializeComponent();
+            _localization = LocalizationService.Instance;
             this.factura = factura;
             this.outputPath = outputPath;
             this.Loaded += PreviewWindow_Loaded;
@@ -23,22 +25,38 @@ namespace FacturacionAlemana
         {
             try
             {
-                MostrarPrevisualización();
+                // Actualizar títulos y botones según localización
+                if (_localization != null)
+                {
+                    this.Title = _localization.Exists("Preview.WindowTitle") ? _localization.Get("Preview.WindowTitle") : this.Title;
+                    if (FindName("GenerarButton") is Button genBtn && _localization.Exists("Preview.Generate")) genBtn.Content = _localization.Get("Preview.Generate");
+                    if (FindName("CancelarButton") is Button cancBtn && _localization.Exists("Preview.Cancel")) cancBtn.Content = _localization.Get("Preview.Cancel");
+                }
+
+                MostrarPrevisualizacion();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al generar la previsualización: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                var msg = (_localization != null && _localization.Exists("Messages.PreviewError"))
+                    ? string.Format(_localization.Get("Messages.PreviewError"), ex.Message)
+                    : $"Error al generar la previsualización: {ex.Message}";
+                var title = (_localization != null && _localization.Exists("Messages.ErrorTitle"))
+                    ? _localization.Get("Messages.ErrorTitle")
+                    : "Error";
+                MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void MostrarPrevisualización()
+        private void MostrarPrevisualizacion()
         {
             PreviewPanel.Children.Clear();
 
-            // Título
+            var loc = _localization;
+
+            // Título (grande)
             var titulo = new TextBlock
             {
-                Text = "PREVISUALIZACIÓN DE FACTURA",
+                Text = loc != null && loc.Exists("Preview.PreviewTitle") ? loc.Get("Preview.PreviewTitle") : "PREVISUALIZACIÓN DE FACTURA",
                 FontSize = 18,
                 FontWeight = FontWeights.Bold,
                 Margin = new Thickness(0, 0, 0, 20),
@@ -47,37 +65,43 @@ namespace FacturacionAlemana
             PreviewPanel.Children.Add(titulo);
 
             // Datos del Vendedor
-            var seccionVendedor = CrearSeccion("DATOS DEL VENDEDOR", new[]
+            var sellerHeader = loc != null && loc.Exists("Preview.SellerSection") ? loc.Get("Preview.SellerSection") : "DATOS DEL VENDEDOR";
+            var seccionVendedor = CrearSeccion(sellerHeader, new[]
             {
-                ($"Nombre: {factura.SellerName}", ""),
-                ($"Dirección: {factura.SellerLineOne}", $"{factura.SellerLineTwo}"),
-                ($"Código Postal: {factura.SellerPostcodeCode}", $"Ciudad: {factura.SellerCityName}"),
-                ($"País: {factura.SellerCountryID}", $"ID VAT: {factura.SellerVATID}"),
-                ($"Contacto: {factura.SellerPersonName}", $"Teléfono: {factura.SellerCompleteNumber}"),
-                ($"Email: {factura.SellerEmail}", "")
+                (string.Format(loc != null && loc.Exists("Preview.NameLabel") ? loc.Get("Preview.NameLabel") : "Nombre: {0}", factura.SellerName), ""),
+                (string.Format(loc != null && loc.Exists("Preview.AddressLabel") ? loc.Get("Preview.AddressLabel") : "Dirección: {0}", factura.SellerLineOne), factura.SellerLineTwo ?? string.Empty),
+                (string.Format(loc != null && loc.Exists("Preview.PostcodeLabel") ? loc.Get("Preview.PostcodeLabel") : "Código Postal: {0}", factura.SellerPostcodeCode), string.Format(loc != null && loc.Exists("Preview.CityLabel") ? loc.Get("Preview.CityLabel") : "Ciudad: {0}", factura.SellerCityName)),
+                (string.Format(loc != null && loc.Exists("Preview.CountryLabel") ? loc.Get("Preview.CountryLabel") : "País: {0}", factura.SellerCountryID), string.Format(loc != null && loc.Exists("Preview.VatLabel") ? loc.Get("Preview.VatLabel") : "ID VAT: {0}", factura.SellerVATID)),
+                (string.Format(loc != null && loc.Exists("Preview.ContactLabel") ? loc.Get("Preview.ContactLabel") : "Contacto: {0}", factura.SellerPersonName), string.Format(loc != null && loc.Exists("Preview.PhoneLabel") ? loc.Get("Preview.PhoneLabel") : "Teléfono: {0}", factura.SellerCompleteNumber)),
+                (string.Format(loc != null && loc.Exists("Preview.EmailLabel") ? loc.Get("Preview.EmailLabel") : "Email: {0}", factura.SellerEmail), "")
             });
             PreviewPanel.Children.Add(seccionVendedor);
 
             // Datos del Comprador
-            var seccionComprador = CrearSeccion("DATOS DEL COMPRADOR", new[]
+            var buyerHeader = loc != null && loc.Exists("Preview.BuyerSection") ? loc.Get("Preview.BuyerSection") : "DATOS DEL COMPRADOR";
+            var seccionComprador = CrearSeccion(buyerHeader, new[]
             {
-                ($"Nombre: {factura.BuyerName}", ""),
-                ($"Contacto: {factura.BuyerPersonName}", ""),
-                ($"Dirección: {factura.BuyerLineOne}", $"Código: {factura.BuyerPostcodeCode}"),
-                ($"Ciudad: {factura.BuyerCityName}", $"País: {factura.BuyerCountryID}")
+                (string.Format(loc != null && loc.Exists("Preview.NameLabel") ? loc.Get("Preview.NameLabel") : "Nombre: {0}", factura.BuyerName), ""),
+                (string.Format(loc != null && loc.Exists("Preview.ContactLabel") ? loc.Get("Preview.ContactLabel") : "Contacto: {0}", factura.BuyerPersonName), ""),
+                (string.Format(loc != null && loc.Exists("Preview.AddressLabel") ? loc.Get("Preview.AddressLabel") : "Dirección: {0}", factura.BuyerLineOne), string.Format(loc != null && loc.Exists("Preview.PostcodeLabel") ? loc.Get("Preview.PostcodeLabel") : "Código: {0}", factura.BuyerPostcodeCode)),
+                (string.Format(loc != null && loc.Exists("Preview.CityLabel") ? loc.Get("Preview.CityLabel") : "Ciudad: {0}", factura.BuyerCityName), string.Format(loc != null && loc.Exists("Preview.CountryLabel") ? loc.Get("Preview.CountryLabel") : "País: {0}", factura.BuyerCountryID))
             });
-            PreviewPanel.Children.Add(seccionComprador);            // Datos de la Factura
-            var seccionFactura = CrearSeccion("DATOS DE LA FACTURA", new[]
+            PreviewPanel.Children.Add(seccionComprador);
+
+            // Datos de la Factura
+            var invoiceHeader = loc != null && loc.Exists("Preview.InvoiceDataSection") ? loc.Get("Preview.InvoiceDataSection") : "DATOS DE LA FACTURA";
+            var seccionFactura = CrearSeccion(invoiceHeader, new[]
             {
-                ($"Número: {factura.IdElement}", $"Fecha: {factura.DueDate}"),
-                ($"Moneda: {ConvertirMonedaASimolo(factura.CurrencyID)}", "")
+                (string.Format(loc != null && loc.Exists("Preview.NumberLabel") ? loc.Get("Preview.NumberLabel") : "Número: {0}", factura.IdElement), string.Format(loc != null && loc.Exists("Preview.DateLabel") ? loc.Get("Preview.DateLabel") : "Fecha: {0}", factura.DueDate)),
+                (string.Format(loc != null && loc.Exists("Preview.CurrencyLabel") ? loc.Get("Preview.CurrencyLabel") : "Moneda: {0}", ConvertirMonedaASimolo(factura.CurrencyID)), "")
             });
             PreviewPanel.Children.Add(seccionFactura);
 
             // Tabla de Productos
+            var productosTitle = loc != null && loc.Exists("Preview.ProductsSection") ? loc.Get("Preview.ProductsSection") : "PRODUCTOS";
             var seccionProductos = new TextBlock
             {
-                Text = "PRODUCTOS",
+                Text = productosTitle,
                 FontSize = 14,
                 FontWeight = FontWeights.Bold,
                 Margin = new Thickness(0, 20, 0, 10)
@@ -94,36 +118,39 @@ namespace FacturacionAlemana
             {
                 productosInfo.Inlines.Add(new System.Windows.Documents.Run
                 {
-                    Text = $"Pos: {producto.Pos} | {producto.Descripcion}\n"
+                    Text = string.Format(loc != null && loc.Exists("Preview.ProductLineFormat") ? loc.Get("Preview.ProductLineFormat") : "Pos: {0} | {1}\n", producto.Pos, producto.Descripcion)
                 });
                 productosInfo.Inlines.Add(new System.Windows.Documents.Run
                 {
-                    Text = $"  Cantidad: {producto.Cantidad:F2} | Precio Unit.: {producto.PrecioUnitario:F2} {ConvertirMonedaASimolo(factura.CurrencyID)} | Total: {producto.PrecioTotal:F2} {ConvertirMonedaASimolo(factura.CurrencyID)}\n"
+                    Text = string.Format(loc != null && loc.Exists("Preview.ProductDetailsFormat") ? loc.Get("Preview.ProductDetailsFormat") : "  Cantidad: {0:F2} | Precio Unit.: {1:F2} {2} | Total: {3:F2} {2}\n",
+                        producto.Cantidad, producto.PrecioUnitario, ConvertirMonedaASimolo(factura.CurrencyID), producto.PrecioTotal)
                 });
             }
 
             PreviewPanel.Children.Add(productosInfo);
 
             // Totales
-            var seccionTotales = CrearSeccion("TOTALES", new[]
+            var totalsHeader = loc != null && loc.Exists("Preview.TotalsSection") ? loc.Get("Preview.TotalsSection") : "TOTALES";
+            var seccionTotales = CrearSeccion(totalsHeader, new[]
             {
-                ($"Subtotal (Netto): {factura.BasisAmount} {ConvertirMonedaASimolo(factura.CurrencyID)}", ""),
-                ($"Impuestos: {factura.CalculatedAmount} {ConvertirMonedaASimolo(factura.CurrencyID)}", ""),
-                ($"TOTAL: {factura.GrandTotalAmount} {ConvertirMonedaASimolo(factura.CurrencyID)}", "")
+                (string.Format(loc != null && loc.Exists("Preview.SubtotalLabel") ? loc.Get("Preview.SubtotalLabel") : "Subtotal (Netto): {0}", factura.BasisAmount), ""),
+                (string.Format(loc != null && loc.Exists("Preview.TaxesLabel") ? loc.Get("Preview.TaxesLabel") : "Impuestos: {0}", factura.CalculatedAmount), ""),
+                (string.Format(loc != null && loc.Exists("Preview.TotalLabel") ? loc.Get("Preview.TotalLabel") : "TOTAL: {0}", factura.GrandTotalAmount), "")
             });
             PreviewPanel.Children.Add(seccionTotales);
 
             // Condiciones de Pago
-            var seccionPago = CrearSeccion("CONDICIONES DE PAGO", new[]
+            var paymentHeader = loc != null && loc.Exists("Preview.PaymentTermsSection") ? loc.Get("Preview.PaymentTermsSection") : "CONDICIONES DE PAGO";
+            var seccionPago = CrearSeccion(paymentHeader, new[]
             {
-                (factura.PaymentDescription, "")
+                (factura.PaymentDescription ?? string.Empty, "")
             });
             PreviewPanel.Children.Add(seccionPago);
 
             // Información adicional
             var infoAdicional = new TextBlock
             {
-                Text = $"\nPDF será generado en: {outputPath}",
+                Text = loc != null && loc.Exists("Preview.PdfWillBeGenerated") ? string.Format(loc.Get("Preview.PdfWillBeGenerated"), outputPath) : $"\nPDF será generado en: {outputPath}",
                 FontSize = 10,
                 Foreground = System.Windows.Media.Brushes.Gray,
                 Margin = new Thickness(0, 20, 0, 0),
@@ -187,7 +214,9 @@ namespace FacturacionAlemana
             }
 
             return panel;
-        }        private void OnGenerarClick(object sender, RoutedEventArgs e)
+        }
+
+        private void OnGenerarClick(object sender, RoutedEventArgs e)
         {
             try
             {

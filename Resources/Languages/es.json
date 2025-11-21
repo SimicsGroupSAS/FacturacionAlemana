@@ -302,6 +302,37 @@
     "FileNotFound": "Archivo no encontrado: {0}",
     "UnexpectedError": "Error inesperado: {0}",
     "ErrorTitle": "Error",
-    "PdfGenerationCancelled": "Generación de PDF cancelada"
+    "PdfGenerationCancelled": "Generación de PDF cancelada",
+    "PreviewError": "Error al generar la previsualización: {0}"
+  },
+  "Preview": {
+    "WindowTitle": "Previsualización de Factura",
+    "PreviewTitle": "PREVISUALIZACIÓN DE FACTURA",
+    "Generate": "✓ Generar PDF",
+    "Cancel": "✕ Cancelar",
+    "SellerSection": "Datos del Vendedor",
+    "BuyerSection": "Datos del Comprador",
+    "InvoiceDataSection": "Datos de la Factura",
+    "ProductsSection": "Productos",
+    "TotalsSection": "Totales",
+    "PaymentTermsSection": "Condiciones de Pago",
+    "NameLabel": "Nombre: {0}",
+    "AddressLabel": "Dirección: {0}",
+    "PostcodeLabel": "Código Postal: {0}",
+    "CityLabel": "Ciudad: {0}",
+    "CountryLabel": "País: {0}",
+    "VatLabel": "ID VAT: {0}",
+    "ContactLabel": "Contacto: {0}",
+    "PhoneLabel": "Teléfono: {0}",
+    "EmailLabel": "Email: {0}",
+    "NumberLabel": "Número: {0}",
+    "DateLabel": "Fecha: {0}",
+    "CurrencyLabel": "Moneda: {0}",
+    "SubtotalLabel": "Subtotal (Netto): {0}",
+    "TaxesLabel": "Impuestos: {0}",
+    "TotalLabel": "TOTAL: {0}",
+    "ProductLineFormat": "Pos: {0} | {1}\n",
+    "ProductDetailsFormat": "  Cantidad: {0:F2} | Precio Unit.: {1:F2} {2} | Total: {3:F2} {2}\n",
+    "PdfWillBeGenerated": "\nPDF será generado en: {0}"
   }
 }

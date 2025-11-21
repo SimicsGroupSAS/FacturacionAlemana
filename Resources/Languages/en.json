@@ -306,6 +306,37 @@
     "FileNotFound": "File not found: {0}",
     "UnexpectedError": "Unexpected error: {0}",
     "ErrorTitle": "Error",
-    "PdfGenerationCancelled": "PDF generation cancelled"
+    "PdfGenerationCancelled": "PDF generation cancelled",
+    "PreviewError": "Error generating preview: {0}"
+  },
+  "Preview": {
+    "WindowTitle": "Invoice Preview",
+    "PreviewTitle": "INVOICE PREVIEW",
+    "Generate": "✓ Generate PDF",
+    "Cancel": "✕ Cancel",
+    "SellerSection": "Seller Information",
+    "BuyerSection": "Buyer Information",
+    "InvoiceDataSection": "Invoice Data",
+    "ProductsSection": "Products",
+    "TotalsSection": "Totals",
+    "PaymentTermsSection": "Payment Terms",
+    "NameLabel": "Name: {0}",
+    "AddressLabel": "Address: {0}",
+    "PostcodeLabel": "Postal Code: {0}",
+    "CityLabel": "City: {0}",
+    "CountryLabel": "Country: {0}",
+    "VatLabel": "VAT ID: {0}",
+    "ContactLabel": "Contact: {0}",
+    "PhoneLabel": "Phone: {0}",
+    "EmailLabel": "Email: {0}",
+    "NumberLabel": "Number: {0}",
+    "DateLabel": "Date: {0}",
+    "CurrencyLabel": "Currency: {0}",
+    "SubtotalLabel": "Subtotal (Net): {0}",
+    "TaxesLabel": "Taxes: {0}",
+    "TotalLabel": "TOTAL: {0}",
+    "ProductLineFormat": "Pos: {0} | {1}\n",
+    "ProductDetailsFormat": "  Qty: {0:F2} | Unit Price: {1:F2} {2} | Total: {3:F2} {2}\n",
+    "PdfWillBeGenerated": "\nPDF will be generated at: {0}"
   }
 }

@@ -309,6 +309,37 @@
     "FileNotFound": "Datei nicht gefunden: {0}",
     "UnexpectedError": "Unerwarteter Fehler: {0}",
     "ErrorTitle": "Fehler",
-    "PdfGenerationCancelled": "PDF-Erstellung abgebrochen"
+    "PdfGenerationCancelled": "PDF-Erstellung abgebrochen",
+    "PreviewError": "Fehler beim Erstellen der Vorschau: {0}"
+  },
+  "Preview": {
+    "WindowTitle": "Rechnungsvorschau",
+    "PreviewTitle": "RECHNUNGSVORSCHAU",
+    "Generate": "✓ PDF erstellen",
+    "Cancel": "✕ Abbrechen",
+    "SellerSection": "Verkäuferdaten",
+    "BuyerSection": "Käuferdaten",
+    "InvoiceDataSection": "Rechnungsdaten",
+    "ProductsSection": "Produkte",
+    "TotalsSection": "Summen",
+    "PaymentTermsSection": "Zahlungsbedingungen",
+    "NameLabel": "Name: {0}",
+    "AddressLabel": "Adresse: {0}",
+    "PostcodeLabel": "Postleitzahl: {0}",
+    "CityLabel": "Stadt: {0}",
+    "CountryLabel": "Land: {0}",
+    "VatLabel": "USt-ID: {0}",
+    "ContactLabel": "Kontakt: {0}",
+    "PhoneLabel": "Telefon: {0}",
+    "EmailLabel": "E-Mail: {0}",
+    "NumberLabel": "Nummer: {0}",
+    "DateLabel": "Datum: {0}",
+    "CurrencyLabel": "Währung: {0}",
+    "SubtotalLabel": "Zwischensumme (Netto): {0}",
+    "TaxesLabel": "Steuern: {0}",
+    "TotalLabel": "GESAMT: {0}",
+    "ProductLineFormat": "Pos: {0} | {1}\n",
+    "ProductDetailsFormat": "  Menge: {0:F2} | Einzelpreis: {1:F2} {2} | Gesamt: {3:F2} {2}\n",
+    "PdfWillBeGenerated": "\nPDF wird generiert unter: {0}"
   }
 }

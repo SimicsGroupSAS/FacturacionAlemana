@@ -4,7 +4,7 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:local="clr-namespace:FacturacionAlemana.Utils"
       Title="Crear Factura"
-      Background="{DynamicResource ApplicationBackgroundBrush}">
+      Background="{DynamicResource AppSurface}">
 
     <Page.Resources>
         <ResourceDictionary>

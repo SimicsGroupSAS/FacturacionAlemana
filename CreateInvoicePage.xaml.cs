@@ -304,7 +304,7 @@ namespace FacturacionAlemana
                     return;
                 }
 
-                string invoiceNumber = InvoiceNumberTextBox.Text.Trim();
+                string invoiceNumber = (InvoiceNumberTextBox.Text ?? string.Empty).Trim();
 
                 var factura = CrearFacturaDesdeFormulario();
 
@@ -333,7 +333,7 @@ namespace FacturacionAlemana
         private bool ValidarDatosFactura()
         {
             // Validar código de país del Vendedor (ISO 3166-1)
-            string sellerCountry = SellerCountryTextBox.Text.Trim().ToUpper();
+            string sellerCountry = (SellerCountryTextBox.Text ?? string.Empty).Trim().ToUpper();
             if (string.IsNullOrEmpty(sellerCountry) || sellerCountry.Length != 2)
             {
                 WinMessageBox.Show("El código de país del vendedor debe ser un código ISO 3166-1 de 2 letras.\n" +
@@ -351,7 +351,7 @@ namespace FacturacionAlemana
             }
 
             // Validar código de país del Comprador (ISO 3166-1)
-            string buyerCountry = BuyerCountryTextBox.Text.Trim().ToUpper();
+            string buyerCountry = (BuyerCountryTextBox.Text ?? string.Empty).Trim().ToUpper();
             if (string.IsNullOrEmpty(buyerCountry) || buyerCountry.Length != 2)
             {
                 WinMessageBox.Show("El código de país del comprador debe ser un código ISO 3166-1 de 2 letras.\n" +
@@ -368,7 +368,7 @@ namespace FacturacionAlemana
                 return false;
             }            
             // Validar VAT-ID
-            string vatID = SellerVATTextBox.Text.Trim();
+            string vatID = (SellerVATTextBox.Text ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(vatID))
             {
                 WinMessageBox.Show("El número de IVA (VAT-ID) es obligatorio.", "Validación", 
@@ -383,7 +383,7 @@ namespace FacturacionAlemana
             }
 
             // Validar IBAN
-            string iban = IBANTextBox.Text.Trim().Replace(" ", "");
+            string iban = (IBANTextBox.Text ?? string.Empty).Trim().Replace(" ", "");
             if (string.IsNullOrEmpty(iban))
             {
                 WinMessageBox.Show("El IBAN es obligatorio.", "Validación", 
@@ -418,7 +418,7 @@ namespace FacturacionAlemana
             }
 
             // Validar BuyerReference (obligatorio según BR-DE-15)
-            string buyerReference = BuyerReferenceTextBox.Text.Trim();
+            string buyerReference = (BuyerReferenceTextBox.Text ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(buyerReference))
             {
                 WinMessageBox.Show("La referencia del comprador (BT-10) es obligatoria según la norma XRechnung.\n\n" +
@@ -428,7 +428,7 @@ namespace FacturacionAlemana
             }
 
             // Validar campos obligatorios del comprador según XRechnung/EN 16931
-            string buyerCity = BuyerCityTextBox.Text.Trim();
+            string buyerCity = (BuyerCityTextBox.Text ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(buyerCity))
             {
                 WinMessageBox.Show("La ciudad del comprador (BT-52) es obligatoria según la norma XRechnung.\n\n" +
@@ -488,7 +488,7 @@ namespace FacturacionAlemana
             var categoriaImpuesto = TaxCategoryComboBox.SelectedItem as string ?? "S";            
             return new Factura            
             {
-                Cliente = BuyerNameTextBox.Text,
+                Cliente = BuyerNameTextBox.Text ?? string.Empty,
                 Total = totalConImpuestos,
                 DueDate = DueDatePicker.SelectedDate?.ToString("yyyy-MM-dd") ?? DateTime.Now.AddMonths(1).ToString("yyyy-MM-dd"),
                 GrandTotalAmount = totalConImpuestos.ToString("F2", CultureInfo.InvariantCulture),                DuePayableAmount = totalConImpuestos.ToString("F2", CultureInfo.InvariantCulture),
@@ -496,38 +496,38 @@ namespace FacturacionAlemana
                 UnitCode = "EA",
                 SchemeID = "0060",
                 CurrencyID = monedaSeleccionada,
-                IdElement = InvoiceNumberTextBox.Text,
+                IdElement = InvoiceNumberTextBox.Text ?? string.Empty,
                 TypeCodeElement = "380",
                 // Convertir fecha de yyyy-MM-dd a YYYYMMDD (formato requerido por EN 16931)
                 IssueDateElement = IssueDatePicker.SelectedDate?.ToString("yyyyMMdd") ?? DateTime.Now.ToString("yyyyMMdd"),
-                PaymentNoteElement = GeneralNoteTextBox.Text,
+                PaymentNoteElement = GeneralNoteTextBox.Text ?? string.Empty,
                 TaxAmount = totalImpuestos.ToString("F2", CultureInfo.InvariantCulture),
                 
-                SellerName = SellerNameTextBox.Text,
-                SellerPersonName = SellerPersonNameTextBox.Text,
+                SellerName = SellerNameTextBox.Text ?? string.Empty,
+                SellerPersonName = SellerPersonNameTextBox.Text ?? string.Empty,
                 SellerDepartmentName = "Ventas",
-                SellerCompleteNumber = SellerPhoneTextBox.Text,                
-                SellerEmail = SellerEmailTextBox.Text,
-                SellerPostcodeCode = SellerPostcodeTextBox.Text,
-                SellerLineOne = SellerStreetTextBox.Text,
-                SellerLineTwo = SellerStreetTextBox.Text,
-                SellerCityName = SellerCityTextBox.Text,
-                SellerCountryID = SellerCountryTextBox.Text.Trim().ToUpper(),
-                SellerVATID = SellerVATTextBox.Text,
-                SellerTaxNumber = SellerTaxTextBox.Text,
-                  BuyerReference = BuyerReferenceTextBox.Text.Trim(),
+                SellerCompleteNumber = SellerPhoneTextBox.Text ?? string.Empty,                
+                SellerEmail = SellerEmailTextBox.Text ?? string.Empty,
+                SellerPostcodeCode = SellerPostcodeTextBox.Text ?? string.Empty,
+                SellerLineOne = SellerStreetTextBox.Text ?? string.Empty,
+                SellerLineTwo = SellerStreetTextBox.Text ?? string.Empty,
+                SellerCityName = SellerCityTextBox.Text ?? string.Empty,
+                SellerCountryID = (SellerCountryTextBox.Text ?? string.Empty).Trim().ToUpper(),
+                SellerVATID = SellerVATTextBox.Text ?? string.Empty,
+                SellerTaxNumber = SellerTaxTextBox.Text ?? string.Empty,
+                  BuyerReference = (BuyerReferenceTextBox.Text ?? string.Empty).Trim(),
                 BuyerID = "1",
-                BuyerName = BuyerNameTextBox.Text,
-                BuyerPersonName = BuyerPersonNameTextBox.Text,
-                BuyerCompleteNumber = BuyerPhoneTextBox.Text,
-                BuyerEmail = BuyerEmailTextBox.Text,
-                BuyerPostcodeCode = BuyerPostcodeTextBox.Text,
-                BuyerLineOne = BuyerStreetTextBox.Text,
-                BuyerLineTwo = BuyerStreet2TextBox.Text,
-                BuyerCityName = BuyerCityTextBox.Text,
-                BuyerCountryID = BuyerCountryTextBox.Text.Trim().ToUpper(),
-                BuyerVATID = BuyerVATTextBox.Text,
-                BuyerEmailContact = BuyerEmailContactTextBox.Text,
+                BuyerName = BuyerNameTextBox.Text ?? string.Empty,
+                BuyerPersonName = BuyerPersonNameTextBox.Text ?? string.Empty,
+                BuyerCompleteNumber = BuyerPhoneTextBox.Text ?? string.Empty,
+                BuyerEmail = BuyerEmailTextBox.Text ?? string.Empty,
+                BuyerPostcodeCode = BuyerPostcodeTextBox.Text ?? string.Empty,
+                BuyerLineOne = BuyerStreetTextBox.Text ?? string.Empty,
+                BuyerLineTwo = BuyerStreet2TextBox.Text ?? string.Empty,
+                BuyerCityName = (BuyerCityTextBox.Text ?? string.Empty).Trim(),
+                BuyerCountryID = (BuyerCountryTextBox.Text ?? string.Empty).Trim().ToUpper(),
+                BuyerVATID = BuyerVATTextBox.Text ?? string.Empty,
+                BuyerEmailContact = BuyerEmailContactTextBox.Text ?? string.Empty,
                 
                 LineID = productos[0].Pos.ToString(),
                 SellerAssignedID = productos[0].Pos.ToString(),
@@ -539,33 +539,34 @@ namespace FacturacionAlemana
                 TaxRatePercent = tasaIVA.ToString("F0"),
                 LineTotalAmount = productos[0].PrecioTotal.ToString("F2", CultureInfo.InvariantCulture),
                 InvoiceCurrencyCode = monedaSeleccionada,                
-                PaymentTypeCode = "30",                PaymentInformation = "SEPA",                IBANID = IBANTextBox.Text.Replace(" ", "").ToUpper(), // Remover espacios y convertir a mayúsculas
+                PaymentTypeCode = "30",                PaymentInformation = "SEPA",                IBANID = (IBANTextBox.Text ?? string.Empty).Replace(" ", "").ToUpper(), // Remover espacios y convertir a mayúsculas
                 AccountName = AccountNameTextBox.Text,
                 BankName = BankNameTextBox.Text,
                 BLZ = BLZTextBox.Text,
                 BICID = BICTextBox.Text,CalculatedAmount = totalImpuestos.ToString("F2", CultureInfo.InvariantCulture), // Monto del IVA (no el total)
                 BasisAmount = totalGeneral.ToString("F2", CultureInfo.InvariantCulture), // Base imponible (neto sin impuestos)
                 PaymentDescription = string.Empty, // Sin descripción adicional
-                  InvoiceNumber = InvoiceNumberTextBox.Text,
+                  InvoiceNumber = InvoiceNumberTextBox.Text ?? string.Empty,
                 IssueDate = IssueDatePicker.SelectedDate ?? DateTime.Now,
                 DeliveryDate = DeliveryDatePicker.SelectedDate ?? default(DateTime),
                 DueDateValue = DueDatePicker.SelectedDate ?? DateTime.Now.AddMonths(1),
-                ProjectNumber = ProjectNumberTextBox.Text,
-                ContractNumber = ContractNumberTextBox.Text,
-                PurchaseOrderNumber = PurchaseOrderNumberTextBox.Text,
-                SalesOrderNumber = SalesOrderNumberTextBox.Text,
-                PaymentReference = PaymentReferenceTextBox.Text,
+                ProjectNumber = ProjectNumberTextBox.Text ?? string.Empty,
+                ContractNumber = ContractNumberTextBox.Text ?? string.Empty,
+                PurchaseOrderNumber = PurchaseOrderNumberTextBox.Text ?? string.Empty,
+                SalesOrderNumber = SalesOrderNumberTextBox.Text ?? string.Empty,
+                PaymentReference = PaymentReferenceTextBox.Text ?? string.Empty,
                   Productos = new List<Producto>(productos),
-                ShipToID = ShipToIDTextBox.Text,
-                ShipToName = ShipToNameTextBox.Text,
-                ShipToPostcodeCode = ShipToPostcodeCodeTextBox.Text,
-                ShipToLineOne = ShipToLineOneTextBox.Text,
-                ShipToLineTwo = ShipToLineTwoTextBox.Text,
-                ShipToLineThree = ShipToLineThreeTextBox.Text,
-                ShipToCityName = ShipToCityNameTextBox.Text,                ShipToCountryID = ShipToCountryIDTextBox.Text,
-                ShipToCountrySubDivisionName = ShipToCountrySubDivisionNameTextBox.Text,
-                GeneralNote = GeneralNoteTextBox.Text,
-                PaymentTermsDescription = PaymentTermsDescriptionTextBox.Text.Replace("{Total}", totalConImpuestos.ToString("F2", CultureInfo.InvariantCulture)).Replace("{DueDate}", DueDatePicker.SelectedDate?.ToString("dd.MM.yyyy") ?? DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy"))
+                ShipToID = ShipToIDTextBox.Text ?? string.Empty,
+                ShipToName = ShipToNameTextBox.Text ?? string.Empty,
+                ShipToPostcodeCode = ShipToPostcodeCodeTextBox.Text ?? string.Empty,
+                ShipToLineOne = ShipToLineOneTextBox.Text ?? string.Empty,
+                ShipToLineTwo = ShipToLineTwoTextBox.Text ?? string.Empty,
+                ShipToLineThree = ShipToLineThreeTextBox.Text ?? string.Empty,
+                ShipToCityName = ShipToCityNameTextBox.Text ?? string.Empty,
+                ShipToCountryID = ShipToCountryIDTextBox.Text ?? string.Empty,
+                ShipToCountrySubDivisionName = ShipToCountrySubDivisionNameTextBox.Text ?? string.Empty,
+                GeneralNote = GeneralNoteTextBox.Text ?? string.Empty,
+                PaymentTermsDescription = (PaymentTermsDescriptionTextBox.Text ?? string.Empty).Replace("{Total}", totalConImpuestos.ToString("F2", CultureInfo.InvariantCulture)).Replace("{DueDate}", DueDatePicker.SelectedDate?.ToString("dd.MM.yyyy") ?? DateTime.Now.AddMonths(1).ToString("dd.MM.yyyy"))
             };
         }        
         private void OnCancelClick(object sender, RoutedEventArgs e)
@@ -745,10 +746,8 @@ namespace FacturacionAlemana
             bool has = count > 0;
             if (TopAlertsPanel != null)
             {
-                // Si el usuario las ocultó, sólo re-mostrar si cambió el conjunto de errores
                 if (_alertsDismissed && has)
                 {
-                    // Si el usuario ha ocultado, mantener oculto hasta que intenten avanzar o cambie el conteo
                     if (_lastErrorCount == count && !_showGlobalAlerts)
                     {
                         TopAlertsPanel.Visibility = Visibility.Collapsed;
@@ -770,21 +769,12 @@ namespace FacturacionAlemana
             }
             if (GenerateButton != null)
             {
-                // Siempre deshabilitar Generar si hay errores, aunque no se muestren aún
                 GenerateButton.IsEnabled = !has;
             }
             if (ErrorCounterTextBlock != null)
             {
-                if (_showGlobalAlerts && has)
-                {
-                    ErrorCounterTextBlock.Text = $"{count} error(es)";
-                    ErrorCounterTextBlock.Visibility = Visibility.Visible;
-                }
-                else
-                {
-                    ErrorCounterTextBlock.Text = string.Empty;
-                    ErrorCounterTextBlock.Visibility = Visibility.Collapsed;
-                }
+                ErrorCounterTextBlock.Text = string.Empty;
+                ErrorCounterTextBlock.Visibility = Visibility.Collapsed;
             }
             _lastErrorCount = count;
         }
@@ -797,18 +787,14 @@ namespace FacturacionAlemana
             TopAlertsPanel.Visibility = Visibility.Collapsed;
         }        private void OnGoToFirstErrorClick(object sender, RoutedEventArgs e)
         {
-            // Activar visualización de alertas y refrescar
             _showGlobalAlerts = true;
             RefreshAlerts();
 
-            // Refrescar validaciones por si cambió algo (en orden de pasos)
-            // Paso 0: Vendedor
             UpdateCountryValidation(SellerCountryTextBox);
             UpdateVatValidation();
             UpdatePostcodeValidation(SellerPostcodeTextBox, SellerCountryTextBox);
             UpdateEmailValidation(SellerEmailTextBox);
 
-            // Paso 1: Comprador
             if (string.IsNullOrWhiteSpace(BuyerNameTextBox.Text))
                 SetError(BuyerNameTextBox, "Obligatorio");
             else
@@ -818,31 +804,25 @@ namespace FacturacionAlemana
             UpdateBuyerCityValidation();
             UpdateBuyerEmailValidation();
 
-            // Paso 3: Pagos
             UpdateBuyerRefValidation();
             UpdateIbanValidation();
 
-            // Definir controles por paso en el orden correcto: 0 (Vendedor) → 1 (Comprador) → 2 (Productos) → 3 (Pagos)
             var stepControls = new List<(int step, Control ctl, Func<bool> isError)>
             {
-                // Paso 0: Vendedor
                 (0, SellerNameTextBox, () => string.IsNullOrWhiteSpace(SellerNameTextBox.Text)),
                 (0, SellerCountryTextBox, () => HasError(SellerCountryTextBox)),
                 (0, SellerVATTextBox, () => HasError(SellerVATTextBox)),
                 (0, SellerPostcodeTextBox, () => HasError(SellerPostcodeTextBox)),
                 (0, SellerEmailTextBox, () => HasError(SellerEmailTextBox)),
 
-                // Paso 1: Comprador (nombre, email, código postal, ciudad, país)
                 (1, BuyerNameTextBox, () => string.IsNullOrWhiteSpace(BuyerNameTextBox.Text)),
                 (1, BuyerEmailTextBox, () => HasError(BuyerEmailTextBox)),
                 (1, BuyerPostcodeTextBox, () => HasError(BuyerPostcodeTextBox)),
                 (1, BuyerCityTextBox, () => HasError(BuyerCityTextBox)),
                 (1, BuyerCountryTextBox, () => HasError(BuyerCountryTextBox)),
 
-                // Paso 2: Productos/Líneas (mínimo 1 producto)
                 (2, ProductsDataGrid, () => productos.Count == 0),
 
-                // Paso 3: Pagos (BT-10 y IBAN)
                 (3, BuyerReferenceTextBox, () => HasError(BuyerReferenceTextBox)),
                 (3, IBANTextBox, () => HasError(IBANTextBox)),
             };
@@ -854,10 +834,8 @@ namespace FacturacionAlemana
                     _allowProgrammaticStepJump = true;
                     StepsTabControl.SelectedIndex = step;
                     _currentStepIndex = step;
-                    UpdateStepButtons();                    // Enfocar y asegurar visibilidad
-                    this.Dispatcher.InvokeAsync(() =>
+                    UpdateStepButtons();                    this.Dispatcher.InvokeAsync(() =>
                     {
-                        // Expandir Expanders padres si es necesario
                         ExpandParentExpanders(ctl);
                         
                         ctl.BringIntoView();
@@ -868,10 +846,7 @@ namespace FacturacionAlemana
                     return;
                 }
             }
-        }        /// <summary>
-        /// Expande todos los Expander controls que son ancestros del control especificado.
-        /// </summary>
-        private void ExpandParentExpanders(Control ctl)
+        }        private void ExpandParentExpanders(Control ctl)
         {
             DependencyObject parent = LogicalTreeHelper.GetParent(ctl);
             while (parent != null)
@@ -888,52 +863,48 @@ namespace FacturacionAlemana
         {
             var errors = new List<string>();
 
-            // ===== PASO 0: VENDEDOR =====
             if (string.IsNullOrWhiteSpace(SellerNameTextBox.Text)) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.SellerNameRequired"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.SellerNameRequired") ?? string.Empty);
             if ((SellerCountryTextBox.Text ?? string.Empty).Trim().Length != 2) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.SellerCountryISO2"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.SellerCountryISO2") ?? string.Empty);
             if (!EsVATValidoSilencioso((SellerVATTextBox.Text ?? string.Empty).Trim(), (SellerCountryTextBox.Text ?? string.Empty).Trim())) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.SellerVATInvalid"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.SellerVATInvalid") ?? string.Empty);
             if (!string.IsNullOrEmpty(SellerPostcodeTextBox.Text) && !IsPostcodeValidForCountry(SellerPostcodeTextBox.Text.Trim(), (SellerCountryTextBox.Text ?? string.Empty).Trim().ToUpper())) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.SellerPostcodeInvalid"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.SellerPostcodeInvalid") ?? string.Empty);
             if (!string.IsNullOrEmpty(SellerEmailTextBox.Text) && !Regex.IsMatch(SellerEmailTextBox.Text.Trim(), @"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.SellerEmailInvalid"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.SellerEmailInvalid") ?? string.Empty);
 
-            // ===== PASO 1: COMPRADOR =====
             if (string.IsNullOrWhiteSpace(BuyerNameTextBox.Text)) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.BuyerNameRequired"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.BuyerNameRequired") ?? string.Empty);
             var buyerEmail = (BuyerEmailTextBox.Text ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(buyerEmail)) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.BuyerEmailRequired"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.BuyerEmailRequired") ?? string.Empty);
             else if (!Regex.IsMatch(buyerEmail, @"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$")) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.BuyerEmailInvalid"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.BuyerEmailInvalid") ?? string.Empty);
             var buyerCity = (BuyerCityTextBox.Text ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(buyerCity)) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.BuyerCityRequired"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.BuyerCityRequired") ?? string.Empty);
             var buyerPostcode = (BuyerPostcodeTextBox.Text ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(buyerPostcode)) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.BuyerPostcodeRequired"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.BuyerPostcodeRequired") ?? string.Empty);
             else if (!IsPostcodeValidForCountry(buyerPostcode, (BuyerCountryTextBox.Text ?? string.Empty).Trim().ToUpper())) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.BuyerPostcodeInvalid"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.BuyerPostcodeInvalid") ?? string.Empty);
             if ((BuyerCountryTextBox.Text ?? string.Empty).Trim().Length != 2) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.BuyerCountryISO2"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.BuyerCountryISO2") ?? string.Empty);
 
-            // ===== PASO 2: PRODUCTOS =====
             if (productos.Count == 0) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.ProductsAtLeastOne"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.ProductsAtLeastOne") ?? string.Empty);
 
-            // ===== PASO 3: PAGOS =====
             var bt10 = (BuyerReferenceTextBox.Text ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(bt10)) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.PaymentBuyerRefRequired"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.PaymentBuyerRefRequired") ?? string.Empty);
             var iban = (IBANTextBox.Text ?? string.Empty).Replace(" ", string.Empty);
             if (string.IsNullOrEmpty(iban)) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.PaymentIBANRequired"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.PaymentIBANRequired") ?? string.Empty);
             else if (iban.Length != 22) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.PaymentIBANLength"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.PaymentIBANLength") ?? string.Empty);
             else if (!IsValidIbanMod97(iban)) 
-                errors.Add(_localization.Get("CreateInvoicePage.Errors.PaymentIBANInvalid"));
+                errors.Add(_localization?.Get("CreateInvoicePage.Errors.PaymentIBANInvalid") ?? string.Empty);
 
             ShowAlerts(errors.ToArray());
         }
@@ -953,7 +924,6 @@ namespace FacturacionAlemana
             BuyerCityTextBox.TextChanged += (_, __) => { UpdateBuyerCityValidation(); RefreshAlerts(); };
             BuyerPostcodeTextBox.TextChanged += (_, __) => { UpdateBuyerPostcodeValidation(); RefreshAlerts(); };
             BuyerEmailTextBox.TextChanged += (_, __) => { UpdateBuyerEmailValidation(); RefreshAlerts(); };
-            // IBAN ya tiene TextChanged para máscara; validación se invoca al final del handler            // Email / Teléfono
             SellerEmailTextBox.TextChanged += (_, __) => { UpdateEmailValidation(SellerEmailTextBox); RefreshAlerts(); };
             BuyerEmailContactTextBox.TextChanged += (_, __) => { UpdateEmailValidation(BuyerEmailContactTextBox); RefreshAlerts(); };
             SellerPhoneTextBox.TextChanged += (_, __) => { UpdatePhoneValidation(SellerPhoneTextBox); RefreshAlerts(); };
@@ -1053,16 +1023,13 @@ namespace FacturacionAlemana
         private bool IsValidIbanMod97(string iban)
         {
             if (iban.Length < 4) return false;
-            // Mover los 4 primeros al final
             string rearranged = iban.Substring(4) + iban.Substring(0, 4);
-            // Reemplazar letras por números (A=10..Z=35)
             var sb = new System.Text.StringBuilder();
             foreach (char c in rearranged)
             {
                 if (char.IsLetter(c)) sb.Append((c - 'A' + 10).ToString());
                 else sb.Append(c);
             }
-            // Calcular mod 97 de forma incremental para evitar overflow
             int mod = 0;
             foreach (char ch in sb.ToString())
             {
@@ -1077,7 +1044,6 @@ namespace FacturacionAlemana
         {
             var v = (tb.Text ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(v)) { SetError(tb, null); return; }
-            // Regex simple y segura
             bool ok = Regex.IsMatch(v, @"^[^@\s]+@[^@\s]+\.[^@\s]{2,}$");
             SetError(tb, ok ? null : _localization?.Get("CreateInvoicePage.Errors.InvalidEmail"));
         }
@@ -1086,7 +1052,6 @@ namespace FacturacionAlemana
         {
             var v = (tb.Text ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(v)) { SetError(tb, null); return; }
-            // Permitir +, espacios, guiones y dígitos, longitud mínima 7
             bool ok = Regex.IsMatch(v, @"^[+\d][\d\-\s()]{6,}$");
             SetError(tb, ok ? null : _localization?.Get("CreateInvoicePage.Errors.InvalidPhone"));
         }
@@ -1095,7 +1060,7 @@ namespace FacturacionAlemana
         {
             var zip = (zipTb.Text ?? string.Empty).Trim();
             var country = (countryTb.Text ?? string.Empty).Trim().ToUpper();
-            if (string.IsNullOrEmpty(zip)) return; // No cambiar el error existente si está vacío
+            if (string.IsNullOrEmpty(zip)) return; 
             bool ok = IsPostcodeValidForCountry(zip, country);
             SetError(zipTb, ok ? null : (_localization != null ? string.Format(_localization.Get("CreateInvoicePage.Errors.InvalidPostcode"), country) : "CP inválido para " + country));
         }
@@ -1107,7 +1072,7 @@ namespace FacturacionAlemana
                 "DE" => Regex.IsMatch(zip, @"^\d{5}$"),
                 "ES" => Regex.IsMatch(zip, @"^\d{5}$"),
                 "FR" => Regex.IsMatch(zip, @"^\d{5}$"),
-                _ => zip.Length >= 3 // fallback laxo
+                _ => zip.Length >= 3 
             };
         }
 
@@ -1143,13 +1108,11 @@ namespace FacturacionAlemana
             }
         }
 
-        // Evitar saltar pasos seleccionando pestañas manualmente, pero permitir volver atrás
         private void StepsTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (StepsTabControl == null) return;
             var targetIndex = StepsTabControl.SelectedIndex;
 
-            // Permitir saltos programáticos (por "Ir al primer error")
             if (_allowProgrammaticStepJump)
             {
                 _currentStepIndex = targetIndex;
@@ -1165,7 +1128,6 @@ namespace FacturacionAlemana
                 return;
             }
 
-            // Bloquear avances por click; usar botón Siguiente para validar
             StepsTabControl.SelectionChanged -= StepsTabControl_SelectionChanged;
             StepsTabControl.SelectedIndex = _currentStepIndex;
             StepsTabControl.SelectionChanged += StepsTabControl_SelectionChanged;
@@ -1185,11 +1147,10 @@ namespace FacturacionAlemana
         {
             if (!ValidateCurrentStep())
             {
-                _showGlobalAlerts = true; // mostrar aviso a partir del primer fallo
+                _showGlobalAlerts = true; 
                 RefreshAlerts();
                 return;
             }
-            // Si es el último paso, ejecutar generación
             if (_currentStepIndex == StepsTabControl.Items.Count - 1)
             {
                 OnGenerateInvoiceClick(sender, e);
@@ -1210,14 +1171,15 @@ namespace FacturacionAlemana
             if (NextStepButton != null)
             {
                 bool isLast = StepsTabControl != null && _currentStepIndex == StepsTabControl.Items.Count - 1;
-                NextStepButton.Content = isLast ? "Generar Factura" : "Siguiente →";
+                var nextLabel = (_localization != null ? _localization.Get("CreateInvoicePage.Next") : "Siguiente") + " →";
+                var generateLabel = _localization != null ? ("✓ " + _localization.Get("CreateInvoicePage.Generate")) : "Generar Factura";
+                NextStepButton.Content = isLast ? generateLabel : nextLabel;
                 NextStepButton.Visibility = isLast ? Visibility.Collapsed : Visibility.Visible;
             }
         }
 
         private bool HasError(Control ctl)
         {
-            // Considera error si el borde está marcado en rojo por SetError
             if (ctl == null) return false;
             var brush = ctl.BorderBrush as SolidColorBrush;
             return brush != null && brush.Color == Colors.Red;
@@ -1227,7 +1189,6 @@ namespace FacturacionAlemana
         {
             switch (_currentStepIndex)
             {
-                // Paso 1: Emisor
                 case 0:
                     UpdateCountryValidation(SellerCountryTextBox);
                     UpdateVatValidation();
@@ -1235,8 +1196,7 @@ namespace FacturacionAlemana
                     if (HasError(SellerVATTextBox)) return false;
                     if (HasError(SellerCountryTextBox)) return false;
                     SetError(SellerNameTextBox, null);
-                    return true;                // Paso 2: Receptor
-                case 1:
+                    return true;                case 1:
                     UpdateCountryValidation(BuyerCountryTextBox);
                     UpdateBuyerCityValidation();
                     UpdateBuyerPostcodeValidation();
@@ -1250,7 +1210,6 @@ namespace FacturacionAlemana
                     
                     SetError(BuyerNameTextBox, null);
                     return true;
-                // Paso 3: Líneas
                 case 2:
                     if (productos.Count == 0)
                     {
@@ -1258,7 +1217,6 @@ namespace FacturacionAlemana
                         return false;
                     }
                     return true;
-                // Paso 4: Impuestos y pagos
                 case 3:
                     UpdateBuyerRefValidation();
                     UpdateIbanValidation();
@@ -1282,7 +1240,6 @@ namespace FacturacionAlemana
 
         private void OnPreviewInvoiceClick(object sender, RoutedEventArgs e)
         {
-            // Validación básica antes de previsualizar
             if (!ValidarDatosFactura()) return;
 
             var factura = CrearFacturaDesdeFormulario();
@@ -1307,26 +1264,22 @@ namespace FacturacionAlemana
             }
         }
 
-        // Normaliza a mayúsculas y limita a ISO-2 (letras) manteniendo el caret
         private void Country_Uppercase_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (sender is not WinTextBox tb) return;
             string original = tb.Text ?? string.Empty;
             int caret = tb.CaretIndex;
-            // Remover no letras, a mayúsculas y limitar a 2 chars
             string letters = new string(original.Where(char.IsLetter).ToArray()).ToUpperInvariant();
             if (letters.Length > 2) letters = letters.Substring(0, 2);
 
             if (letters != original)
             {
                 tb.Text = letters;
-                // Recalcular caret: número de letras válidas antes de la posición previa
                 int validBefore = new string((original.Substring(0, Math.Min(caret, original.Length))).Where(char.IsLetter).ToArray()).Length;
                 tb.CaretIndex = Math.Min(validBefore, tb.Text.Length);
             }
         }
 
-        // Pone en mayúsculas al perder foco (ej. VAT, BIC)
         private void Uppercase_OnLostFocus(object sender, RoutedEventArgs e)
         {
             if (sender is WinTextBox tb)
@@ -1336,12 +1289,10 @@ namespace FacturacionAlemana
             }
         }
 
-        // Restringe a números con separador decimal (coma o punto)
         private void OnlyNumeric_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             if (sender is not WinTextBox tb) return;
             string text = tb.Text ?? string.Empty;
-            // Inyectar el nuevo carácter respetando selección
             int selStart = tb.SelectionStart;
             int selLength = tb.SelectionLength;
             string next = text.Remove(selStart, Math.Min(selLength, text.Length - selStart)).Insert(selStart, e.Text);
@@ -1369,7 +1320,6 @@ namespace FacturacionAlemana
             }
         }
 
-        // Máscara IBAN con grupos de 4 y caret estable; valida al final
         private void IBANTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (_updatingIban) return;
@@ -1381,19 +1331,16 @@ namespace FacturacionAlemana
                 string raw = (tb.Text ?? string.Empty).ToUpperInvariant();
                 int caret = tb.CaretIndex;
 
-                // Posición lógica (sin espacios) antes del caret
                 int logicalBefore = 0;
                 for (int i = 0; i < Math.Min(caret, raw.Length); i++)
                 {
                     if (raw[i] != ' ') logicalBefore++;
                 }
 
-                // Quitar espacios y validar caracteres (A-Z 0-9)
                 string compact = new string(raw.Where(ch => ch != ' ').ToArray());
                 compact = new string(compact.Where(ch => char.IsLetterOrDigit(ch)).ToArray());
                 compact = compact.ToUpperInvariant();
 
-                // Insertar espacios cada 4 caracteres
                 var parts = Enumerable.Range(0, (compact.Length + 3) / 4)
                     .Select(i => compact.Substring(i * 4, Math.Min(4, compact.Length - i * 4)));
                 string formatted = string.Join(" ", parts);
@@ -1401,7 +1348,6 @@ namespace FacturacionAlemana
                 if (tb.Text != formatted)
                 {
                     tb.Text = formatted;
-                    // Recalcular caret en la posición lógica previa
                     int newCaret = 0;
                     int logicalCount = 0;
                     while (newCaret < tb.Text.Length && logicalCount < logicalBefore)
@@ -1415,13 +1361,11 @@ namespace FacturacionAlemana
             finally
             {
                 _updatingIban = false;
-                // Validación ligera tras formatear
                 UpdateIbanValidation();
                 RefreshAlerts();
             }
         }
 
-        // Wrapper de validación con mensajes para uso en generación
         private bool ValidarVATIDPorPais(string vatID, string countryCode)
         {
             bool ok = EsVATValidoSilencioso(vatID, countryCode);
@@ -1432,26 +1376,20 @@ namespace FacturacionAlemana
             return ok;
         }
 
-        /// <summary>
-        /// Actualiza los textos de la UI según el idioma seleccionado
-        /// </summary>
         private void UpdateUIText()
         {
             if (_localization == null) return;
             try
             {
-                // Header titles
                 var pageTitle = FindName("PageTitle") as WinTextBlock;
                 if (pageTitle != null) pageTitle.Text = _localization.Get("CreateInvoicePage.Title");
 
                 var mainTitle = FindName("MainTitle") as WinTextBlock;
                 if (mainTitle != null) mainTitle.Text = _localization.Get("CreateInvoicePage.Title");
 
-                // Alerts
                 var topAlerts = FindName("TopAlertsTitle") as WinTextBlock;
                 if (topAlerts != null) topAlerts.Text = _localization.Get("CreateInvoicePage.TopAlertsTitle");
 
-                // Buttons
                 var exitBtn = FindName("ExitButton") as WinButton;
                 if (exitBtn != null) exitBtn.Content = _localization.Get("CreateInvoicePage.Exit");
 
@@ -1467,7 +1405,6 @@ namespace FacturacionAlemana
                 var copyIban = FindName("CopyIbanButton") as WinButton;
                 if (copyIban != null) copyIban.Content = _localization.Get("CreateInvoicePage.CopyIban");
 
-                // Tab headers
                 var sellerTab = FindName("SellerTab") as TabItem;
                 if (sellerTab != null) sellerTab.Header = _localization.Get("CreateInvoicePage.Step1");
                 var buyerTab = FindName("BuyerTab") as TabItem;
@@ -1479,13 +1416,11 @@ namespace FacturacionAlemana
                 var summaryTab = FindName("SummaryTab") as TabItem;
                 if (summaryTab != null) summaryTab.Header = _localization.Get("CreateInvoicePage.Step5");
 
-                // Section titles and labels (nombres ya creados en XAML)
                 var sellerSection = FindName("SellerSection") as WinTextBlock;
                 if (sellerSection != null) sellerSection.Text = _localization.Get("CreateInvoicePage.Seller");
                 var buyerSection = FindName("BuyerSection") as WinTextBlock;
                 if (buyerSection != null) buyerSection.Text = _localization.Get("CreateInvoicePage.Buyer");
 
-                // Field labels
                 var mappings = new Dictionary<string, string>
                 {
                     { "SellerNameLabel", "CreateInvoicePage.SellerName" },
@@ -1606,7 +1541,6 @@ namespace FacturacionAlemana
                     if (tb != null) tb.Text = _localization.Get(kv.Value);
                 }
 
-                // DataGrid headers
                 var dg = FindName("ProductsDataGrid") as WinDataGrid;
                 if (dg != null && dg.Columns.Count >= 9)
                 {
@@ -1621,7 +1555,6 @@ namespace FacturacionAlemana
                     dg.Columns[8].Header = _localization.Get("CreateInvoicePage.Details");
                 }
 
-                // Summary labels
                 var subtotal = FindName("SubtotalTextBlock") as WinTextBlock;
                 if (subtotal != null) subtotal.SetValue(WinTextBlock.TagProperty, _localization.Get("CreateInvoicePage.Subtotal"));
                 var taxes = FindName("TaxesTextBlock") as WinTextBlock;
@@ -1629,11 +1562,8 @@ namespace FacturacionAlemana
                 var total = FindName("TotalTextBlock") as WinTextBlock;
                 if (total != null) total.SetValue(WinTextBlock.TagProperty, _localization.Get("CreateInvoicePage.Total"));
 
-                // Also update static WinTextBlocks near them
                 var grids = LogicalTreeHelper.GetChildren(this).OfType<DependencyObject>();
-                // Note: Some static WinTextBlocks remain in XAML and will be updated via explicit FindName if named.
 
-                // Expander headers
                 var expanderBanking = FindName("ExpanderBanking") as Expander;
                 if (expanderBanking != null) expanderBanking.Header = _localization.Get("CreateInvoicePage.Banking");
                 var expanderDocumentRefs = FindName("ExpanderDocumentRefs") as Expander;
@@ -1645,7 +1575,6 @@ namespace FacturacionAlemana
                 var expanderDelivery = FindName("ExpanderDelivery") as Expander;
                 if (expanderDelivery != null) expanderDelivery.Header = _localization.Get("CreateInvoicePage.Delivery");
 
-                // Buttons
                 var previewBtn = FindName("PreviewButton") as WinButton;
                 if (previewBtn != null) previewBtn.Content = "👁 " + _localization.Get("CreateInvoicePage.Preview");
                 var generateBtn = FindName("GenerateButton") as WinButton;
@@ -1657,7 +1586,6 @@ namespace FacturacionAlemana
                 var nextBtn = FindName("NextStepButton") as WinButton;
                 if (nextBtn != null) nextBtn.Content = _localization.Get("CreateInvoicePage.Next") + " →";
 
-                // Placeholders
                 var placeholderMappings = new Dictionary<string, string>
                 {
                     { "SellerNameTextBox", "CreateInvoicePage.SellerNamePlaceholder" },
@@ -1715,7 +1643,6 @@ namespace FacturacionAlemana
                     if (tb != null) tb.PlaceholderText = _localization.Get(kv.Value);
                 }
 
-                // Tooltips
                 var tooltipMappings = new Dictionary<string, string>
                 {
                     { "SellerCountryTextBox", "CreateInvoicePage.SellerCountryTooltip" },
@@ -1733,7 +1660,6 @@ namespace FacturacionAlemana
                     if (tb != null) tb.ToolTip = _localization.Get(kv.Value);
                 }
 
-                // Window button tooltips
                 var btnMinimize = FindName("BtnMinimizeCI") as WinButton;
                 if (btnMinimize != null) btnMinimize.ToolTip = _localization.Get("HomePage.Minimize");
                 var btnMaxRestore = FindName("BtnMaxRestoreCI") as WinButton;

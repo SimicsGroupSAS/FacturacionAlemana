@@ -190,7 +190,7 @@ namespace FacturacionAlemana.Services
                             }                            // Título en mayúsculas centrado en el espacio restante
                             row.RelativeItem().AlignCenter().Column(titleCol =>
                             {
-                                titleCol.Item().Text("RECHNUNG").FontSize(24).FontFamily("Century Gothic").Bold();
+                                titleCol.Item().Text("RECHNUNG").FontSize(24).FontFamily("Century Gothic");
                             });
 
                             // Espacio derecho simétrico al logo para centrar el título en la página
@@ -236,8 +236,9 @@ namespace FacturacionAlemana.Services
                                     leftColumn.Item().Text($"St.-Nr.: {factura.SellerTaxNumber}").FontSize(9);
                                 if (!string.IsNullOrWhiteSpace(factura.SellerEmail))
                                     leftColumn.Item().Text($"E-Adresse: {factura.SellerEmail}").FontSize(9);
-                            });                            
-                            // Columna derecha - Zahlungsdetails + Kontakt
+                                if (!string.IsNullOrWhiteSpace(factura.SellerCompleteNumber))
+                                    leftColumn.Item().Text($"Tel: {factura.SellerCompleteNumber}").FontSize(9);
+                            });                            // Columna derecha - Zahlungsdetails + Kontakt
                             row.RelativeItem(1).Column(rightColumn =>
                             {                                // Zahlungsdetails                                if (HasAny(factura.AccountName, factura.IBANID, factura.BICID))
                                 {
@@ -249,24 +250,11 @@ namespace FacturacionAlemana.Services
                                     if (!string.IsNullOrWhiteSpace(factura.IBANID))
                                         rightColumn.Item().AlignRight().Text($"IBAN: {factura.IBANID}").FontSize(9);
                                     if (!string.IsNullOrWhiteSpace(factura.BICID))
-                                        rightColumn.Item().AlignRight().Text($"BIC: {factura.BICID}").FontSize(9);
-                                    if (!string.IsNullOrWhiteSpace(factura.BLZ))
+                                        rightColumn.Item().AlignRight().Text($"BIC: {factura.BICID}").FontSize(9);                                    if (!string.IsNullOrWhiteSpace(factura.BLZ))
                                         rightColumn.Item().AlignRight().Text($"BLZ: {factura.BLZ}").FontSize(9);
                                     rightColumn.Item().Text("").FontSize(8); // Salto
                                 }
-
-                                // Kontakt
-                                if (HasAny(factura.SellerPersonName, factura.SellerEmail, factura.SellerCompleteNumber))
-                                {
-                                    rightColumn.Item().AlignRight().Text("Kontakt").FontSize(11).Bold();
-                                    if (!string.IsNullOrWhiteSpace(factura.SellerPersonName))
-                                        rightColumn.Item().AlignRight().Text($"Name: {factura.SellerPersonName}").FontSize(9);
-                                    if (!string.IsNullOrWhiteSpace(factura.SellerEmail))
-                                        rightColumn.Item().AlignRight().Text($"E-Mail: {factura.SellerEmail}").FontSize(9);
-                                    if (!string.IsNullOrWhiteSpace(factura.SellerCompleteNumber))
-                                        rightColumn.Item().AlignRight().Text($"Tel: {factura.SellerCompleteNumber}").FontSize(9);
-                                }
-                            });                        
+                            });
                         });
 
                         // Espaciado antes de la línea separadora
@@ -282,13 +270,15 @@ namespace FacturacionAlemana.Services
 
                         // Segunda fila: Empfänger + Kontakt
                         column.Item().Row(row =>
-                        {
-                            // Columna izquierda - Empfänger
+                        {                            // Columna izquierda - Empfänger
                             row.RelativeItem(1).Column(leftColumn =>
                             {
-                                leftColumn.Item().Text("Empfänger").FontSize(11).Bold();
+                                leftColumn.Item().Text("Kunde").FontSize(11).Bold();
                                 if (!string.IsNullOrWhiteSpace(factura.BuyerName))
                                     leftColumn.Item().Text(factura.BuyerName).FontSize(9);
+
+                                if (!string.IsNullOrWhiteSpace(factura.BuyerPersonName))
+                                    leftColumn.Item().Text(factura.BuyerPersonName).FontSize(9);
 
                                 var buyerStreet = JoinNonEmpty(", ", factura.BuyerLineOne, factura.BuyerLineTwo);
                                 if (!string.IsNullOrWhiteSpace(buyerStreet))
@@ -304,18 +294,10 @@ namespace FacturacionAlemana.Services
                                     leftColumn.Item().Text($"USt-ID: {factura.BuyerVATID}").FontSize(9);
                                 if (!string.IsNullOrWhiteSpace(factura.BuyerEmail))
                                     leftColumn.Item().Text($"E-Adresse: {factura.BuyerEmail}").FontSize(9);
-
-                                if (HasAny(factura.BuyerPersonName, factura.BuyerEmailContact, factura.BuyerCompleteNumber))
-                                {
-                                    leftColumn.Item().Text("").FontSize(8); // Salto
-                                    leftColumn.Item().Text("Kontakt").FontSize(11).Bold();
-                                    if (!string.IsNullOrWhiteSpace(factura.BuyerPersonName))
-                                        leftColumn.Item().Text($"Name: {factura.BuyerPersonName}").FontSize(9);
-                                    if (!string.IsNullOrWhiteSpace(factura.BuyerEmailContact))
-                                        leftColumn.Item().Text($"E-Mail: {factura.BuyerEmailContact}").FontSize(9);
-                                    if (!string.IsNullOrWhiteSpace(factura.BuyerCompleteNumber))
-                                        leftColumn.Item().Text($"Tel: {factura.BuyerCompleteNumber}").FontSize(9);
-                                }
+                                if (!string.IsNullOrWhiteSpace(factura.BuyerEmailContact))
+                                    leftColumn.Item().Text($"E-Adresse (Kontakt): {factura.BuyerEmailContact}").FontSize(9);
+                                if (!string.IsNullOrWhiteSpace(factura.BuyerCompleteNumber))
+                                    leftColumn.Item().Text($"Tel: {factura.BuyerCompleteNumber}").FontSize(9);
                             });
 
                             // Columna derecha - Información de Factura
@@ -326,7 +308,7 @@ namespace FacturacionAlemana.Services
                                     rightColumn.Item().Row(subRow =>
                                     {
                                         subRow.RelativeItem(1).Text("Rechnungs-Nr.").FontSize(9).Bold();
-                                        subRow.RelativeItem(1).AlignRight().Text(factura.InvoiceNumber).FontSize(9);
+                                        subRow.RelativeItem(1).AlignRight().Text(factura.InvoiceNumber).FontSize(11).Bold();
                                     });
                                 }
                                 if (IsValidDate(factura.IssueDate))
@@ -395,13 +377,6 @@ namespace FacturacionAlemana.Services
                                 }
                             });                        
                         });                        
-                        // Sección de descripción de pago - Encima de la tabla de productos
-                        column.Item().PaddingVertical(15).Column(infoColumn =>
-                        {
-                            var fechaVencimiento = ConvertirFechaAleman(factura.DueDateValue);
-                            var textoDescripcion = $"Wir bitten Sie, den Rechnungsbetrag innerhalb von 30 Tagen ab dem oben genannten Datum auf das angegebene Konto\nzu überweisen und dabei unsere Rechnungsnummer anzugeben. Zahlbar bis: {fechaVencimiento}";
-                            infoColumn.Item().Text(textoDescripcion).FontSize(9);
-                        });
 
                         // Tabla de productos
                         column.Item().PaddingVertical(15).Table(table =>
@@ -461,46 +436,13 @@ namespace FacturacionAlemana.Services
                                     text.Span(producto.Cantidad.ToString("G")).FontSize(9);
                                     text.Span(" ");
                                     text.Span(producto.Unit ?? "H87").FontSize(7).FontColor(Colors.Grey.Darken2);
-                                });
-                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(3).AlignCenter().Text($"{producto.PrecioUnitario:F2} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
-                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(3).AlignCenter().Text($"{producto.PrecioTotal:F2} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
+                                });                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(3).AlignCenter().Text($"{producto.PrecioUnitario.ToString("N2", new CultureInfo("de-DE"))} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
+                                table.Cell().BorderBottom(1).BorderColor(borderColor).PaddingVertical(3).AlignCenter().Text($"{producto.PrecioTotal.ToString("N2", new CultureInfo("de-DE"))} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
                             }
-                        });
-
-                        // Totales
-                        column.Item().Row(row =>
-                        {
-                            // Columna izquierda vacía
-                            row.RelativeItem(1).Column(leftColumn => { });
-
-                            // Columna derecha
-                            row.RelativeItem(1).Column(rightColumn =>
-                            {
-                                rightColumn.Item().Row(subRow =>
-                                {
-                                    subRow.RelativeItem(1).Padding(3).AlignLeft().Text("Netto-Wert").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).Padding(3).AlignRight().Text($"{factura.BasisAmount} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
-                                });
-                                rightColumn.Item().Row(subRow =>
-                                {
-                                    subRow.RelativeItem(1).Padding(3).AlignLeft().Text($"Gesamtsteuer {factura.TaxRatePercent}% ({factura.TaxCategoryCode})").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).Padding(3).AlignRight().Text($"{factura.TaxAmount} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
-                                });
-                                rightColumn.Item().Row(subRow =>
-                                {
-                                    subRow.RelativeItem(1).BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Height(1);
-                                });
-                                rightColumn.Item().Row(subRow =>
-                                {
-                                    subRow.RelativeItem(1).Padding(3).AlignLeft().Text("Gesamtbetrag").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).Padding(3).AlignRight().Text($"{factura.GrandTotalAmount} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
-                                });
-                            });
-                        });
-
-                        // Sección de detalles de entrega y notas
+                        });                        // Lieferdetails y Totales
                         column.Item().PaddingTop(15).Row(row =>
                         {
+                            // Columna izquierda - Lieferdetails
                             row.RelativeItem(1).Column(leftColumn =>
                             {
                                 if (HasAny(factura.ShipToName, factura.ShipToID, factura.ShipToLineOne, factura.ShipToLineTwo, factura.ShipToLineThree, factura.ShipToPostcodeCode, factura.ShipToCityName, factura.ShipToCountryID, factura.ShipToCountrySubDivisionName))
@@ -518,17 +460,63 @@ namespace FacturacionAlemana.Services
                                     if (!string.IsNullOrWhiteSpace(shipAddress))
                                         leftColumn.Item().Text($"Anschrift: {shipAddress}").FontSize(9);
                                 }
+                            });
 
-                                if (HasAny(factura.PaymentNoteElement, factura.PaymentDescription))
+                            // Columna derecha - Totales
+                            row.RelativeItem(1).Column(rightColumn =>
+                            {                                rightColumn.Item().Row(subRow =>
                                 {
-                                    leftColumn.Item().PaddingTop(8).Text("Hinweise und Bemerkungen").FontSize(9).Bold();
-                                    if (!string.IsNullOrWhiteSpace(factura.PaymentNoteElement))
-                                        leftColumn.Item().Text(factura.PaymentNoteElement).FontSize(9);
-                                    if (!string.IsNullOrWhiteSpace(factura.PaymentDescription))
-                                        leftColumn.Item().Text(factura.PaymentDescription).FontSize(9);
+                                    subRow.RelativeItem(1).Padding(3).AlignLeft().Text("Netto-Wert").FontSize(9).Bold();
+                                    subRow.RelativeItem(1).Padding(3).AlignRight().Text($"{decimal.Parse(factura.BasisAmount).ToString("N2", new CultureInfo("de-DE"))} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
+                                });
+                                rightColumn.Item().Row(subRow =>
+                                {
+                                    subRow.RelativeItem(1).Padding(3).AlignLeft().Text($"Gesamtsteuer {factura.TaxRatePercent}% ({factura.TaxCategoryCode})").FontSize(9).Bold();
+                                    subRow.RelativeItem(1).Padding(3).AlignRight().Text($"{decimal.Parse(factura.TaxAmount).ToString("N2", new CultureInfo("de-DE"))} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
+                                });
+                                rightColumn.Item().Row(subRow =>
+                                {
+                                    subRow.RelativeItem(1).BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Height(1);
+                                });
+                                rightColumn.Item().Row(subRow =>
+                                {
+                                    subRow.RelativeItem(1).Padding(3).AlignLeft().Text("Gesamtbetrag").FontSize(9).Bold();
+                                    subRow.RelativeItem(1).Padding(3).AlignRight().Text($"{decimal.Parse(factura.GrandTotalAmount).ToString("N2", new CultureInfo("de-DE"))} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
+                                });
+                            });
+                        });                        // Sección de Hinweise und Bemerkungen
+                        column.Item().PaddingTop(15).Column(remarksColumn =>
+                        {                            remarksColumn.Item().Text("Hinweise und Bemerkungen").FontSize(9).Bold();
+                            if (!string.IsNullOrWhiteSpace(factura.PaymentDescription))
+                                remarksColumn.Item().Text(factura.PaymentDescription).FontSize(9);
+                            if (!string.IsNullOrWhiteSpace(factura.PaymentNoteElement))
+                                remarksColumn.Item().Text(factura.PaymentNoteElement).FontSize(9);
+                            var fechaVencimiento = ConvertirFechaAleman(factura.DueDateValue);
+                            var textoDescripcion = $"Wir bitten Sie, den Rechnungsbetrag innerhalb von 30 Tagen ab dem genannten Datum auf das angegebene Konto zu überweisen und dabei unsere Rechnungsnummer anzugeben. Zahlbar bis: {fechaVencimiento}";
+                            remarksColumn.Item().Text(textoDescripcion).FontSize(9);
+                        });// Sección de firma
+                        column.Item().PaddingTop(40);
+                        column.Item().Row(row =>
+                        {
+                            // Columna izquierda - Firma
+                            row.RelativeItem(1).Column(leftColumn =>
+                            {
+                                // Espacio para firma
+                                leftColumn.Item().Height(40).BorderBottom(1).BorderColor(Colors.Grey.Lighten2);
+
+                                // Nombre del contacto del vendedor
+                                if (!string.IsNullOrWhiteSpace(factura.SellerPersonName))
+                                {
+                                    leftColumn.Item().PaddingTop(4).Text(factura.SellerPersonName).FontSize(11).Bold();
                                 }
                             });
+
+                            // Espacio derecho vacío
+                            row.RelativeItem(1).Column(rightColumn => { });
                         });
+
+                        // Comentario final
+                        column.Item().PaddingTop(8).Text("(Dieses Dokument ist automatisch erstellt worden und ohne Unterschrift gültig)").FontSize(8).FontColor(Colors.Grey.Darken1);
                     });
                 });
             });

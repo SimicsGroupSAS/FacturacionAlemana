@@ -270,14 +270,14 @@ namespace FacturacionAlemana.Services
                             new XElement(XName.Get("InvoiceCurrencyCode", ram), factura.CurrencyID),
                             new XElement(XName.Get("SpecifiedTradeSettlementPaymentMeans", ram),
                                 new XElement(XName.Get("TypeCode", ram), factura.PaymentTypeCode),
-                                new XElement(XName.Get("Information", ram), factura.PaymentInformation),
-                                new XElement(XName.Get("PayeePartyCreditorFinancialAccount", ram),
+                                new XElement(XName.Get("Information", ram), factura.PaymentInformation),                                new XElement(XName.Get("PayeePartyCreditorFinancialAccount", ram),
                                     new XElement(XName.Get("IBANID", ram), factura.IBANID),
                                     CreateElementIfNotEmpty("AccountName", factura.AccountName, ram)
                                 ),                                !string.IsNullOrWhiteSpace(factura.BICID) ? new XElement(XName.Get("PayeeSpecifiedCreditorFinancialInstitution", ram),
                                     new XElement(XName.Get("BICID", ram), factura.BICID),
                                     CreateElementIfNotEmpty("Name", factura.BankName, ram),
-                                    CreateElementIfNotEmpty("GermanBankleitzahlIdentifier", factura.BLZ, ram)
+                                    !string.IsNullOrWhiteSpace(factura.BLZ) ? new XElement(XName.Get("ClearingSystemName", ram), "German Bankleitzahl") : null,
+                                    CreateElementIfNotEmpty("ClearingSystemCode", factura.BLZ, ram)
                                 ) : null
                             ),
                             new XElement(XName.Get("ApplicableTradeTax", ram),

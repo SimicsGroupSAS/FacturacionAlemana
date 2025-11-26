@@ -142,15 +142,13 @@ namespace FacturacionAlemana
                     WinMessageBox.Show("La cantidad y precio deben ser números válidos.", "Error", 
                         WinMessageBoxButton.OK, MessageBoxImage.Error);
                     return;
-                }
-
-                var producto = new Producto
+                }                var producto = new Producto
                 {
                     Pos = productos.Count + 1,
                     Name = name,
                     Descripcion = "",
                     Cantidad = cantidad,
-                    Unit = "H87",
+                    Unit = "EA",
                     PrecioUnitario = precio,
                     PrecioTotal = cantidad * precio
                 };

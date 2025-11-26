@@ -189,11 +189,16 @@ namespace FacturacionAlemana.Services
                                         new XAttribute("schemeID", "EM"), 
                                         factura.SellerEmail
                                     )
-                                ) : null,
-                                !string.IsNullOrWhiteSpace(factura.SellerVATID) ? new XElement(XName.Get("SpecifiedTaxRegistration", ram),
+                                ) : null,                                !string.IsNullOrWhiteSpace(factura.SellerVATID) ? new XElement(XName.Get("SpecifiedTaxRegistration", ram),
                                     new XElement(XName.Get("ID", ram), 
                                         new XAttribute("schemeID", "VA"), 
                                         factura.SellerVATID
+                                    )
+                                ) : null,
+                                !string.IsNullOrWhiteSpace(factura.SellerTaxNumber) ? new XElement(XName.Get("SpecifiedTaxRegistration", ram),
+                                    new XElement(XName.Get("ID", ram), 
+                                        new XAttribute("schemeID", "FC"), 
+                                        factura.SellerTaxNumber
                                     )
                                 ) : null
                             ),                            new XElement(XName.Get("BuyerTradeParty", ram),
@@ -269,9 +274,10 @@ namespace FacturacionAlemana.Services
                                 new XElement(XName.Get("PayeePartyCreditorFinancialAccount", ram),
                                     new XElement(XName.Get("IBANID", ram), factura.IBANID),
                                     CreateElementIfNotEmpty("AccountName", factura.AccountName, ram)
-                                ),
-                                !string.IsNullOrWhiteSpace(factura.BICID) ? new XElement(XName.Get("PayeeSpecifiedCreditorFinancialInstitution", ram),
-                                    new XElement(XName.Get("BICID", ram), factura.BICID)
+                                ),                                !string.IsNullOrWhiteSpace(factura.BICID) ? new XElement(XName.Get("PayeeSpecifiedCreditorFinancialInstitution", ram),
+                                    new XElement(XName.Get("BICID", ram), factura.BICID),
+                                    CreateElementIfNotEmpty("Name", factura.BankName, ram),
+                                    CreateElementIfNotEmpty("GermanBankleitzahlIdentifier", factura.BLZ, ram)
                                 ) : null
                             ),
                             new XElement(XName.Get("ApplicableTradeTax", ram),

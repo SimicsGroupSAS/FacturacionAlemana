@@ -19,7 +19,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1" Margin="20,0,20,0">
             <StackPanel>
                 <TextBlock Text="Nombre del Producto:" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                <ui:TextBox x:Name="ProductNameTextBox" PlaceholderText="Nombre" Margin="0,0,0,15" IsReadOnly="True"/>
+                <ui:TextBox x:Name="ProductNameTextBox" PlaceholderText="Nombre" Margin="0,0,0,15"/>
 
                 <TextBlock Text="Descripción:" FontWeight="SemiBold" Margin="0,0,0,5"/>
                 <ui:TextBox x:Name="DescripcionTextBox" PlaceholderText="Descripción del producto" Margin="0,0,0,15" TextWrapping="Wrap" Height="60"/>
@@ -60,7 +60,7 @@
                 </Grid>
 
                 <TextBlock Text="Unidad de Medida:" FontWeight="SemiBold" Margin="0,0,0,5"/>
-                <ComboBox x:Name="UnitComboBox" Margin="0,0,0,20"/>
+                <ComboBox x:Name="UnitComboBox" Margin="0,0,0,20" IsEditable="True" IsTextSearchEnabled="True"/>
             </StackPanel>
         </ScrollViewer>
 

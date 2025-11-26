@@ -115,11 +115,21 @@ namespace FacturacionAlemana.Services
                 if (!string.IsNullOrWhiteSpace(v)) return true;
             }
             return false;
-        }
-
-        private static string JoinNonEmpty(string separator, params string?[] parts)
+        }        private static string JoinNonEmpty(string separator, params string?[] parts)
         {
-            return string.Join(separator, parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+            var nonEmptyParts = parts.Where(p => !string.IsNullOrWhiteSpace(p)).Cast<string>().ToList();
+            
+            // Evitar duplicados: si dos partes consecutivas son iguales, omitir la segunda
+            var distinctParts = new List<string>();
+            foreach (var part in nonEmptyParts)
+            {
+                if (distinctParts.Count == 0 || !distinctParts[distinctParts.Count - 1].Equals(part, StringComparison.OrdinalIgnoreCase))
+                {
+                    distinctParts.Add(part);
+                }
+            }
+            
+            return string.Join(separator, distinctParts);
         }
 
         private static bool IsValidDate(DateTime dt) => dt != default && dt.Year > 1900;
@@ -180,7 +190,7 @@ namespace FacturacionAlemana.Services
                             }                            // Título en mayúsculas centrado en el espacio restante
                             row.RelativeItem().AlignCenter().Column(titleCol =>
                             {
-                                titleCol.Item().Text(GetInvoiceTitle()).FontSize(24).FontFamily("Century Gothic").Bold();
+                                titleCol.Item().Text("RECHNUNG").FontSize(24).FontFamily("Century Gothic").Bold();
                             });
 
                             // Espacio derecho simétrico al logo para centrar el título en la página
@@ -200,12 +210,14 @@ namespace FacturacionAlemana.Services
 
                         // Primera fila: Información del vendedor + Zahlungsdetails
                         column.Item().Row(row =>
-                        {
-                            // Columna izquierda - Información del vendedor
+                        {                            // Columna izquierda - Información del vendedor
                             row.RelativeItem(1).Column(leftColumn =>
                             {
                                 if (!string.IsNullOrWhiteSpace(factura.SellerName))
                                     leftColumn.Item().Text(factura.SellerName).FontSize(11).Bold();
+
+                                if (!string.IsNullOrWhiteSpace(factura.SellerPersonName))
+                                    leftColumn.Item().Text(factura.SellerPersonName).FontSize(9);
 
                                 var sellerStreet = JoinNonEmpty(", ", factura.SellerLineOne, factura.SellerLineTwo);
                                 if (!string.IsNullOrWhiteSpace(sellerStreet))

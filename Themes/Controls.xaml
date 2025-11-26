@@ -155,6 +155,165 @@
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
+        </Setter>    </Style>
+
+    <!-- Estilo para botones Success en PreviewWindow - verde con gradiente similar a BigActionButton -->
+    <Style x:Key="PreviewActionButtonSuccess" TargetType="ui:Button">
+        <Setter Property="Width" Value="Auto" />
+        <Setter Property="MinWidth" Value="160" />
+        <Setter Property="Height" Value="44" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Padding" Value="24,10" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="{StaticResource SecondaryGreenColor}" Offset="0" />
+                    <GradientStop Color="{StaticResource PrimaryGreenColor}" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ui:Button">
+                    <Border x:Name="RootBorder" 
+                            Background="{TemplateBinding Background}" 
+                            CornerRadius="{TemplateBinding CornerRadius}" 
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform>
+                            <ScaleTransform ScaleX="1" ScaleY="1" />
+                        </Border.RenderTransform>
+                        <Border.Effect>
+                            <DropShadowEffect Color="#24000000" BlurRadius="16" ShadowDepth="6" Opacity="0.40"/>
+                        </Border.Effect>
+
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="RootBorder" Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="{StaticResource HoverLightColor}" Offset="0" />
+                                        <GradientStop Color="{StaticResource HoverDarkColor}" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="RootBorder" Property="UIElement.RenderTransform">
+                                <Setter.Value>
+                                    <ScaleTransform ScaleX="1.06" ScaleY="1.06" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="RootBorder" Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="{StaticResource PressedDark1}" Offset="0" />
+                                        <GradientStop Color="{StaticResource PressedDark2}" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="RootBorder" Property="UIElement.RenderTransform">
+                                <Setter.Value>
+                                    <ScaleTransform ScaleX="0.97" ScaleY="0.97" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="RootBorder" Property="Opacity" Value="0.6" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Estilo para botones Secondary en PreviewWindow - gris con gradiente -->
+    <Style x:Key="PreviewActionButtonSecondary" TargetType="ui:Button">
+        <Setter Property="Width" Value="Auto" />
+        <Setter Property="MinWidth" Value="140" />
+        <Setter Property="Height" Value="44" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Padding" Value="24,10" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#FFC0C0C0" Offset="0" />
+                    <GradientStop Color="#FF808080" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ui:Button">
+                    <Border x:Name="RootBorder" 
+                            Background="{TemplateBinding Background}" 
+                            CornerRadius="{TemplateBinding CornerRadius}" 
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform>
+                            <ScaleTransform ScaleX="1" ScaleY="1" />
+                        </Border.RenderTransform>
+                        <Border.Effect>
+                            <DropShadowEffect Color="#24000000" BlurRadius="16" ShadowDepth="6" Opacity="0.40"/>
+                        </Border.Effect>
+
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="RootBorder" Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#FFD9D9D9" Offset="0" />
+                                        <GradientStop Color="#FF999999" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="RootBorder" Property="UIElement.RenderTransform">
+                                <Setter.Value>
+                                    <ScaleTransform ScaleX="1.06" ScaleY="1.06" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="RootBorder" Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#FF707070" Offset="0" />
+                                        <GradientStop Color="#FF505050" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="RootBorder" Property="UIElement.RenderTransform">
+                                <Setter.Value>
+                                    <ScaleTransform ScaleX="0.97" ScaleY="0.97" />
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="RootBorder" Property="Opacity" Value="0.6" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
         </Setter>
     </Style>
 

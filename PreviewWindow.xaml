@@ -6,32 +6,160 @@
         Height="800" 
         Width="900"
         WindowStartupLocation="CenterOwner"
-        Icon="Assets/icono.ico">
-    <Grid Background="{DynamicResource ControlFillColorDefaultBrush}">
+        Icon="Assets/icono.ico"
+        Background="Transparent"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        SnapsToDevicePixels="True"
+        UseLayoutRounding="True"
+        FontFamily="Segoe UI Variable, Segoe UI">
+
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Información de la factura -->
-        <ScrollViewer Grid.Row="0" Margin="20" VerticalScrollBarVisibility="Auto">
-            <StackPanel x:Name="PreviewPanel" Orientation="Vertical"/>
-        </ScrollViewer>
+        <!-- Contenedor principal con bordes redondeados y sombra -->
+        <Border Grid.Row="0" Grid.RowSpan="3" Background="{DynamicResource CardSurface}" CornerRadius="16" Margin="1">
+            <Border.Effect>
+                <DropShadowEffect Color="#22000000" BlurRadius="28" ShadowDepth="10" Opacity="0.36"/>
+            </Border.Effect>
+        </Border>
 
-        <!-- Botones -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20" Height="50">
-            <ui:Button Name="GenerarButton" 
-                    Click="OnGenerarClick" 
-                    Appearance="Success"
-                    Content="✓ Generar PDF" 
-                    Width="150" 
-                    Margin="5,0"/>
-            <ui:Button Name="CancelarButton" 
-                    Click="OnCancelarClick" 
-                    Appearance="Secondary"
-                    Content="✕ Cancelar" 
-                    Width="150" 
-                    Margin="5,0"/>
-        </StackPanel>
+        <!-- Contenido de la ventana (arriba de la sombra) -->
+        <Grid Grid.Row="0" Grid.RowSpan="3" Panel.ZIndex="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Header similar to HomePage -->
+            <Border Grid.Row="0" Background="{DynamicResource AppWhite}" Padding="12" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" MouseLeftButtonDown="Header_MouseLeftButtonDown" Cursor="Arrow" CornerRadius="16,16,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="0">
+                        <Image Source="Assets/Logo-v1_2024-SIMICS-TRADING-GmbH.png" Width="36" Height="36" />
+                        <TextBlock Text="Previsualización" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0" Foreground="{DynamicResource PrimaryTextBrush}" />
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="1" Text="Ver y confirmar antes de generar el PDF" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" TextTrimming="CharacterEllipsis" IsHitTestVisible="False" />
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Button Click="OnCancelarClick" ToolTip="Cerrar" Width="36" Height="28" Padding="0" Margin="8,0,0,0" Cursor="Hand" Background="Transparent" BorderBrush="Transparent" FocusVisualStyle="{DynamicResource AccessibleFocusVisual}">
+                            <TextBlock Text="✕" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Contenido principal -->
+            <Grid Grid.Row="1" Background="{DynamicResource AppSurface}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="18">
+                    <StackPanel x:Name="PreviewPanel" Orientation="Vertical">
+                        <!-- Título principal -->
+                        <TextBlock x:Name="PreviewTitle" Text="PREVISUALIZACIÓN DE FACTURA" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" Foreground="{DynamicResource PrimaryTextBrush}" TextAlignment="Center" />
+
+                        <!-- SECCIÓN 1: Información de Partes (Vendedor | Comprador | Factura) -->
+                        <Border Background="{DynamicResource CardSurface}" CornerRadius="10" Padding="16" Margin="0,0,0,16" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="2*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Vendedor -->
+                                <StackPanel x:Name="SellerPanel" Grid.Column="0" />
+
+                                <!-- Divisor vertical 1 -->
+                                <Rectangle Grid.Column="1" Width="1" Fill="{DynamicResource DividerBrush}" Margin="16,0" />
+
+                                <!-- Comprador -->
+                                <StackPanel x:Name="BuyerPanel" Grid.Column="2" />
+
+                                <!-- Divisor vertical 2 -->
+                                <Rectangle Grid.Column="3" Width="1" Fill="{DynamicResource DividerBrush}" Margin="16,0" />
+
+                                <!-- Datos Factura -->
+                                <StackPanel x:Name="InvoicePanel" Grid.Column="4" />
+                            </Grid>
+                        </Border>                        <!-- SECCIÓN 2: Productos (Tabla) -->
+                        <Border Background="{DynamicResource CardSurface}" CornerRadius="10" Padding="16" Margin="0,0,0,16" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1">
+                            <StackPanel Orientation="Vertical">
+                                <!-- Encabezado Productos -->
+                                <TextBlock x:Name="ProductsHeaderLabel" Text="PRODUCTOS" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,12" />                                <!-- Encabezado de columnas con fondo -->
+                                <Border Background="{DynamicResource AppSurface}" CornerRadius="6" Padding="8" Margin="0,0,0,8">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="48" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="96" />
+                                            <ColumnDefinition Width="116" />
+                                            <ColumnDefinition Width="116" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock x:Name="PosColumnLabel" Text="#" Grid.Column="0" FontWeight="Bold" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12" />
+                                        <TextBlock x:Name="ArticleColumnLabel" Text="Descripción" Grid.Column="1" FontWeight="Bold" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12" />
+                                        <TextBlock x:Name="QuantityColumnLabel" Text="Cantidad" Grid.Column="2" FontWeight="Bold" Foreground="{DynamicResource SecondaryTextBrush}" TextAlignment="Right" FontSize="12" />
+                                        <TextBlock x:Name="UnitPriceColumnLabel" Text="Precio Unit." Grid.Column="3" FontWeight="Bold" Foreground="{DynamicResource SecondaryTextBrush}" TextAlignment="Right" FontSize="12" />
+                                        <TextBlock x:Name="TotalPriceColumnLabel" Text="Total" Grid.Column="4" FontWeight="Bold" Foreground="{DynamicResource SecondaryTextBrush}" TextAlignment="Right" FontSize="12" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Labels para campos adicionales (ocultos, usados en traducción) -->
+                                <TextBlock x:Name="PeriodColumnLabel" Text="Período" Visibility="Collapsed" />
+                                <TextBlock x:Name="SellerCodeColumnLabel" Text="Código Vendedor" Visibility="Collapsed" />
+                                <TextBlock x:Name="BuyerCodeColumnLabel" Text="Código Comprador" Visibility="Collapsed" />
+                                <TextBlock x:Name="OrderLineColumnLabel" Text="Posición de Orden" Visibility="Collapsed" />
+
+                                <!-- Lista de productos -->
+                                <ItemsControl x:Name="ProductsItems">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- SECCIÓN 3: Totales y Condiciones de Pago -->
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="340" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Condiciones de Pago (izquierda) -->
+                            <Border Grid.Column="0" Background="{DynamicResource CardSurface}" CornerRadius="10" Padding="16" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" Margin="0,0,8,0">
+                                <StackPanel x:Name="PaymentPanel" Orientation="Vertical" />
+                            </Border>
+
+                            <!-- Totales (derecha) -->
+                            <Border Grid.Column="1" Background="{DynamicResource CardSurface}" CornerRadius="10" Padding="16" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" Margin="8,0,0,0">
+                                <StackPanel x:Name="TotalsPanel" Orientation="Vertical" />
+                            </Border>
+                        </Grid>
+
+                        <!-- Información adicional (pie de página) -->
+                        <TextBlock x:Name="InfoTextBlock" FontSize="11" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,8,0,0" TextWrapping="Wrap" Opacity="0.8" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>            <!-- Footer: acciones con estilo coherente a HomePage -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,12,20,12" Background="Transparent">
+                <ui:Button x:Name="GenerarButton" Click="OnGenerarClick" Content="✓ Generar PDF" Style="{StaticResource PreviewActionButtonSuccess}" Margin="8,0" />
+                <ui:Button x:Name="CancelarButton" Click="OnCancelarClick" Content="✕ Cancelar" Style="{StaticResource PreviewActionButtonSecondary}" Margin="8,0" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

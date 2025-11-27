@@ -4,6 +4,13 @@ using QuestPDF.Infrastructure;
 using FacturacionAlemana.Models;
 using System.IO;
 using System.Globalization;
+using iText.Kernel.Pdf;
+using iText.Kernel.Pdf.Canvas;
+using iText.Kernel.Font;
+using iText.Kernel.Geom;
+using System.Text.RegularExpressions;
+using System.Text;
+using IoPath = System.IO.Path;
 
 namespace FacturacionAlemana.Services
 {      public static class PdfGeneratorService
@@ -132,27 +139,147 @@ namespace FacturacionAlemana.Services
             return string.Join(separator, distinctParts);
         }
 
-        private static bool IsValidDate(DateTime dt) => dt != default && dt.Year > 1900;
-
-        public static byte[] GenerarFacturaPdfEnMemoria(Factura factura)
+        private static bool IsValidDate(DateTime dt) => dt != default && dt.Year > 1900;        public static byte[] GenerarFacturaPdfEnMemoria(Factura factura)
         {
             QuestPDF.Settings.License = LicenseType.Community;
-            int pageNumber = 1;
-            int totalPages = 1;
-            var document = CrearDocumento(factura, pageNumber, totalPages);
-            return document.GeneratePdf();
+            
+            // Primera pasada: generar PDF y contar páginas
+            var firstPassDocument = CrearDocumento(factura);
+            byte[] firstPassPdf = firstPassDocument.GeneratePdf();
+            int totalPages = ObtenerNumeroPaginas(firstPassPdf);
+            
+            // Segunda pasada: generar PDF final y actualizar números de página
+            var finalDocument = CrearDocumento(factura);
+            byte[] finalPdf = finalDocument.GeneratePdf();
+            
+            // Post-procesar para actualizar numeración de páginas
+            return ActualizarNumeracionPaginas(finalPdf, totalPages);
         }
 
         public static void GenerarFacturaPdf(Factura factura, string outputPath)
         {
             QuestPDF.Settings.License = LicenseType.Community;
-            int pageNumber = 1;
-            int totalPages = 1;
-            var document = CrearDocumento(factura, pageNumber, totalPages);
-            document.GeneratePdf(outputPath);
-        }
-
-        private static IDocument CrearDocumento(Factura factura, int pageNumber, int totalPages)
+            
+            // Primera pasada: generar PDF y contar páginas
+            var firstPassDocument = CrearDocumento(factura);
+            byte[] firstPassPdf = firstPassDocument.GeneratePdf();
+            int totalPages = ObtenerNumeroPaginas(firstPassPdf);
+            
+            // Segunda pasada: generar PDF final y actualizar números de página
+            var finalDocument = CrearDocumento(factura);
+            byte[] finalPdf = finalDocument.GeneratePdf();
+            
+            // Post-procesar para actualizar numeración de páginas
+            byte[] processedPdf = ActualizarNumeracionPaginas(finalPdf, totalPages);
+            File.WriteAllBytes(outputPath, processedPdf);
+        }        /// <summary>
+        /// Post-procesa el PDF para superponer los números de página dinámicos
+        /// Usa iText7 PdfCanvas para escribir texto en cada página sin modificar streams existentes
+        /// </summary>
+        private static byte[] ActualizarNumeracionPaginas(byte[] pdfBytes, int totalPages)
+        {
+            try
+            {
+                Console.WriteLine($"[DEBUG] Iniciando superposición de números de página. Total: {totalPages}");
+                
+                using (var inputStream = new MemoryStream(pdfBytes))
+                using (var outputStream = new MemoryStream())
+                {
+                    PdfReader reader = new PdfReader(inputStream);
+                    PdfWriter writer = new PdfWriter(outputStream);
+                    
+                    using (PdfDocument pdfDoc = new PdfDocument(reader, writer))
+                    {
+                        int numPages = pdfDoc.GetNumberOfPages();
+                        Console.WriteLine($"[DEBUG] PDF tiene {numPages} páginas");
+                        
+                        // Iterar sobre cada página para superponer números
+                        for (int pageNum = 1; pageNum <= numPages; pageNum++)
+                        {
+                            try
+                            {
+                                PdfPage page = pdfDoc.GetPage(pageNum);
+                                Rectangle pageSize = page.GetPageSize();
+                                
+                                // Crear canvas para superponer contenido
+                                PdfCanvas canvas = new PdfCanvas(page);
+                                  // Posición para el número de página (centrado abajo, en el footer)
+                                // Página A4: ancho ~595 puntos, alto ~842 puntos
+                                // Márgenes QuestPDF: 0.5cm = ~14.17 puntos
+                                float pageWidth = pageSize.GetWidth();
+                                float pageHeight = pageSize.GetHeight();
+                                float centerX = pageWidth / 2;
+                                
+                                // Posición Y del footer: DEBAJO del footer completamente pero dentro del área de impresión
+                                // El footer comienza a unos ~28.35 puntos desde abajo (0.5cm * 2)
+                                // Colocamos el número a ~15 puntos desde abajo (dentro del margen pero visible)
+                                float footerY = 15f; // 15 puntos desde el pie de la página (dentro del área segura)
+                                
+                                // Texto a superponer
+                                string pageText = $"Seite {pageNum} von {totalPages}";
+                                
+                                // Escribir el texto centrado
+                                canvas.SaveState();
+                                
+                                // Usar Helvetica de iText7
+                                PdfFont font = PdfFontFactory.CreateFont();
+                                float fontSize = 7;
+                                canvas.SetFontAndSize(font, fontSize);
+                                
+                                // Calcular ancho aproximado del texto para centrarlo
+                                // A tamaño 7 con Helvetica, aprox 3.5 puntos por carácter
+                                float textWidth = pageText.Length * 3.5f;
+                                float textX = centerX - (textWidth / 2);
+                                
+                                // Usar BeginText/EndText para escribir el texto
+                                canvas.BeginText();
+                                canvas.SetTextMatrix(1, 0, 0, 1, textX, footerY);
+                                canvas.ShowText(pageText);
+                                canvas.EndText();
+                                
+                                canvas.RestoreState();
+                                
+                                Console.WriteLine($"[DEBUG] Página {pageNum}: Superpuesto '{pageText}' en posición ({textX}, {footerY})");
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"[WARN] Error al procesar página {pageNum}: {ex.Message}");
+                            }
+                        }
+                    }
+                    
+                    byte[] result = outputStream.ToArray();
+                    Console.WriteLine($"[DEBUG] PDF procesado. Tamaño final: {result.Length} bytes");
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] en ActualizarNumeracionPaginas: {ex.Message}");
+                Console.WriteLine($"[ERROR] StackTrace: {ex.StackTrace}");
+                return pdfBytes;
+            }
+        }private static int ObtenerNumeroPaginas(byte[] pdfBytes)
+        {
+            try
+            {
+                using (var memoryStream = new MemoryStream(pdfBytes))
+                {
+                    using (PdfReader reader = new PdfReader(memoryStream))
+                    {
+                        using (PdfDocument pdfDoc = new PdfDocument(reader))
+                        {
+                            return pdfDoc.GetNumberOfPages();
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Si hay cualquier error, asumir 1 página
+                return 1;
+            }
+        }        private static IDocument CrearDocumento(Factura factura)
         {
             return Document.Create(container =>
             {
@@ -164,13 +291,12 @@ namespace FacturacionAlemana.Services
                     page.Content().Column(column =>
                     {
                         // Cabecera: logo a la izquierda + título centrado (con espacio simétrico a la derecha para centrar)
-                        column.Item().Row(row =>
-                        {
+                        column.Item().Row(row =>                        {
                             // Intentar cargar logo desde la carpeta Assets del ejecutable
                             try
                             {
                                 var exeDir = AppDomain.CurrentDomain.BaseDirectory ?? string.Empty;
-                                var logoPath = Path.Combine(exeDir, "Assets", "Logo-v1_2024-SIMICS-TRADING-GmbH.png");
+                                var logoPath = IoPath.Combine(exeDir, "Assets", "Logo-v1_2024-SIMICS-TRADING-GmbH.png");
                                 if (File.Exists(logoPath))
                                 {
                                     var logoBytes = File.ReadAllBytes(logoPath);
@@ -187,7 +313,9 @@ namespace FacturacionAlemana.Services
                             {
                                 // No bloquear generación si falla la carga del logo; reservar espacio para simetría
                                 row.ConstantItem(140);
-                            }                            // Título en mayúsculas centrado en el espacio restante
+                            }
+
+                            // Título en mayúsculas centrado en el espacio restante
                             row.RelativeItem().AlignCenter().Column(titleCol =>
                             {
                                 titleCol.Item().Text("RECHNUNG").FontSize(24).FontFamily("Century Gothic");
@@ -197,15 +325,6 @@ namespace FacturacionAlemana.Services
                             row.ConstantItem(140);
                         });
 
-                        // Línea horizontal
-                        column.Item().Row(row =>
-                        {
-                            row.RelativeItem().BorderBottom(1).BorderColor(Colors.Black).Height(1);
-                        });
-                        column.Item().Row(row =>
-                        {
-                            row.RelativeItem().BorderBottom(1).BorderColor(Colors.Black).Height(1);
-                        });                        
                         column.Item().PaddingTop(10);
 
                         // Primera fila: Información del vendedor + Zahlungsdetails
@@ -467,12 +586,12 @@ namespace FacturacionAlemana.Services
                             {                                rightColumn.Item().Row(subRow =>
                                 {
                                     subRow.RelativeItem(1).Padding(3).AlignLeft().Text("Netto-Wert").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).Padding(3).AlignRight().Text($"{decimal.Parse(factura.BasisAmount).ToString("N2", new CultureInfo("de-DE"))} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
+                                    subRow.RelativeItem(1).Padding(3).AlignRight().Text($"{decimal.Parse(factura.BasisAmount, CultureInfo.InvariantCulture).ToString("N2", new CultureInfo("de-DE"))} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {
                                     subRow.RelativeItem(1).Padding(3).AlignLeft().Text($"Gesamtsteuer {factura.TaxRatePercent}% ({factura.TaxCategoryCode})").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).Padding(3).AlignRight().Text($"{decimal.Parse(factura.TaxAmount).ToString("N2", new CultureInfo("de-DE"))} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
+                                    subRow.RelativeItem(1).Padding(3).AlignRight().Text($"{decimal.Parse(factura.TaxAmount, CultureInfo.InvariantCulture).ToString("N2", new CultureInfo("de-DE"))} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
                                 });
                                 rightColumn.Item().Row(subRow =>
                                 {
@@ -481,7 +600,7 @@ namespace FacturacionAlemana.Services
                                 rightColumn.Item().Row(subRow =>
                                 {
                                     subRow.RelativeItem(1).Padding(3).AlignLeft().Text("Gesamtbetrag").FontSize(9).Bold();
-                                    subRow.RelativeItem(1).Padding(3).AlignRight().Text($"{decimal.Parse(factura.GrandTotalAmount).ToString("N2", new CultureInfo("de-DE"))} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
+                                    subRow.RelativeItem(1).Padding(3).AlignRight().Text($"{decimal.Parse(factura.GrandTotalAmount, CultureInfo.InvariantCulture).ToString("N2", new CultureInfo("de-DE"))} {ConvertirMonedaASimolo(factura.CurrencyID)}").FontSize(9);
                                 });
                             });
                         });                        // Sección de Hinweise und Bemerkungen
@@ -513,10 +632,37 @@ namespace FacturacionAlemana.Services
 
                             // Espacio derecho vacío
                             row.RelativeItem(1).Column(rightColumn => { });
+                        });                        // Comentario final
+                        column.Item().PaddingTop(8).Text("(Dieses Dokument ist automatisch erstellt worden und ohne Unterschrift gültig)").FontSize(8).FontColor(Colors.Grey.Darken1);
+                    });                    // Footer
+                    page.Footer().Column(footerColumn =>
+                    {
+                        // Línea separadora superior
+                        footerColumn.Item().Row(row =>
+                        {
+                            row.RelativeItem().BorderBottom(1).BorderColor(Colors.Black).Height(1);
                         });
 
-                        // Comentario final
-                        column.Item().PaddingTop(8).Text("(Dieses Dokument ist automatisch erstellt worden und ohne Unterschrift gültig)").FontSize(8).FontColor(Colors.Grey.Darken1);
+                        // Espaciado
+                        footerColumn.Item().PaddingVertical(5);
+
+                        // Primera fila de información
+                        footerColumn.Item().AlignCenter().Text("SIMICS TRADING GmbH | HRB 36000 | USt.-Id Nr.: DE400209649 | Ruhrallee 5, 45525 Hattingen, NRW, Deutschland | +49 1520 8572464").FontSize(7);
+
+                        // Segunda fila de información
+                        footerColumn.Item().AlignCenter().Text("www.simicstrading.com | contactenos@simicstrading.com").FontSize(7);
+
+                        // Espaciado
+                        footerColumn.Item().PaddingVertical(3);                        // Línea separadora inferior
+                        footerColumn.Item().Row(row =>
+                        {
+                            row.RelativeItem().BorderBottom(1).BorderColor(Colors.Black).Height(1);
+                        });
+
+                        // Espaciado adicional para el contador de páginas (superpuesto con iText7)
+                        footerColumn.Item().PaddingVertical(8);
+
+                        // El número de página se agrega dinámicamente con iText7 después de la generación
                     });
                 });
             });

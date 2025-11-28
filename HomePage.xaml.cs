@@ -374,11 +374,25 @@ namespace FacturacionAlemana
                     : "Error";
                 MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }        
-        private void InitializeRecentList()
+        }          private void InitializeRecentList()
         {
             try
             {
+                var lv = FindName("LvRecent") as ListView;
+                if (lv == null) return;
+
+                // Primero, agregar los archivos generados recientemente desde el registro
+                var generatedFiles = GeneratedFilesRegistry.GetRecentFiles();
+                foreach (var f in generatedFiles)
+                {
+                    if (File.Exists(f))
+                    {
+                        var item = new ListViewItem { Content = Path.GetFileName(f), Tag = f };
+                        lv.Items.Add(item);
+                    }
+                }
+
+                // Luego, agregar archivos de ejemplo
                 string rutaReal = Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty;
                 var directorioReal = Path.GetDirectoryName(rutaReal) ?? AppDomain.CurrentDomain.BaseDirectory;
                 var ejemplosDir = Path.Combine(directorioReal, "Ejemplos");
@@ -397,35 +411,54 @@ namespace FacturacionAlemana
                     Array.Reverse(files);
                     foreach (var f in files)
                     {
-                        var item = new ListViewItem { Content = Path.GetFileName(f), Tag = f };
-                        var lv2 = FindName("LvRecent") as ListView;
-                        if (lv2 != null) lv2.Items.Add(item);
+                        // No duplicar archivos que ya estén en generatedFiles
+                        if (!generatedFiles.Contains(f))
+                        {
+                            var item = new ListViewItem { Content = Path.GetFileName(f), Tag = f };
+                            lv.Items.Add(item);
+                        }
                     }
                 }
-                else
+
+                // Si no hay archivos, mostrar placeholder
+                if (lv.Items.Count == 0)
                 {
-                    var lv3 = FindName("LvRecent") as ListView;
-                    if (lv3 != null)
-                    {
-                        var placeholderText = _localization?.Get("HomePage.NoRecentFiles") ?? "(No hay archivos recientes)";
-                        var placeholder = new ListViewItem { Content = placeholderText, Tag = "PLACEHOLDER", IsEnabled = false };
-                        lv3.Items.Add(placeholder);
-                    }
+                    var placeholderText = _localization?.Get("HomePage.NoRecentFiles") ?? "(No hay archivos recientes)";
+                    var placeholder = new ListViewItem { Content = placeholderText, Tag = "PLACEHOLDER", IsEnabled = false };
+                    lv.Items.Add(placeholder);
                 }
             }
             catch
             {
                 // No bloquear la UI
             }
-        }
-
-        private void LvRecent_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        }        private void LvRecent_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             try
             {
                 var lv4 = FindName("LvRecent") as ListView;
-                if (lv4 != null && lv4.SelectedItem is ListViewItem item && item.Tag is string path && File.Exists(path))
+                if (lv4 != null && lv4.SelectedItem is ListViewItem item && item.Tag is string path)
                 {
+                    // Verificar si el archivo aún existe
+                    if (!File.Exists(path))
+                    {
+                        var msg = (_localization != null && _localization.Exists("HomePage.Errors.FileNotFound"))
+                            ? string.Format(_localization.Get("HomePage.Errors.FileNotFound"), Path.GetFileName(path))
+                            : $"El archivo '{Path.GetFileName(path)}' ya no existe.\n\nFue eliminado del disco duro.";
+                        var title = (_localization != null && _localization.Exists("Messages.ErrorTitle"))
+                            ? _localization.Get("Messages.ErrorTitle")
+                            : "Archivo no encontrado";
+                        MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                        // Remover el archivo del registro
+                        GeneratedFilesRegistry.RemoveFile(path);
+                        
+                        // Remover de la lista
+                        lv4.Items.Remove(item);
+                        
+                        return;
+                    }
+
                     factura = XmlReaderService.LeerFacturaDesdeXml(path);
                     var st3 = FindName("StatusText") as TextBlock;
                     if (st3 != null) st3.Text = _localization?.Get("HomePage.LoadedFile", Path.GetFileName(path)) ?? $"Archivo cargado: {Path.GetFileName(path)}";

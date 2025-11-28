@@ -67,11 +67,16 @@ namespace FacturacionAlemana
             TaxCategoryComboBox.SelectionChanged += TaxCategoryComboBox_SelectionChanged;
             TaxRateTextBox.TextChanged += (s, e) => ActualizarResumenTotales();
             CurrencyComboBox.SelectionChanged += (s, e) => ActualizarResumenTotales();
-            
             TaxCategoryComboBox.SelectedValue = "S";
             TaxRateTextBox.Text = "19.00";
             
-            ActualizarResumenTotales();            
+            // ===== INFORMACIÓN BANCARIA PREDETERMINADA =====
+            AccountNameTextBox.Text = "SIMICS TRADING GmbH";
+            BankNameTextBox.Text = "Sparkasse Bochum";
+            BICTextBox.Text = "WELADED1BOC";
+            IBANTextBox.Text = "DE54 4305 0001 0025 4154 49";
+            
+            ActualizarResumenTotales();
             // Validación en tiempo real
             HookRealtimeValidation();
             
@@ -470,17 +475,18 @@ namespace FacturacionAlemana
                 {
                     // Usuario canceló
                     return;
-                }
-
+                }                
                 var outputFolder = Path.GetDirectoryName(saveDlg.FileName) ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                string fileNameBase = invoiceNumber;
+                string fileNameBase = Path.GetFileNameWithoutExtension(saveDlg.FileName);
                 var pdfPath = Path.Combine(outputFolder, $"{fileNameBase}.pdf");
                 var xmlPath = Path.Combine(outputFolder, $"{fileNameBase}.xml");
 
-                // Establecer el idioma actual para el PDF
-                PdfGeneratorService.SetLanguage(_localization?.CurrentLanguage ?? "es");
+                // Establecer el idioma actual para el PDF                PdfGeneratorService.SetLanguage(_localization?.CurrentLanguage ?? "es");
                 PdfGeneratorService.GenerarFacturaPdf(factura, pdfPath);
                 XmlGeneratorService.GenerarFacturaXml(factura, xmlPath);
+
+                // Registrar el archivo generado para que aparezca en HomePage
+                RegisterGeneratedFile(xmlPath);
 
                 WinMessageBox.Show($"Factura generada exitosamente.\n\nPDF: {pdfPath}\nXML: {xmlPath}", 
                     "Éxito", WinMessageBoxButton.OK, MessageBoxImage.Information);
@@ -732,6 +738,65 @@ namespace FacturacionAlemana
         private void OnCancelClick(object sender, RoutedEventArgs e)
         {
             NavigationService.GoBack();
+        }
+
+        /// <summary>
+        /// Registra un archivo generado en el archivo de historial
+        /// </summary>
+        private static void RegisterGeneratedFile(string xmlPath)
+        {
+            try
+            {
+                var appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FacturacionAlemana");
+                if (!Directory.Exists(appDataPath))
+                    Directory.CreateDirectory(appDataPath);
+
+                var registryPath = Path.Combine(appDataPath, "generated_files.json");
+
+                // Leer el registro existente
+                var registry = new List<dynamic>();
+                if (File.Exists(registryPath))
+                {
+                    try
+                    {
+                        var json = File.ReadAllText(registryPath);
+                        var jArray = System.Text.Json.JsonDocument.Parse(json);
+                        registry = jArray.RootElement.EnumerateArray()
+                            .Select(el => new 
+                            { 
+                                path = el.GetProperty("path").GetString(),
+                                timestamp = el.GetProperty("timestamp").GetString()
+                            })
+                            .Cast<dynamic>()
+                            .ToList();
+                    }
+                    catch { }
+                }
+
+                // Agregar nuevo archivo al inicio de la lista
+                var newEntry = new 
+                { 
+                    path = xmlPath,
+                    timestamp = DateTime.Now.ToString("O")
+                };
+
+                // Limitar a 20 archivos más recientes
+                registry.Insert(0, newEntry);
+                if (registry.Count > 20)
+                    registry = registry.Take(20).ToList();
+
+                // Guardar el registro actualizado
+                var jsonOptions = new System.Text.Json.JsonSerializerOptions 
+                { 
+                    WriteIndented = true 
+                };
+                var jsonStr = System.Text.Json.JsonSerializer.Serialize(registry, jsonOptions);
+                File.WriteAllText(registryPath, jsonStr);
+            }
+            catch
+            {
+                // No bloquear la UI si falla el registro
+            }
         }
 
         private void OnExitClick(object sender, RoutedEventArgs e)

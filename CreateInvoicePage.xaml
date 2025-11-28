@@ -895,7 +895,7 @@
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock x:Name="SummaryPaymentTermsLabel" Text="Términos de pago:" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                                <TextBlock Grid.Column="1" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="{Binding Text, ElementName=PaymentTermsDescriptionTextBox}"/>
+                                                <TextBlock Grid.Column="1" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Text="{Binding Text, ElementName=PaymentTermsDesDE54 4305 0001 0025 4154 49criptionTextBox}"/>
                                             </Grid>
 
                                             <!-- Alertas (placeholder no intrusivo) -->

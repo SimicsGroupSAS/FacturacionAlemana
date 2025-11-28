@@ -89,15 +89,15 @@ namespace FacturacionAlemana.Services
         {
             XNamespace rsm = "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100";
             XNamespace ram = "urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100";
-            XNamespace udt = "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100";
-
-            var xmlDoc = XDocument.Load(filePath);            // Detalles de la Factura
-            var idElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(ram + "ID").FirstOrDefault()?.Value ?? "No encontrado";
-            var typeCodeElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(ram + "TypeCode").FirstOrDefault()?.Value ?? "No encontrado";
-            var issueDateElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(udt + "DateTimeString").FirstOrDefault()?.Value ?? "No encontrado";
+            XNamespace udt = "urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100";            var xmlDoc = XDocument.Load(filePath);
+            
+            // Detalles de la Factura
+            var idElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(ram + "ID").FirstOrDefault()?.Value ?? "";
+            var typeCodeElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(ram + "TypeCode").FirstOrDefault()?.Value ?? "";
+            var issueDateElement = xmlDoc.Descendants(rsm + "ExchangedDocument").Elements(udt + "DateTimeString").FirstOrDefault()?.Value ?? DateTime.Now.ToString("yyyyMMdd");
             
             var notas = ExtraerNotas(xmlDoc, rsm, ram);
-            var paymentNoteElement = notas.Count > 0 ? notas[0] : "No encontrado";
+            var paymentNoteElement = notas.Count > 0 ? notas[0] : "";
 
             // Parsear fechas
             var issueDate = DateTime.TryParseExact(issueDateElement, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedIssueDate)
@@ -108,23 +108,31 @@ namespace FacturacionAlemana.Services
             var deliveryDateRaw = xmlDoc.Descendants(ram + "ActualDeliverySupplyChainEvent").Descendants(udt + "DateTimeString").FirstOrDefault()?.Value ?? issueDateElement;
             var deliveryDate = DateTime.TryParseExact(deliveryDateRaw, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDeliveryDate)
                 ? parsedDeliveryDate
-                : issueDate;
-
-            // Detalles del Vendedor
-            var sellerName = xmlDoc.Descendants(ram + "SellerTradeParty").Elements(ram + "Name").FirstOrDefault()?.Value ?? "No encontrado";
-            var sellerPersonName = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "PersonName").FirstOrDefault()?.Value ?? "No encontrado";
-            var sellerDepartmentName = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "DepartmentName").FirstOrDefault()?.Value ?? "No encontrado";
-            var sellerCompleteNumber = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "CompleteNumber").FirstOrDefault()?.Value ?? "No encontrado";
-            var sellerEmail = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "URIID").FirstOrDefault()?.Value ?? "No encontrado";
-            var sellerPostcodeCode = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "PostcodeCode").FirstOrDefault()?.Value ?? "No encontrado";
-            var sellerLineOne = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "LineOne").FirstOrDefault()?.Value ?? "No encontrado";
+                : issueDate;            // Detalles del Vendedor
+            var sellerName = xmlDoc.Descendants(ram + "SellerTradeParty").Elements(ram + "Name").FirstOrDefault()?.Value ?? "";
+            var sellerPersonName = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "PersonName").FirstOrDefault()?.Value ?? "";
+            var sellerDepartmentName = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "DepartmentName").FirstOrDefault()?.Value ?? "";
+            var sellerCompleteNumber = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "CompleteNumber").FirstOrDefault()?.Value ?? "";
+            var sellerEmail = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "URIID").FirstOrDefault()?.Value ?? "";
+            var sellerPostcodeCode = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "PostcodeCode").FirstOrDefault()?.Value ?? "";
+            var sellerLineOne = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "LineOne").FirstOrDefault()?.Value ?? "";
             var sellerLineTwo = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "LineTwo").FirstOrDefault()?.Value ?? "";
-            var sellerCityName = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "CityName").FirstOrDefault()?.Value ?? "No encontrado";
-            var sellerCountryIDRaw = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "CountryID").FirstOrDefault()?.Value ?? "XX";
-            var sellerCountryID = NormalizarCodigoPais(sellerCountryIDRaw);            var sellerVATID = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "SpecifiedTaxRegistration").Where(x => x.Element(ram + "ID")?.Attribute("schemeID")?.Value == "VA").Select(x => x.Element(ram + "ID")?.Value).FirstOrDefault() ?? "No encontrado";
-            var sellerTaxNumber = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "SpecifiedTaxRegistration").Where(x => x.Element(ram + "ID")?.Attribute("schemeID")?.Value == "FC").Select(x => x.Element(ram + "ID")?.Value).FirstOrDefault() ?? "";// Detalles del Comprador
+            var sellerCityName = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "CityName").FirstOrDefault()?.Value ?? "";            var sellerCountryIDRaw = xmlDoc.Descendants(ram + "SellerTradeParty").Descendants(ram + "CountryID").FirstOrDefault()?.Value ?? "XX";
+            var sellerCountryID = NormalizarCodigoPais(sellerCountryIDRaw);
+            var sellerVATID = xmlDoc.Descendants(ram + "SellerTradeParty")
+                .Descendants(ram + "SpecifiedTaxRegistration")
+                .Where(x => x.Element(ram + "ID")?.Attribute("schemeID")?.Value == "VA")
+                .Select(x => x.Element(ram + "ID")?.Value)
+                .FirstOrDefault() ?? "";
+            var sellerTaxNumber = xmlDoc.Descendants(ram + "SellerTradeParty")
+                .Descendants(ram + "SpecifiedTaxRegistration")
+                .Where(x => x.Element(ram + "ID")?.Attribute("schemeID")?.Value == "FC")
+                .Select(x => x.Element(ram + "ID")?.Value)
+                .FirstOrDefault() ?? "";
+
+            // Detalles del Comprador
             var buyerID = xmlDoc.Descendants(ram + "BuyerTradeParty").Elements(ram + "ID").FirstOrDefault()?.Value ?? "";
-            var buyerName = xmlDoc.Descendants(ram + "BuyerTradeParty").Elements(ram + "Name").FirstOrDefault()?.Value ?? "No encontrado";
+            var buyerName = xmlDoc.Descendants(ram + "BuyerTradeParty").Elements(ram + "Name").FirstOrDefault()?.Value ?? "";
             var buyerPersonName = xmlDoc.Descendants(ram + "BuyerTradeParty").Descendants(ram + "PersonName").FirstOrDefault()?.Value ?? "";
             var buyerCompleteNumber = xmlDoc.Descendants(ram + "BuyerTradeParty").Descendants(ram + "CompleteNumber").FirstOrDefault()?.Value ?? "";
             // Email del comprador - buscar en DefinedTradeContact primero, luego en URIUniversalCommunication
@@ -134,10 +142,13 @@ namespace FacturacionAlemana.Services
             var buyerPostalAddress = xmlDoc.Descendants(ram + "BuyerTradeParty").Elements(ram + "PostalTradeAddress").FirstOrDefault();
             var buyerPostcodeCode = buyerPostalAddress?.Elements(ram + "PostcodeCode").FirstOrDefault()?.Value ?? "";
             var buyerLineOne = buyerPostalAddress?.Elements(ram + "LineOne").FirstOrDefault()?.Value ?? "";
-            var buyerLineTwo = buyerPostalAddress?.Elements(ram + "LineTwo").FirstOrDefault()?.Value ?? "";
-            var buyerCityName = buyerPostalAddress?.Elements(ram + "CityName").FirstOrDefault()?.Value ?? "No encontrado";
+            var buyerLineTwo = buyerPostalAddress?.Elements(ram + "LineTwo").FirstOrDefault()?.Value ?? "";            var buyerCityName = buyerPostalAddress?.Elements(ram + "CityName").FirstOrDefault()?.Value ?? "";
             var buyerCountryIDRaw = buyerPostalAddress?.Elements(ram + "CountryID").FirstOrDefault()?.Value ?? "XX";
-            var buyerCountryID = NormalizarCodigoPais(buyerCountryIDRaw);            var buyerVATID = xmlDoc.Descendants(ram + "BuyerTradeParty").Descendants(ram + "SpecifiedTaxRegistration").Where(x => x.Element(ram + "ID")?.Attribute("schemeID")?.Value == "VA").Select(x => x.Element(ram + "ID")?.Value).FirstOrDefault() ?? "";
+            var buyerCountryID = NormalizarCodigoPais(buyerCountryIDRaw);
+            var buyerVATID = xmlDoc.Descendants(ram + "BuyerTradeParty").Descendants(ram + "SpecifiedTaxRegistration").Where(x => x.Element(ram + "ID")?.Attribute("schemeID")?.Value == "VA").Select(x => x.Element(ram + "ID")?.Value).FirstOrDefault() ?? "";
+            
+            // Extraer BuyerReference (BT-10) desde ApplicableHeaderTradeAgreement
+            var buyerReference = xmlDoc.Descendants(ram + "ApplicableHeaderTradeAgreement").Elements(ram + "BuyerReference").FirstOrDefault()?.Value ?? "";
 
             // Detalles de entrega (ShipTo)
             var shipToID = xmlDoc.Descendants(ram + "ShipToTradeParty").Elements(ram + "ID").FirstOrDefault()?.Value ?? "";
@@ -215,18 +226,16 @@ namespace FacturacionAlemana.Services
             var productName = productos[0].Descripcion;
             var chargeAmount = productos[0].PrecioUnitario.ToString("F2", CultureInfo.InvariantCulture);
             var billedQuantity = productos[0].Cantidad.ToString("F2", CultureInfo.InvariantCulture);
-            var lineTotalAmount = productos[0].PrecioTotal.ToString("F2", CultureInfo.InvariantCulture);
-
-            // Resumen de Pago
-            var invoiceCurrencyCode = xmlDoc.Descendants(ram + "InvoiceCurrencyCode").FirstOrDefault()?.Value ?? "No encontrado";
-            var paymentTypeCode = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementPaymentMeans").Descendants(ram + "TypeCode").FirstOrDefault()?.Value ?? "No encontrado";
-            var paymentInformation = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementPaymentMeans").Descendants(ram + "Information").FirstOrDefault()?.Value ?? "No encontrado";
-            var ibanID = xmlDoc.Descendants(ram + "PayeePartyCreditorFinancialAccount").Descendants(ram + "IBANID").FirstOrDefault()?.Value ?? "No encontrado";
-            var accountName = xmlDoc.Descendants(ram + "PayeePartyCreditorFinancialAccount").Descendants(ram + "AccountName").FirstOrDefault()?.Value ?? "No encontrado";            var bicID = xmlDoc.Descendants(ram + "PayeeSpecifiedCreditorFinancialInstitution").Descendants(ram + "BICID").FirstOrDefault()?.Value ?? "";
+            var lineTotalAmount = productos[0].PrecioTotal.ToString("F2", CultureInfo.InvariantCulture);            // Resumen de Pago
+            var invoiceCurrencyCode = xmlDoc.Descendants(ram + "InvoiceCurrencyCode").FirstOrDefault()?.Value ?? "";
+            var paymentTypeCode = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementPaymentMeans").Descendants(ram + "TypeCode").FirstOrDefault()?.Value ?? "";
+            var paymentInformation = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementPaymentMeans").Descendants(ram + "Information").FirstOrDefault()?.Value ?? "";
+            var ibanID = xmlDoc.Descendants(ram + "PayeePartyCreditorFinancialAccount").Descendants(ram + "IBANID").FirstOrDefault()?.Value ?? "";
+            var accountName = xmlDoc.Descendants(ram + "PayeePartyCreditorFinancialAccount").Descendants(ram + "AccountName").FirstOrDefault()?.Value ?? "";            var bicID = xmlDoc.Descendants(ram + "PayeeSpecifiedCreditorFinancialInstitution").Descendants(ram + "BICID").FirstOrDefault()?.Value ?? "";
             
             // Capturar información bancaria adicional
-            var bankName = xmlDoc.Descendants(ram + "PayeeSpecifiedCreditorFinancialInstitution").Elements(ram + "Name").FirstOrDefault()?.Value ?? "";
-            var blz = xmlDoc.Descendants(ram + "PayeeSpecifiedCreditorFinancialInstitution").Elements(ram + "GermanBankleitzahlIdentifier").FirstOrDefault()?.Value ?? "";
+            var bankName = xmlDoc.Descendants(ram + "PayeeSpecifiedCreditorFinancialInstitution").Descendants(ram + "Name").FirstOrDefault()?.Value ?? "";
+            var blz = xmlDoc.Descendants(ram + "PayeeSpecifiedCreditorFinancialInstitution").Descendants(ram + "GermanBankleitzahlIdentifier").FirstOrDefault()?.Value ?? "";
             
             var calculatedAmountRaw = xmlDoc.Descendants(ram + "ApplicableTradeTax").Descendants(ram + "CalculatedAmount").FirstOrDefault()?.Value ?? "0";
             var calculatedAmount = NormalizarDecimal(calculatedAmountRaw).ToString("F2");
@@ -253,11 +262,12 @@ namespace FacturacionAlemana.Services
             var grandTotalAmountRaw = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementHeaderMonetarySummation").Descendants(ram + "GrandTotalAmount").FirstOrDefault()?.Value ?? "0";
             var grandTotalAmount = NormalizarDecimal(grandTotalAmountRaw).ToString("F2");
             
-            var duePayableAmountRaw = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementHeaderMonetarySummation").Descendants(ram + "DuePayableAmount").FirstOrDefault()?.Value ?? "0";
-            var duePayableAmount = NormalizarDecimal(duePayableAmountRaw).ToString("F2");            var dateTimeFormat = xmlDoc.Descendants(udt + "DateTimeString").Attributes("format").FirstOrDefault()?.Value ?? "No encontrado";
-            var unitCode = xmlDoc.Descendants(ram + "BilledQuantity").Attributes("unitCode").FirstOrDefault()?.Value ?? "No encontrado";
-            var schemeID = xmlDoc.Descendants(ram + "SpecifiedTaxRegistration").Descendants(ram + "ID").Attributes("schemeID").FirstOrDefault()?.Value ?? "No encontrado";
-            var currencyID = xmlDoc.Descendants(ram + "TaxTotalAmount").Attributes("currencyID").FirstOrDefault()?.Value ?? "No encontrado";
+            var duePayableAmountRaw = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementHeaderMonetarySummation").Descendants(ram + "DuePayableAmount").FirstOrDefault()?.Value ?? "0";            var duePayableAmount = NormalizarDecimal(duePayableAmountRaw).ToString("F2");
+            
+            var dateTimeFormat = xmlDoc.Descendants(udt + "DateTimeString").Attributes("format").FirstOrDefault()?.Value ?? "";
+            var unitCode = xmlDoc.Descendants(ram + "BilledQuantity").Attributes("unitCode").FirstOrDefault()?.Value ?? "";
+            var schemeID = xmlDoc.Descendants(ram + "SpecifiedTaxRegistration").Descendants(ram + "ID").Attributes("schemeID").FirstOrDefault()?.Value ?? "";
+            var currencyID = xmlDoc.Descendants(ram + "TaxTotalAmount").Attributes("currencyID").FirstOrDefault()?.Value ?? "";
 
             var taxTotalAmountRaw = xmlDoc.Descendants(ram + "SpecifiedTradeSettlementHeaderMonetarySummation").Descendants(ram + "TaxTotalAmount").FirstOrDefault()?.Value ?? "0";
             var taxTotalAmount = NormalizarDecimal(taxTotalAmountRaw).ToString("F2");
@@ -313,10 +323,10 @@ namespace FacturacionAlemana.Services
                 BuyerPostcodeCode = buyerPostcodeCode,
                 BuyerLineOne = buyerLineOne,
                 BuyerLineTwo = buyerLineTwo,
-                BuyerCityName = buyerCityName,
-                BuyerCountryID = buyerCountryID,
+                BuyerCityName = buyerCityName,                BuyerCountryID = buyerCountryID,
                 BuyerVATID = buyerVATID,
                 BuyerEmailContact = buyerEmailContact,
+                BuyerReference = buyerReference,
                 Productos = productos,
                 LineID = lineID,
                 SellerAssignedID = sellerAssignedID,

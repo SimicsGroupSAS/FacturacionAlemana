@@ -12,10 +12,10 @@
     <ram:ID>STR-25-1</ram:ID>
     <ram:TypeCode>380</ram:TypeCode>
     <ram:IssueDateTime>
-      <udt:DateTimeString format="102">20251121</udt:DateTimeString>
+      <udt:DateTimeString format="102">20251128</udt:DateTimeString>
     </ram:IssueDateTime>
     <ram:IncludedNote>
-      <ram:Content>GeneralNotes</ram:Content>
+      <ram:Content>Zahlungsart: Überweisung</ram:Content>
     </ram:IncludedNote>
   </rsm:ExchangedDocument>
   <rsm:SupplyChainTradeTransaction>
@@ -24,22 +24,16 @@
         <ram:LineID>1</ram:LineID>
       </ram:AssociatedDocumentLineDocument>
       <ram:SpecifiedTradeProduct>
-        <ram:SellerAssignedID>VendorCode</ram:SellerAssignedID>
-        <ram:BuyerAssignedID>BuyerCode</ram:BuyerAssignedID>
-        <ram:Name>ProductName</ram:Name>
-        <ram:Description>ProductDescription</ram:Description>
+        <ram:Name>Test</ram:Name>
       </ram:SpecifiedTradeProduct>
       <ram:SpecifiedLineTradeAgreement>
-        <ram:BuyerOrderReferencedDocument>
-          <ram:LineID>PositionOrder</ram:LineID>
-        </ram:BuyerOrderReferencedDocument>
         <ram:NetPriceProductTradePrice>
           <ram:ChargeAmount>100.00</ram:ChargeAmount>
           <ram:BasisQuantity unitCode="EA">1</ram:BasisQuantity>
         </ram:NetPriceProductTradePrice>
       </ram:SpecifiedLineTradeAgreement>
       <ram:SpecifiedLineTradeDelivery>
-        <ram:BilledQuantity unitCode="EA">1.00</ram:BilledQuantity>
+        <ram:BilledQuantity unitCode="EA">123.00</ram:BilledQuantity>
       </ram:SpecifiedLineTradeDelivery>
       <ram:SpecifiedLineTradeSettlement>
         <ram:ApplicableTradeTax>
@@ -47,21 +41,13 @@
           <ram:CategoryCode>S</ram:CategoryCode>
           <ram:RateApplicablePercent>19</ram:RateApplicablePercent>
         </ram:ApplicableTradeTax>
-        <ram:BillingSpecifiedPeriod>
-          <ram:StartDateTime>
-            <udt:DateTimeString format="102">20251121</udt:DateTimeString>
-          </ram:StartDateTime>
-          <ram:EndDateTime>
-            <udt:DateTimeString format="102">20251128</udt:DateTimeString>
-          </ram:EndDateTime>
-        </ram:BillingSpecifiedPeriod>
         <ram:SpecifiedTradeSettlementLineMonetarySummation>
-          <ram:LineTotalAmount>100.00</ram:LineTotalAmount>
+          <ram:LineTotalAmount>12300.00</ram:LineTotalAmount>
         </ram:SpecifiedTradeSettlementLineMonetarySummation>
       </ram:SpecifiedLineTradeSettlement>
     </ram:IncludedSupplyChainTradeLineItem>
     <ram:ApplicableHeaderTradeAgreement>
-      <ram:BuyerReference>REF-12345</ram:BuyerReference>
+      <ram:BuyerReference>REF1</ram:BuyerReference>
       <ram:SellerTradeParty>
         <ram:Name>Giatec GmbH</ram:Name>
         <ram:DefinedTradeContact>
@@ -77,7 +63,7 @@
         <ram:PostalTradeAddress>
           <ram:PostcodeCode>45525</ram:PostcodeCode>
           <ram:LineOne>Ruhrallee 5</ram:LineOne>
-          <ram:LineTwo>Ruhrallee 5</ram:LineTwo>
+          <ram:LineTwo>Line 2</ram:LineTwo>
           <ram:CityName>Hattingen</ram:CityName>
           <ram:CountryID>DE</ram:CountryID>
         </ram:PostalTradeAddress>
@@ -87,88 +73,76 @@
         <ram:SpecifiedTaxRegistration>
           <ram:ID schemeID="VA">DE162986901</ram:ID>
         </ram:SpecifiedTaxRegistration>
+        <ram:SpecifiedTaxRegistration>
+          <ram:ID schemeID="FC">1234/1234/1234</ram:ID>
+        </ram:SpecifiedTaxRegistration>
       </ram:SellerTradeParty>
       <ram:BuyerTradeParty>
-        <ram:Name>BuyerName</ram:Name>
+        <ram:Name>Test Enterprise</ram:Name>
         <ram:DefinedTradeContact>
-          <ram:PersonName>ContactName</ram:PersonName>
+          <ram:PersonName>Name Tester</ram:PersonName>
           <ram:TelephoneUniversalCommunication>
-            <ram:CompleteNumber>+4918238490234</ram:CompleteNumber>
+            <ram:CompleteNumber>+49 1234 12343</ram:CompleteNumber>
           </ram:TelephoneUniversalCommunication>
           <ram:EmailURIUniversalCommunication>
-            <ram:URIID>buyer@email.com</ram:URIID>
+            <ram:URIID>test@test.com</ram:URIID>
           </ram:EmailURIUniversalCommunication>
         </ram:DefinedTradeContact>
         <ram:PostalTradeAddress>
-          <ram:PostcodeCode>12345</ram:PostcodeCode>
-          <ram:LineOne>Address</ram:LineOne>
-          <ram:LineTwo>Adrress Line 2</ram:LineTwo>
-          <ram:CityName>City</ram:CityName>
+          <ram:PostcodeCode>21345</ram:PostcodeCode>
+          <ram:LineOne>Street 1</ram:LineOne>
+          <ram:LineTwo>Street 2</ram:LineTwo>
+          <ram:CityName>Soledad</ram:CityName>
           <ram:CountryID>DE</ram:CountryID>
         </ram:PostalTradeAddress>
         <ram:URIUniversalCommunication>
-          <ram:URIID schemeID="EM">buyer@email.com</ram:URIID>
+          <ram:URIID schemeID="EM">test@test.com</ram:URIID>
         </ram:URIUniversalCommunication>
         <ram:SpecifiedTaxRegistration>
           <ram:ID schemeID="VA">DE123456789</ram:ID>
         </ram:SpecifiedTaxRegistration>
       </ram:BuyerTradeParty>
-      <ram:SellerOrderReferencedDocument>
-        <ram:IssuerAssignedID>WorkOrderNumber</ram:IssuerAssignedID>
-      </ram:SellerOrderReferencedDocument>
-      <ram:BuyerOrderReferencedDocument>
-        <ram:IssuerAssignedID>OrderNumber</ram:IssuerAssignedID>
-      </ram:BuyerOrderReferencedDocument>
-      <ram:ContractReferencedDocument>
-        <ram:IssuerAssignedID>ContractNumber</ram:IssuerAssignedID>
-      </ram:ContractReferencedDocument>
-      <ram:SpecifiedProcuringProject>
-        <ram:ID>ProjectNumber</ram:ID>
-        <ram:Name>ProjectNumber</ram:Name>
-      </ram:SpecifiedProcuringProject>
     </ram:ApplicableHeaderTradeAgreement>
     <ram:ApplicableHeaderTradeDelivery>
       <ram:ActualDeliverySupplyChainEvent>
         <ram:OccurrenceDateTime>
-          <udt:DateTimeString format="102">20251121</udt:DateTimeString>
+          <udt:DateTimeString format="102">00010101</udt:DateTimeString>
         </ram:OccurrenceDateTime>
       </ram:ActualDeliverySupplyChainEvent>
     </ram:ApplicableHeaderTradeDelivery>
     <ram:ApplicableHeaderTradeSettlement>
-      <ram:PaymentReference>PaymentConceptRefenrece</ram:PaymentReference>
       <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>
       <ram:SpecifiedTradeSettlementPaymentMeans>
         <ram:TypeCode>30</ram:TypeCode>
         <ram:Information>SEPA</ram:Information>
         <ram:PayeePartyCreditorFinancialAccount>
           <ram:IBANID>DE89370400440532013000</ram:IBANID>
-          <ram:AccountName>AccountName</ram:AccountName>
+          <ram:AccountName>NameAccount</ram:AccountName>
         </ram:PayeePartyCreditorFinancialAccount>
         <ram:PayeeSpecifiedCreditorFinancialInstitution>
-          <ram:BICID>BIC00000</ram:BICID>
+          <ram:BICID>BIC12341234</ram:BICID>
           <ram:Name>BankName</ram:Name>
-          <ram:GermanBankleitzahlIdentifier>BLZ00000</ram:GermanBankleitzahlIdentifier>
         </ram:PayeeSpecifiedCreditorFinancialInstitution>
       </ram:SpecifiedTradeSettlementPaymentMeans>
       <ram:ApplicableTradeTax>
-        <ram:CalculatedAmount>19.00</ram:CalculatedAmount>
+        <ram:CalculatedAmount>2337.00</ram:CalculatedAmount>
         <ram:TypeCode>VAT</ram:TypeCode>
-        <ram:BasisAmount>100.00</ram:BasisAmount>
+        <ram:BasisAmount>12300.00</ram:BasisAmount>
         <ram:CategoryCode>S</ram:CategoryCode>
         <ram:RateApplicablePercent>19</ram:RateApplicablePercent>
       </ram:ApplicableTradeTax>
       <ram:SpecifiedTradePaymentTerms>
-        <ram:Description>PaymentTermsDescription</ram:Description>
+        <ram:Description>Bitte überweisen Sie den Rechnungsbetrag in Höhe von 14637.00 EUR bis zum Fälligkeitsdatum 27.12.2025.</ram:Description>
       </ram:SpecifiedTradePaymentTerms>
       <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
-        <ram:LineTotalAmount>100.00</ram:LineTotalAmount>
+        <ram:LineTotalAmount>12300.00</ram:LineTotalAmount>
         <ram:ChargeTotalAmount>0.00</ram:ChargeTotalAmount>
         <ram:AllowanceTotalAmount>0.00</ram:AllowanceTotalAmount>
-        <ram:TaxBasisTotalAmount>100.00</ram:TaxBasisTotalAmount>
-        <ram:TaxTotalAmount currencyID="EUR">19.00</ram:TaxTotalAmount>
-        <ram:GrandTotalAmount>119.00</ram:GrandTotalAmount>
+        <ram:TaxBasisTotalAmount>12300.00</ram:TaxBasisTotalAmount>
+        <ram:TaxTotalAmount currencyID="EUR">2337.00</ram:TaxTotalAmount>
+        <ram:GrandTotalAmount>14637.00</ram:GrandTotalAmount>
         <ram:TotalPrepaidAmount>0.00</ram:TotalPrepaidAmount>
-        <ram:DuePayableAmount>119.00</ram:DuePayableAmount>
+        <ram:DuePayableAmount>14637.00</ram:DuePayableAmount>
       </ram:SpecifiedTradeSettlementHeaderMonetarySummation>
     </ram:ApplicableHeaderTradeSettlement>
   </rsm:SupplyChainTradeTransaction>

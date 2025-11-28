@@ -142,16 +142,16 @@
                             <ui:Button x:Name="DismissAlertsButton" Content="Ocultar" Padding="12,6" Margin="8,0,0,0" Appearance="Secondary" Click="OnDismissAlertsClick"/>
                         </StackPanel>
                     </StackPanel>
-                </Border>
-
-                <!-- Título con botón Salir alineado a la izquierda -->
+                </Border>                <!-- Título con botones Salir y Cargar XML alineados a la izquierda -->
                 <Grid Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <ui:Button x:Name="ExitButton" Content="⟵ Salir" Appearance="Secondary" Padding="18,8" Margin="0,0,12,0" Click="OnExitClick"/>
-                    <TextBlock x:Name="MainTitle" Grid.Column="1" Text="Crear Nueva Factura" FontSize="28" FontWeight="Bold" HorizontalAlignment="Left" Foreground="{StaticResource PrimaryTextBrush}"/>
+                    <ui:Button x:Name="LoadXmlButton" Grid.Column="1" Content="📁 Cargar XML" Appearance="Secondary" Padding="18,8" Margin="0,0,12,0" Click="OnLoadXmlClick"/>
+                    <TextBlock x:Name="MainTitle" Grid.Column="2" Text="Crear Nueva Factura" FontSize="28" FontWeight="Bold" HorizontalAlignment="Left" Foreground="{StaticResource PrimaryTextBrush}"/>
                 </Grid>
 
                 <!-- BEGIN: Stepper (TabControl) -->
@@ -193,11 +193,10 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-                                        <TextBlock x:Name="SellerStreetLabel" Text="Calle línea 1:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        </Grid.RowDefinitions>                                        <TextBlock x:Name="SellerStreetLabel" Text="Dirección Principal:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
                                         <ui:TextBox x:Name="SellerStreetTextBox" Grid.Column="1" PlaceholderText="Calle y número" Text="Ruhrallee 5"/>
-                                        <TextBlock x:Name="SellerStreet2Label" Text="Calle línea 2:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                        <ui:TextBox x:Name="SellerStreet2TextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Complemento dirección"/>
+                                        <TextBlock x:Name="SellerStreet2Label" Text="Dirección Complementaria:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="SellerStreet2TextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Complemento (opcional)"/>
                                         <TextBlock x:Name="SellerCityLabel" Text="Ciudad:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
                                         <ui:TextBox x:Name="SellerCityTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Ciudad" Text="Hattingen"/>
                                         <TextBlock x:Name="SellerPostcodeLabel" Text="Código Postal:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
@@ -271,11 +270,10 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-                                        <TextBlock x:Name="BuyerStreetLabel" Text="Calle:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        </Grid.RowDefinitions>                                        <TextBlock x:Name="BuyerStreetLabel" Text="Dirección Principal:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
                                         <ui:TextBox x:Name="BuyerStreetTextBox" Grid.Column="1" PlaceholderText="Calle y número"/>
-                                        <TextBlock x:Name="BuyerStreet2Label" Text="Calle 2:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                        <ui:TextBox x:Name="BuyerStreet2TextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Calle línea 2"/>
+                                        <TextBlock x:Name="BuyerStreet2Label" Text="Dirección Complementaria:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                        <ui:TextBox x:Name="BuyerStreet2TextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="Complemento (opcional)"/>
                                         <TextBlock x:Name="BuyerCityLabel" Text="Ciudad:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
                                         <ui:TextBox x:Name="BuyerCityTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Ciudad"/>
                                         <TextBlock x:Name="BuyerPostcodeLabel" Text="Código Postal:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
@@ -578,13 +576,12 @@
                                                 <TextBlock x:Name="ShipToNameLabel" Text="Nombre de Entrega:" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
                                                 <ui:TextBox x:Name="ShipToNameTextBox" Grid.Column="1" PlaceholderText="Nombre del lugar de entrega"/>
                                                 <TextBlock x:Name="ShipToIDLabel" Text="ID de Entrega:" Grid.Row="1" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                                <ui:TextBox x:Name="ShipToIDTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="ID del lugar"/>
-                                                <TextBlock x:Name="ShipToLineOneLabel" Text="Calle línea 1:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ShipToIDTextBox" Grid.Row="1" Grid.Column="1" PlaceholderText="ID del lugar"/>                                                <TextBlock x:Name="ShipToLineOneLabel" Text="Dirección Principal:" Grid.Row="2" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
                                                 <ui:TextBox x:Name="ShipToLineOneTextBox" Grid.Row="2" Grid.Column="1" PlaceholderText="Calle y número"/>
-                                                <TextBlock x:Name="ShipToLineTwoLabel" Text="Calle línea 2:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                                <ui:TextBox x:Name="ShipToLineTwoTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="Complemento dirección"/>
-                                                <TextBlock x:Name="ShipToLineThreeLabel" Text="Calle línea 3:" Grid.Row="4" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
-                                                <ui:TextBox x:Name="ShipToLineThreeTextBox" Grid.Row="4" Grid.Column="1" PlaceholderText="Información adicional"/>
+                                                <TextBlock x:Name="ShipToLineTwoLabel" Text="Dirección Complementaria:" Grid.Row="3" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ShipToLineTwoTextBox" Grid.Row="3" Grid.Column="1" PlaceholderText="Complemento (opcional)"/>
+                                                <TextBlock x:Name="ShipToLineThreeLabel" Text="Información Adicional:" Grid.Row="4" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
+                                                <ui:TextBox x:Name="ShipToLineThreeTextBox" Grid.Row="4" Grid.Column="1" PlaceholderText="Información adicional (opcional)"/>
                                                 <TextBlock x:Name="ShipToCityNameLabel" Text="Ciudad:" Grid.Row="5" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>
                                                 <ui:TextBox x:Name="ShipToCityNameTextBox" Grid.Row="5" Grid.Column="1" PlaceholderText="Ciudad"/>
                                                 <TextBlock x:Name="ShipToPostcodeCodeLabel" Text="Código Postal:" Grid.Row="6" VerticalAlignment="Center" Foreground="{StaticResource SecondaryTextBrush}"/>

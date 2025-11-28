@@ -44,7 +44,8 @@ namespace FacturacionAlemana
         {
             InitializeComponent();
             _localization = LocalizationService.Instance;
-            _localization.LanguageChangedUI += (s, e) => UpdateUIText();            InvoiceNumberTextBox.Text = $"STR-{DateTime.Now.Year.ToString().Substring(2)}-";
+            _localization.LanguageChangedUI += (s, e) => UpdateUIText();            
+            InvoiceNumberTextBox.Text = $"STR-{DateTime.Now.Year.ToString().Substring(2)}-";
             this.Loaded += OnCreateInvoicePageLoaded;
             ProductsDataGrid.ItemsSource = productos;
             IssueDatePicker.SelectedDate = DateTime.Now;
@@ -70,7 +71,8 @@ namespace FacturacionAlemana
             TaxCategoryComboBox.SelectedValue = "S";
             TaxRateTextBox.Text = "19.00";
             
-            ActualizarResumenTotales();            // Validación en tiempo real
+            ActualizarResumenTotales();            
+            // Validación en tiempo real
             HookRealtimeValidation();
             
             // Validar campos OBLIGATORIOS desde el inicio (solo vendedor)
@@ -114,8 +116,152 @@ namespace FacturacionAlemana
 
             // Actualizar la UI después de que el árbol visual esté construido
             UpdateUIText();
+        }        /// <summary>
+        /// Abre un diálogo para seleccionar un archivo XML y carga sus datos en el formulario
+        /// </summary>
+        private void OnLoadXmlClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var openFileDialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Filter = "Archivos XML (*.xml)|*.xml|Todos los archivos (*.*)|*.*",
+                    Title = "Seleccionar archivo XML para cargar"
+                };
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    string xmlPath = openFileDialog.FileName;
+                    
+                    // Cargar la factura desde el XML
+                    var factura = XmlReaderService.LeerFacturaDesdeXml(xmlPath);
+                    
+                    // Prellenar el formulario con los datos
+                    PrellenarFormularioDesdeFactura(factura);
+                    
+                    WinMessageBox.Show("Datos cargados correctamente desde el XML.", "Éxito", 
+                        WinMessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                WinMessageBox.Show($"Error al cargar el XML: {ex.Message}", "Error", 
+                    WinMessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
-        
+
+        /// <summary>
+        /// Rellena todos los campos del formulario con los datos de una factura cargada
+        /// </summary>
+        private void PrellenarFormularioDesdeFactura(Factura factura)
+        {
+            try
+            {
+                // ===== DATOS DEL VENDEDOR (Seller) =====
+                SellerNameTextBox.Text = factura.SellerName ?? "";
+                SellerPersonNameTextBox.Text = factura.SellerPersonName ?? "";
+                SellerEmailTextBox.Text = factura.SellerEmail ?? "";
+                SellerPhoneTextBox.Text = factura.SellerCompleteNumber ?? "";
+                SellerStreetTextBox.Text = factura.SellerLineOne ?? "";
+                SellerStreet2TextBox.Text = factura.SellerLineTwo ?? "";
+                SellerCityTextBox.Text = factura.SellerCityName ?? "";
+                SellerPostcodeTextBox.Text = factura.SellerPostcodeCode ?? "";                SellerCountryTextBox.Text = factura.SellerCountryID ?? "";
+                SellerVATTextBox.Text = factura.SellerVATID ?? "";
+                SellerTaxTextBox.Text = factura.SellerTaxNumber ?? "";
+
+                // ===== DATOS DEL COMPRADOR (Buyer) =====
+                BuyerNameTextBox.Text = factura.BuyerName ?? "";
+                BuyerPersonNameTextBox.Text = factura.BuyerPersonName ?? "";
+                BuyerEmailTextBox.Text = factura.BuyerEmail ?? "";
+                BuyerPhoneTextBox.Text = factura.BuyerCompleteNumber ?? "";
+                BuyerStreetTextBox.Text = factura.BuyerLineOne ?? "";
+                BuyerStreet2TextBox.Text = factura.BuyerLineTwo ?? "";                BuyerCityTextBox.Text = factura.BuyerCityName ?? "";
+                BuyerPostcodeTextBox.Text = factura.BuyerPostcodeCode ?? "";
+                BuyerCountryTextBox.Text = factura.BuyerCountryID ?? "";
+                BuyerVATTextBox.Text = factura.BuyerVATID ?? "";
+                BuyerReferenceTextBox.Text = factura.BuyerReference ?? "";
+
+                // ===== DATOS DE LA FACTURA =====
+                InvoiceNumberTextBox.Text = factura.InvoiceNumber ?? "";
+                IssueDatePicker.SelectedDate = factura.IssueDate;
+                DeliveryDatePicker.SelectedDate = factura.DeliveryDate != DateTime.MinValue ? factura.DeliveryDate : (DateTime?)null;
+                DueDatePicker.SelectedDate = factura.DueDateValue;
+
+                // ===== REFERENCIAS CLAVE =====
+                BuyerReferenceTextBox.Text = factura.BuyerReference ?? "";
+                PaymentReferenceTextBox.Text = factura.PaymentReference ?? "";
+
+                // Proyecto / Contrato / Orden (si existen)
+                if (!string.IsNullOrEmpty(factura.ProjectNumber))
+                    ProjectNumberTextBox.Text = factura.ProjectNumber;
+                if (!string.IsNullOrEmpty(factura.ContractNumber))
+                    ContractNumberTextBox.Text = factura.ContractNumber;
+                if (!string.IsNullOrEmpty(factura.PurchaseOrderNumber))
+                    PurchaseOrderNumberTextBox.Text = factura.PurchaseOrderNumber;
+
+                // ===== DATOS DE ENTREGA (ShipTo) =====
+                if (!string.IsNullOrEmpty(factura.ShipToName))
+                {
+                    ShipToNameTextBox.Text = factura.ShipToName;
+                    ShipToCityNameTextBox.Text = factura.ShipToCityName ?? "";
+                    ShipToPostcodeCodeTextBox.Text = factura.ShipToPostcodeCode ?? "";
+                    ShipToCountryIDTextBox.Text = factura.ShipToCountryID ?? "";
+                    ShipToLineOneTextBox.Text = factura.ShipToLineOne ?? "";
+                    ShipToLineTwoTextBox.Text = factura.ShipToLineTwo ?? "";
+                    ShipToLineThreeTextBox.Text = factura.ShipToLineThree ?? "";
+                }
+
+                // ===== DATOS DE PAGO =====
+                IBANTextBox.Text = factura.IBANID ?? "";
+                BICTextBox.Text = factura.BICID ?? "";
+                AccountNameTextBox.Text = factura.AccountName ?? "";
+                BankNameTextBox.Text = factura.BankName ?? "";
+                BLZTextBox.Text = factura.BLZ ?? "";
+
+                // ===== IMPUESTOS =====
+                if (!string.IsNullOrEmpty(factura.TaxCategoryCode))
+                    TaxCategoryComboBox.SelectedValue = factura.TaxCategoryCode;
+                if (!string.IsNullOrEmpty(factura.TaxRatePercent))
+                    TaxRateTextBox.Text = factura.TaxRatePercent;
+
+                // ===== MONEDA =====
+                if (!string.IsNullOrEmpty(factura.InvoiceCurrencyCode))
+                {
+                    var currencyCode = factura.InvoiceCurrencyCode.Trim().ToUpper();
+                    var currencyItem = CurrencyComboBox.Items.Cast<ComboBoxItem>()
+                        .FirstOrDefault(x => x.Content?.ToString()?.Equals(currencyCode) == true);
+                    if (currencyItem != null)
+                        CurrencyComboBox.SelectedItem = currencyItem;
+                }
+
+                // ===== NOTAS =====
+                GeneralNoteTextBox.Text = factura.GeneralNote ?? "";
+                PaymentTermsDescriptionTextBox.Text = factura.PaymentTermsDescription ?? "";
+
+                // ===== PRODUCTOS =====
+                if (factura.Productos?.Any() == true)
+                {
+                    productos.Clear();
+                    foreach (var producto in factura.Productos)
+                    {
+                        productos.Add(producto);
+                    }
+                    RenumerarPosiciones();
+                }
+
+                // Actualizar resumen de totales
+                ActualizarResumenTotales();
+
+                // Validar los campos
+                RefreshAlerts();
+            }
+            catch (Exception ex)
+            {
+                WinMessageBox.Show($"Error al prellenar el formulario: {ex.Message}", "Error", 
+                    WinMessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void OnAddProductClick(object sender, RoutedEventArgs e)
         {
             try
@@ -142,7 +288,8 @@ namespace FacturacionAlemana
                     WinMessageBox.Show("La cantidad y precio deben ser números válidos.", "Error", 
                         WinMessageBoxButton.OK, MessageBoxImage.Error);
                     return;
-                }                var producto = new Producto
+                }                
+                var producto = new Producto
                 {
                     Pos = productos.Count + 1,
                     Name = name,
@@ -521,10 +668,9 @@ namespace FacturacionAlemana
                 SellerPersonName = SellerPersonNameTextBox.Text ?? string.Empty,
                 SellerDepartmentName = "Ventas",
                 SellerCompleteNumber = SellerPhoneTextBox.Text ?? string.Empty,                
-                SellerEmail = SellerEmailTextBox.Text ?? string.Empty,
-                SellerPostcodeCode = SellerPostcodeTextBox.Text ?? string.Empty,
+                SellerEmail = SellerEmailTextBox.Text ?? string.Empty,                SellerPostcodeCode = SellerPostcodeTextBox.Text ?? string.Empty,
                 SellerLineOne = SellerStreetTextBox.Text ?? string.Empty,
-                SellerLineTwo = SellerStreetTextBox.Text ?? string.Empty,
+                SellerLineTwo = SellerStreet2TextBox.Text ?? string.Empty,
                 SellerCityName = SellerCityTextBox.Text ?? string.Empty,
                 SellerCountryID = (SellerCountryTextBox.Text ?? string.Empty).Trim().ToUpper(),
                 SellerVATID = SellerVATTextBox.Text ?? string.Empty,

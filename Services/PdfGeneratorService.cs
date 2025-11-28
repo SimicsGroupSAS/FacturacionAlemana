@@ -359,20 +359,8 @@ namespace FacturacionAlemana.Services
                                     leftColumn.Item().Text($"Tel: {factura.SellerCompleteNumber}").FontSize(9);
                             });                            // Columna derecha - Zahlungsdetails + Kontakt
                             row.RelativeItem(1).Column(rightColumn =>
-                            {                                // Zahlungsdetails                                if (HasAny(factura.AccountName, factura.IBANID, factura.BICID))
-                                {
-                                    rightColumn.Item().AlignRight().Text("Zahlungsdetails").FontSize(11).Bold();
-                                    if (!string.IsNullOrWhiteSpace(factura.BankName))
-                                        rightColumn.Item().AlignRight().Text($"Bank: {factura.BankName}").FontSize(9);
-                                    if (!string.IsNullOrWhiteSpace(factura.AccountName))
-                                        rightColumn.Item().AlignRight().Text($"Kontoinhaber: {factura.AccountName}").FontSize(9);
-                                    if (!string.IsNullOrWhiteSpace(factura.IBANID))
-                                        rightColumn.Item().AlignRight().Text($"IBAN: {factura.IBANID}").FontSize(9);
-                                    if (!string.IsNullOrWhiteSpace(factura.BICID))
-                                        rightColumn.Item().AlignRight().Text($"BIC: {factura.BICID}").FontSize(9);                                    if (!string.IsNullOrWhiteSpace(factura.BLZ))
-                                        rightColumn.Item().AlignRight().Text($"BLZ: {factura.BLZ}").FontSize(9);
-                                    rightColumn.Item().Text("").FontSize(8); // Salto
-                                }
+                            {
+                                // Zahlungsdetails se mostrará después de la sección de Hinweise und Bemerkungen
                             });
                         });
 
@@ -613,7 +601,26 @@ namespace FacturacionAlemana.Services
                             var fechaVencimiento = ConvertirFechaAleman(factura.DueDateValue);
                             var textoDescripcion = $"Wir bitten Sie, den Rechnungsbetrag innerhalb von 30 Tagen ab dem genannten Datum auf das angegebene Konto zu überweisen und dabei unsere Rechnungsnummer anzugeben. Zahlbar bis: {fechaVencimiento}";
                             remarksColumn.Item().Text(textoDescripcion).FontSize(9);
-                        });// Sección de firma
+                        });
+
+                        // Sección de Zahlungsdetails - después de Hinweise und Bemerkungen
+                        if (HasAny(factura.AccountName, factura.IBANID, factura.BICID))
+                        {
+                            column.Item().PaddingTop(15).Column(paymentColumn =>
+                            {
+                                paymentColumn.Item().Text("Zahlungsdetails").FontSize(11).Bold();
+                                if (!string.IsNullOrWhiteSpace(factura.BankName))
+                                    paymentColumn.Item().Text($"Bank: {factura.BankName}").FontSize(9);
+                                if (!string.IsNullOrWhiteSpace(factura.AccountName))
+                                    paymentColumn.Item().Text($"Kontoinhaber: {factura.AccountName}").FontSize(9);
+                                if (!string.IsNullOrWhiteSpace(factura.IBANID))
+                                    paymentColumn.Item().Text($"IBAN: {factura.IBANID}").FontSize(9);
+                                if (!string.IsNullOrWhiteSpace(factura.BICID))
+                                    paymentColumn.Item().Text($"BIC: {factura.BICID}").FontSize(9);
+                                if (!string.IsNullOrWhiteSpace(factura.BLZ))
+                                    paymentColumn.Item().Text($"BLZ: {factura.BLZ}").FontSize(9);
+                            });
+                        }// Sección de firma
                         column.Item().PaddingTop(40);
                         column.Item().Row(row =>
                         {
